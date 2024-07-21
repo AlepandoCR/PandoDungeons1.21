@@ -21,12 +21,12 @@ public class CompanionAllay extends Companion {
         super(player, CompanionUtils.getCompanionLevel(player, "allay"));
         allay = new CompanionAllayBehavior(EntityType.ALLAY, (playerCompanion.getWorld()), ((CraftPlayer) playerCompanion).getHandle());
         editAllay(player);
-        setLivingEntity(allay.getBukkitCreature());
+        setLivingEntity(allay.getBukkitLivingEntity());
         startCompanionLoop(this::runAllayLoop);
     }
 
     private void editAllay(Player player) {
-        craftAllay = (Allay) allay.getBukkitCreature();
+        craftAllay = (Allay) allay.getBukkitLivingEntity();
         craftAllay.setMaxHealth(5 * level);
         craftAllay.setHealth(5 * level);
         craftAllay.setRemoveWhenFarAway(false);

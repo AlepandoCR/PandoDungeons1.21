@@ -84,6 +84,38 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+    private final Map<Entity, Long> polarShear = new HashMap<>();
+
+
+    @EventHandler
+    public void polarBearFurEvent(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        Entity entity = event.getRightClicked();
+        World world = entity.getWorld();
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (entity instanceof PolarBear && item.getType() == Material.SHEARS) {
+            long currentTime = System.currentTimeMillis();
+            long lastTime = polarShear.getOrDefault(entity, 0L);
+            if (currentTime - lastTime < (60000 * 2)) {
+                return;
+            }
+            polarShear.put(entity, currentTime);
+            Random random = new Random();
+            int quantity = random.nextInt(3) + 1;
+            world.dropItem(entity.getLocation().add(0, 1, 0), polarBearFur(quantity));
+
+            // Reduce la durabilidad de las tijeras en 1
+            item.setDurability((short) (item.getDurability() + 1));
+            if (item.getDurability() >= item.getType().getMaxDurability()) {
+                player.getInventory().removeItem(item);
+            }
+
+            player.playSound(player.getLocation(), Sound.ENTITY_SHEEP_SHEAR, 1, 1);
+        }
+    }
+
+
     @EventHandler
     public void companionUnlockMenu(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
@@ -114,20 +146,34 @@ public class PlayerEventListener implements Listener {
     public void unlockCompanion(PlayerInteractEvent event){
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
-        if(item != null){
-            if(item.asOne().equals(armadilloUnlockItem(1))){
-                if(!CompanionUtils.hasUnlockedCompanion(player, "armadillo")){
+        if(item != null) {
+            if (item.asOne().equals(armadilloUnlockItem(1))) {
+                if (!CompanionUtils.hasUnlockedCompanion(player, "armadillo")) {
                     event.getItem().setAmount(event.getItem().getAmount() - 1);
-                    CompanionUtils.unlockCompanion(player,"armadillo", 1);
-                }else{
+                    CompanionUtils.unlockCompanion(player, "armadillo", 1);
+                } else {
                     player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Armadillo");
                 }
-            }else if(item.asOne().equals(breezeUnlockItem(1))){
-                if(!CompanionUtils.hasUnlockedCompanion(player, "breeze")){
+            } else if (item.asOne().equals(breezeUnlockItem(1))) {
+                if (!CompanionUtils.hasUnlockedCompanion(player, "breeze")) {
                     event.getItem().setAmount(event.getItem().getAmount() - 1);
-                    CompanionUtils.unlockCompanion(player,"breeze", 1);
-                }else{
+                    CompanionUtils.unlockCompanion(player, "breeze", 1);
+                } else {
                     player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Breeze");
+                }
+            } else if (item.asOne().equals(allayUnlockItem(1))) {
+                if (!CompanionUtils.hasUnlockedCompanion(player, "allay")) {
+                    event.getItem().setAmount(event.getItem().getAmount() - 1);
+                    CompanionUtils.unlockCompanion(player, "allay", 1);
+                } else {
+                    player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Allay");
+                }
+            } else if (item.asOne().equals(osoUnlockItem(1))) {
+                if (!CompanionUtils.hasUnlockedCompanion(player, "oso")) {
+                    event.getItem().setAmount(event.getItem().getAmount() - 1);
+                    CompanionUtils.unlockCompanion(player, "oso", 1);
+                } else {
+                    player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Oso");
                 }
             }
         }

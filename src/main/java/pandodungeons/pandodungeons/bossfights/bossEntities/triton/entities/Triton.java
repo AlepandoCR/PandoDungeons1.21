@@ -42,6 +42,9 @@ public class Triton {
                 }
                 double baseHealth = 500d * (1 + ((double) targetPrestige / 2));
                 drowned.addPotionEffect(strengthEffect);
+                if(baseHealth > 2048D){
+                    baseHealth = 2048;
+                }
                 drowned.setMaxHealth(baseHealth);
                 drowned.setHealth(baseHealth);
                 drowned.setAdult();

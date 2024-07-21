@@ -100,7 +100,10 @@ public class CompanionMenu {
             lore.add(ChatColor.BOLD + "Te da velocidad y empuja a los mobs");
         } else if(companionType.toLowerCase(Locale.ROOT).equalsIgnoreCase("armadillo")){
             lore.add(ChatColor.BOLD + "Te da resistencia y ataca a los mobs");
-        }
+        } else if(companionType.toLowerCase(Locale.ROOT).equalsIgnoreCase("oso")){
+        lore.add(ChatColor.BOLD + "Congela a los mobs cercanos");
+    }
+
         lore.add(ChatColor.RESET.toString() + ChatColor.RED + "Todos los efectos aumentan con el nivel");
         meta.setLore(lore);
         head.setItemMeta(meta);

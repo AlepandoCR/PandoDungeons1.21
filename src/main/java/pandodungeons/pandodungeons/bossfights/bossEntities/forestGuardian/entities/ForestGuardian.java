@@ -37,6 +37,9 @@ public class ForestGuardian {
                 }
                 double baseHealth = 500d * (1 + ((double) targetPrestige / 2));
                 evoker.addPotionEffect(strengthEffect);
+                if(baseHealth > 2048D){
+                    baseHealth = 2048;
+                }
                 evoker.setMaxHealth(baseHealth);
                 evoker.setHealth(baseHealth);
                 evoker.addScoreboardTag("bossMob");

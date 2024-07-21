@@ -18,6 +18,7 @@ import pandodungeons.pandodungeons.Utils.LocationUtils;
 public class CompanionBreeze extends Companion {
     private final CompanionBreezeBehavior breeze;
     private Mob craftBreeze;
+    int speed;
 
     public CompanionBreeze(Player player) {
         super(player, CompanionUtils.getCompanionLevel(player, "breeze"));
@@ -26,6 +27,10 @@ public class CompanionBreeze extends Companion {
         editBreeze(player);
         setLivingEntity((LivingEntity) breeze.getBukkitEntity());
         startCompanionLoop(this::runBreezeLoop);
+        this.speed = (int) (CompanionUtils.getCompanionLevel(playerCompanion, "breeze") * 0.5);
+        if(speed > 6){
+            speed = 6;
+        }
     }
 
     private void editBreeze(Player player) {
@@ -44,7 +49,6 @@ public class CompanionBreeze extends Companion {
             keepLooping = false;
             return;
         }
-        int speed = (int) (CompanionUtils.getCompanionLevel(playerCompanion, "breeze") * 0.5);
         playerCompanion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, speed, false, false));
 
         if (!LocationUtils.hasActiveDungeon(playerCompanion.getUniqueId().toString()) && !playerCompanion.isOp()) {

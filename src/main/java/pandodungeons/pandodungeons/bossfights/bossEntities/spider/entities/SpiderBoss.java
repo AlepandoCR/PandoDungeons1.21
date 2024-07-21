@@ -37,6 +37,9 @@ public class SpiderBoss {
                 }
                 double baseHealth = 500d * (1 + ((double) targetPrestige / 2));
                 spider.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, targetPrestige));
+                if(baseHealth > 2048D){
+                    baseHealth = 2048;
+                }
                 spider.setMaxHealth(baseHealth);
                 spider.setHealth(baseHealth);
             });

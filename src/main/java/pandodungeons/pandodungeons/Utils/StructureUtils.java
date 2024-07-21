@@ -91,7 +91,7 @@ public class StructureUtils {
 
     public static @Nullable Location findBlock(@NotNull Location roomLocation, int radius, Material targetMaterial) {
         World world = roomLocation.getWorld();
-        if (world == null) return null;
+        if (world == null || !isWorldLoaded(world)) return null;
 
         int centerX = roomLocation.getBlockX();
         int centerY = roomLocation.getBlockY();
@@ -143,6 +143,7 @@ public class StructureUtils {
     }
 
     private static boolean checkBlock(World world, int x, int y, int z, Material targetMaterial) {
+        if(world == null || !isWorldLoaded(world)) return false;
         return world.getBlockAt(x, y, z).getType() == targetMaterial;
     }
 

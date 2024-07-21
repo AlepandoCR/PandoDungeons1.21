@@ -10,11 +10,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.CompanionArmadillo;
-import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.CompanionBreeze;
+import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.*;
 import pandodungeons.pandodungeons.PandoDungeons;
-import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.CompanionAllay;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
+import pandodungeons.pandodungeons.commands.game.CompanionSelection;
 
 public class CompanionSummonCommand implements CommandExecutor, Listener {
 
@@ -41,23 +40,30 @@ public class CompanionSummonCommand implements CommandExecutor, Listener {
             return true;
         }
 
+        Companion compa;
+
         Location location = player.getLocation();
         if (args[1].equalsIgnoreCase("allay")) {
             if(CompanionUtils.hasUnlockedCompanion(player, "allay")){
-                CompanionAllay allayCompanion = new CompanionAllay(player);
+                compa = new CompanionAllay(player);
                 player.sendMessage(ChatColor.GREEN + "Has invocado un Allay companion.");
             }
         }
         else if(args[1].equalsIgnoreCase("breeze")){
             if(CompanionUtils.hasUnlockedCompanion(player, "breeze")){
-                CompanionBreeze companionBreeze = new CompanionBreeze(player);
+                compa = new CompanionBreeze(player);
                 player.sendMessage(ChatColor.AQUA + "Has invocado un Breeze companion.");
             }
         }
         else if(args[1].equalsIgnoreCase("armadillo")){
             if(CompanionUtils.hasUnlockedCompanion(player, "armadillo")){
-                CompanionArmadillo companionArmadillo = new CompanionArmadillo(player);
-                player.sendMessage(ChatColor.AQUA + "Has invocado un Armadillo companion.");
+                compa = new CompanionArmadillo(player);
+                player.sendMessage(ChatColor.AQUA + "Has invocado un Armadillo companion.");            }
+        }
+        else if(args[1].equalsIgnoreCase("oso")){
+            if(CompanionUtils.hasUnlockedCompanion(player, "oso")){
+                compa = new CompanionPolarBear(player);
+                player.sendMessage(ChatColor.AQUA + "Has invocado un Oso companion.");
             }
         }
         else {

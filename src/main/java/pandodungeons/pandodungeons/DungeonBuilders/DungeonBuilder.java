@@ -94,6 +94,10 @@ public class DungeonBuilder {
             return;
         }
 
+        if(!isWorldLoaded(rooms.getFirst().getLocation().getWorld())){
+            return;
+        }
+
         Room room = rooms.get(index);
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             spawnRoomNumber(room.getRoomNumber(), findDriedKelpBlock(room.getLocation(), 50));

@@ -10,10 +10,7 @@ import org.bukkit.inventory.MerchantRecipe;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.Companion;
-import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.CompanionAllay;
-import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.CompanionArmadillo;
-import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.CompanionBreeze;
+import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.*;
 
 import java.io.File;
 import java.io.FileReader;
@@ -22,8 +19,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static pandodungeons.pandodungeons.Utils.FileUtils.getCompanionsFile;
-import static pandodungeons.pandodungeons.Utils.ItemUtils.armadilloFragmentItem;
-import static pandodungeons.pandodungeons.Utils.ItemUtils.breezeFragmentItem;
+import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
 public class CompanionUtils {
     private static final File DATA_FOLDER = getCompanionsFile();
@@ -31,7 +27,7 @@ public class CompanionUtils {
 
     private static final Map<UUID, Map<String, CompanionData>> playerCompanions = new HashMap<>();
     private static final Set<String> COMPANION_TYPES = Set.of(
-            "allay", "breeze" , "armadillo"
+            "allay", "breeze", "armadillo", "oso"
     );
 
     private static class CompanionData {
@@ -270,28 +266,32 @@ public class CompanionUtils {
         List<MerchantRecipe> recipes = new ArrayList<>();
 
         ItemStack result1 = armadilloFragmentItem(1);
-        MerchantRecipe trade1 = new MerchantRecipe(result1, 0, 10, false);
-        trade1.addIngredient(new ItemStack(Material.BEACON, 2));
+        MerchantRecipe trade1 = new MerchantRecipe(result1, 0, 10000, false);
+        trade1.addIngredient(new ItemStack(Material.BEACON, 1));
         trade1.addIngredient(new ItemStack(Material.ARMADILLO_SCUTE, 10));
         recipes.add(trade1);
 
 
-        ItemStack result2 = breezeFragmentItem(2);
-        MerchantRecipe trade2 = new MerchantRecipe(result2, 0, 10, false);
+        ItemStack result2 = breezeFragmentItem(3);
+        MerchantRecipe trade2 = new MerchantRecipe(result2, 0, 10000, false);
         trade2.addIngredient(new ItemStack(Material.DRAGON_EGG, 1));
         trade2.addIngredient(new ItemStack(Material.BREEZE_ROD, 10));
         recipes.add(trade2);
 
-        // Trade 3: 3 Emeralds -> 1 Enchanted Golden Apple
-        ItemStack result3 = new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1);
-        MerchantRecipe trade3 = new MerchantRecipe(result3, 0, 10, false);
-        trade3.addIngredient(new ItemStack(Material.EMERALD, 3));
+        ItemStack result3 = allayFragmentItem(1);
+        MerchantRecipe trade3 = new MerchantRecipe(result3, 0, 10000, false);
+        trade3.addIngredient(new ItemStack(Material.HEART_OF_THE_SEA, 4));
+        trade3.addIngredient(new ItemStack(Material.PITCHER_PLANT, 10));
         recipes.add(trade3);
 
-        // Set the recipes to the merchant
+        ItemStack result4 = osoFragmentItem(1);
+        MerchantRecipe trade4 = new MerchantRecipe(result4, 0, 10000, false);
+        trade4.addIngredient(new ItemStack(Material.HONEY_BLOCK, 10));
+        trade4.addIngredient(polarBearFur(16));
+        recipes.add(trade4);
+
         merchant.setRecipes(recipes);
 
-        // Open the trading menu for the player
         player.openMerchant(merchant, true);
     }
 
@@ -323,6 +323,8 @@ public class CompanionUtils {
                 case "armadillo":
                     compa = new CompanionArmadillo(player);
                     break;
+                case "oso":
+                    compa = new CompanionPolarBear(player);
                 default:
                     // Handle if companion type is not recognized
                     break;

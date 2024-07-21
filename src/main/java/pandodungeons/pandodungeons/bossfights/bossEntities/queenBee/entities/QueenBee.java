@@ -56,6 +56,10 @@ public class QueenBee {
             int intDmg = (int) dmg;
             PotionEffect strengthEffect = new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, intDmg, false, false, false);
             bee = (Bee) world.spawn(location, Bee.class, (bee1) -> {
+                double health = baseHealth;
+                if(health > 2048D){
+                    health = 2048;
+                }
                 bee1.setAnger(0);
                 bee1.setTarget(target);
                 bee1.setHasStung(false);
@@ -63,8 +67,8 @@ public class QueenBee {
                 bee1.addScoreboardTag("beefight");
                 bee1.addScoreboardTag("bossMob");
                 bee1.addPotionEffect(strengthEffect);
-                bee1.setMaxHealth(baseHealth);
-                bee1.setHealth(baseHealth);
+                bee1.setMaxHealth(health);
+                bee1.setHealth(health);
             });
         });
     }

@@ -5,10 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -17,6 +14,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemUtils {
+
+  public static ItemStack polarBearFur(int amount){
+    ItemStack item = new ItemStack(Material.SNOWBALL, amount);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Pelaje de Oso");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
+    lore.add("");
+    meta.setLore(lore);
+    meta.setCustomModelData(69);
+    meta.setRarity(ItemRarity.RARE);
+    item.setItemMeta(meta);
+    return item;
+  }
+
     public static ItemStack armadilloFragmentItem(int amount){
       ItemStack item = new ItemStack(Material.ARMADILLO_SCUTE, amount);
       item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
@@ -62,6 +75,38 @@ public class ItemUtils {
     return item;
   }
 
+  public static ItemStack osoFragmentItem(int amount){
+    ItemStack item = new ItemStack(Material.SNOWBALL, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Fragmento de Oso");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Oso");
+    lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static ItemStack allayUnlockItem(int amount){
+    ItemStack item = new ItemStack(Material.HEAVY_CORE, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.LIGHT_PURPLE + "Compañero Allay");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    meta.setCustomModelData(420);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Allay");
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
   public static ItemStack breezeUnlockItem(int amount){
     ItemStack item = new ItemStack(Material.HEAVY_CORE, amount);
     item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
@@ -89,6 +134,23 @@ public class ItemUtils {
     List<String> lore = new ArrayList<>();
     lore.add("");
     lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Armadillo");
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static ItemStack osoUnlockItem(int amount){
+    ItemStack item = new ItemStack(Material.HEAVY_CORE, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.LIGHT_PURPLE + "Compañero Oso");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    meta.setCustomModelData(420);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Oso");
     lore.add("");
     lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
     meta.setLore(lore);
@@ -128,6 +190,86 @@ public class ItemUtils {
     meta.setLore(lore);
     item.setItemMeta(meta);
     return item;
+  }
+
+  public static void allayCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = allayUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "AllayUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', allayFragmentItem(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    // Registrar la receta en el servidor
+    Bukkit.addRecipe(recipe);
+  }
+
+  public static void osoCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = osoUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "OsoUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', osoFragmentItem(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    // Registrar la receta en el servidor
+    Bukkit.addRecipe(recipe);
+  }
+
+  public static Recipe getOsoCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = osoUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "OsoUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', osoFragmentItem(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    // Registrar la receta en el servidor
+    return recipe;
+  }
+
+  public static Recipe getAllayCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = allayUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "AllayUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', allayFragmentItem(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    // Registrar la receta en el servidor
+    return recipe;
   }
 
   public static void breezeCompanionCustomRecipe() {

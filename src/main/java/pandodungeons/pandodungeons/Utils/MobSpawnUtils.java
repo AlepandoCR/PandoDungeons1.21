@@ -207,8 +207,18 @@ public class MobSpawnUtils {
             }
         }
         if(playerLvl > 1){
-            mob.setMaxHealth((20.0 * playerLvl) + (playerPrestige * 2));
-            mob.setHealth((20.0 * playerLvl) + (playerPrestige * 2));
+            double health = (20.0 * playerLvl) + (playerPrestige * 2);
+            if(health > 2048){
+                int totalLevel = playerPrestige + playerLvl;
+                health = 2048;
+                mob.getEquipment().setHelmet(generateArmorPiece(Material.DIAMOND_HELMET, totalLevel));
+                mob.getEquipment().setChestplate(generateArmorPiece(Material.DIAMOND_CHESTPLATE, totalLevel));
+                mob.getEquipment().setLeggings(generateArmorPiece(Material.DIAMOND_LEGGINGS, totalLevel));
+                mob.getEquipment().setBoots(generateArmorPiece(Material.DIAMOND_BOOTS, totalLevel));
+                mob.getEquipment().setItemInMainHand(generateWeapon(totalLevel));
+            }
+            mob.setMaxHealth(health);
+            mob.setHealth(health);
             mob.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, (playerLvl/2)));
         }
         if(mob instanceof Skeleton || mob instanceof Stray){
@@ -224,6 +234,48 @@ public class MobSpawnUtils {
         mob.setPersistent(true);
         mob.setRemoveWhenFarAway(false);
         mob.setCanPickupItems(false);
+    }
+
+    private static ItemStack generateArmorPiece(Material material, int qualityLevel) {
+        ItemStack armorPiece = new ItemStack(material);
+        ItemMeta meta = armorPiece.getItemMeta();
+
+        if (meta != null) {
+            for (Enchantment enchantment : Enchantment.values()) {
+                if (random.nextDouble() < getEnchantmentProbability(qualityLevel)) {
+                    int maxLevel = Math.min(enchantment.getMaxLevel(), qualityLevel);
+                    int level = random.nextInt(maxLevel) + 1;
+                    meta.addEnchant(enchantment, level, true);
+                }
+            }
+            armorPiece.setItemMeta(meta);
+        }
+
+        return armorPiece;
+    }
+
+    private static ItemStack generateWeapon(int qualityLevel) {
+        Material[] weapons = { Material.DIAMOND_SWORD, Material.DIAMOND_AXE };
+        ItemStack weapon = new ItemStack(weapons[random.nextInt(weapons.length)]);
+        ItemMeta meta = weapon.getItemMeta();
+
+        if (meta != null) {
+            for (Enchantment enchantment : Enchantment.values()) {
+                if (random.nextDouble() < getEnchantmentProbability(qualityLevel)) {
+                    int maxLevel = Math.min(enchantment.getMaxLevel(), qualityLevel);
+                    int level = random.nextInt(maxLevel) + 1;
+                    meta.addEnchant(enchantment, level, true);
+                }
+            }
+            weapon.setItemMeta(meta);
+        }
+
+        return weapon;
+    }
+
+    private static double getEnchantmentProbability(int qualityLevel) {
+        // Customize this probability function based on your requirements
+        return Math.min(0.3 + 0.1 * qualityLevel, 1.0);
     }
 
 

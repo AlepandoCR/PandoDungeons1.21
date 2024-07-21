@@ -38,6 +38,9 @@ public class VexBoss {
                 PotionEffect strengthEffect = new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, intDmg, false, false, false);
                 double baseHealth = 200d * (1 + ((double) targetPrestige / 2));
                 vex.addPotionEffect(strengthEffect);
+                if(baseHealth > 2048D){
+                    baseHealth = 2048;
+                }
                 vex.setMaxHealth(baseHealth);
                 vex.setHealth(baseHealth);
             });
