@@ -57,12 +57,17 @@ public class CompanionUtils {
 
     public static void loadAllCompanions() {
         if (!DATA_FOLDER.exists()) {
-            DATA_FOLDER.mkdirs(); // Crea la carpeta si no existe
+            DATA_FOLDER.mkdirs(); // Create folder if it doesn't exist
         }
 
         for (File file : DATA_FOLDER.listFiles()) {
             if (file.isFile() && file.getName().endsWith(".json")) {
                 try (FileReader reader = new FileReader(file)) {
+                    // Check if the file is empty
+                    if (file.length() == 0) {
+                        Bukkit.getLogger().warning("File is empty: " + file.getName());
+                        continue;
+                    }
                     JSONObject json = (JSONObject) parser.parse(reader);
                     UUID uuid = UUID.fromString(file.getName().replace(".json", ""));
                     Map<String, CompanionData> companions = new HashMap<>();
@@ -74,12 +79,20 @@ public class CompanionUtils {
                     }
 
                     playerCompanions.put(uuid, companions);
-                } catch (IOException | ParseException e) {
+                } catch (IOException e) {
+                    Bukkit.getLogger().severe("IOException while loading companions from file: " + file.getName());
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    Bukkit.getLogger().severe("ParseException while loading companions from file: " + file.getName());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    Bukkit.getLogger().severe("Unexpected error while loading companions from file: " + file.getName());
                     e.printStackTrace();
                 }
             }
         }
     }
+
 
     public static void loadCompanions(Player player) {
         UUID uuid = player.getUniqueId();
@@ -131,23 +144,25 @@ public class CompanionUtils {
 
     private static File getPlayerFile(UUID uuid) {
         if (!DATA_FOLDER.exists()) {
-            DATA_FOLDER.mkdirs(); // Crea la carpeta y sus subdirectorios si no existen
+            DATA_FOLDER.mkdirs(); // Create the folder if it doesn't exist
         }
 
         File playerFile = new File(DATA_FOLDER, uuid.toString() + ".json");
         try {
             if (!playerFile.exists()) {
-                playerFile.createNewFile(); // Crea el archivo si no existe
-                // Inicializa el archivo con un objeto JSON vacío
+                playerFile.createNewFile(); // Create the file if it doesn't exist
+                // Initialize the file with an empty JSON object
                 try (FileWriter writer = new FileWriter(playerFile)) {
                     writer.write("{}");
                 }
             }
         } catch (IOException e) {
+            Bukkit.getLogger().severe("IOException while creating player file: " + playerFile.getName());
             e.printStackTrace();
         }
         return playerFile;
     }
+
 
 
     public static String searchCompanionType(String input) {
