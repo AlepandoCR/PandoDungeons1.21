@@ -102,6 +102,8 @@ public class CompanionMenu {
             lore.add(ChatColor.BOLD + "Te da resistencia y ataca a los mobs");
         } else if(companionType.toLowerCase(Locale.ROOT).equalsIgnoreCase("oso")){
         lore.add(ChatColor.BOLD + "Congela a los mobs cercanos");
+        } else if(companionType.toLowerCase(Locale.ROOT).equalsIgnoreCase("sniffer")){
+            lore.add(ChatColor.BOLD + "Lanza proyectiles de fuego");
     }
 
         lore.add(ChatColor.RESET.toString() + ChatColor.RED + "Todos los efectos aumentan con el nivel");

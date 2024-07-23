@@ -25,11 +25,11 @@ public class CompanionArmadillo extends Companion {
         editArmadillo(player);
         level  = CompanionUtils.getCompanionLevel(player, "armadillo");
         resistance = (int) (level * 0.5);
-        if(resistance < 1){
-            resistance = 1;
+        if(resistance == 1){
+            resistance = 0;
         }
-        if(resistance > 4){
-            resistance = 4;
+        if(resistance > 3){
+            resistance = 3;
         }
         setLivingEntity(armadillo.getBukkitLivingEntity());
         startCompanionLoop(this::runArmadilloLoop);

@@ -15,6 +15,9 @@ import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.commands.game.CompanionSelection;
 
+import static pandodungeons.pandodungeons.Utils.CompanionUtils.selectCompanion;
+import static pandodungeons.pandodungeons.Utils.CompanionUtils.summonSelectedCompanion;
+
 public class CompanionSummonCommand implements CommandExecutor, Listener {
 
     private final JavaPlugin plugin;
@@ -43,33 +46,9 @@ public class CompanionSummonCommand implements CommandExecutor, Listener {
         Companion compa;
 
         Location location = player.getLocation();
-        if (args[1].equalsIgnoreCase("allay")) {
-            if(CompanionUtils.hasUnlockedCompanion(player, "allay")){
-                compa = new CompanionAllay(player);
-                player.sendMessage(ChatColor.GREEN + "Has invocado un Allay companion.");
-            }
-        }
-        else if(args[1].equalsIgnoreCase("breeze")){
-            if(CompanionUtils.hasUnlockedCompanion(player, "breeze")){
-                compa = new CompanionBreeze(player);
-                player.sendMessage(ChatColor.AQUA + "Has invocado un Breeze companion.");
-            }
-        }
-        else if(args[1].equalsIgnoreCase("armadillo")){
-            if(CompanionUtils.hasUnlockedCompanion(player, "armadillo")){
-                compa = new CompanionArmadillo(player);
-                player.sendMessage(ChatColor.AQUA + "Has invocado un Armadillo companion.");            }
-        }
-        else if(args[1].equalsIgnoreCase("oso")){
-            if(CompanionUtils.hasUnlockedCompanion(player, "oso")){
-                compa = new CompanionPolarBear(player);
-                player.sendMessage(ChatColor.AQUA + "Has invocado un Oso companion.");
-            }
-        }
-        else {
-            player.sendMessage(ChatColor.RED + "Companion no reconocido. Los companions disponibles son: allay.");
-        }
 
+        selectCompanion(player, args[1]);
+        summonSelectedCompanion(player);
         return true;
     }
 }

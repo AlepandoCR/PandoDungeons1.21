@@ -27,7 +27,7 @@ public class CompanionUtils {
 
     private static final Map<UUID, Map<String, CompanionData>> playerCompanions = new HashMap<>();
     private static final Set<String> COMPANION_TYPES = Set.of(
-            "allay", "breeze", "armadillo", "oso"
+            "allay", "breeze", "armadillo", "oso", "sniffer"
     );
 
     private static class CompanionData {
@@ -86,19 +86,23 @@ public class CompanionUtils {
         File playerFile = getPlayerFile(uuid);
 
         if (playerFile.exists()) {
-            try (FileReader reader = new FileReader(playerFile)) {
-                JSONObject json = (JSONObject) parser.parse(reader);
-                Map<String, CompanionData> companions = new HashMap<>();
+            if (playerFile.length() > 0) {  // Verificar si el archivo no está vacío
+                try (FileReader reader = new FileReader(playerFile)) {
+                    JSONObject json = (JSONObject) parser.parse(reader);
+                    Map<String, CompanionData> companions = new HashMap<>();
 
-                for (Object key : json.keySet()) {
-                    String companionType = (String) key;
-                    JSONObject data = (JSONObject) json.get(companionType);
-                    companions.put(companionType, CompanionData.fromJSON(data));
+                    for (Object key : json.keySet()) {
+                        String companionType = (String) key;
+                        JSONObject data = (JSONObject) json.get(companionType);
+                        companions.put(companionType, CompanionData.fromJSON(data));
+                    }
+
+                    playerCompanions.put(uuid, companions);
+                } catch (IOException | ParseException e) {
+                    e.printStackTrace();
                 }
-
-                playerCompanions.put(uuid, companions);
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
+            } else {
+                playerCompanions.put(uuid, new HashMap<>());
             }
         } else {
             playerCompanions.put(uuid, new HashMap<>());
@@ -134,6 +138,10 @@ public class CompanionUtils {
         try {
             if (!playerFile.exists()) {
                 playerFile.createNewFile(); // Crea el archivo si no existe
+                // Inicializa el archivo con un objeto JSON vacío
+                try (FileWriter writer = new FileWriter(playerFile)) {
+                    writer.write("{}");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -325,6 +333,8 @@ public class CompanionUtils {
                     break;
                 case "oso":
                     compa = new CompanionPolarBear(player);
+                case "sniffer":
+                    compa = new CompanionSniffer(player);
                 default:
                     // Handle if companion type is not recognized
                     break;
