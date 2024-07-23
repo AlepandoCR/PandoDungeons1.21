@@ -19,19 +19,24 @@ public class CompanionSniffer extends Companion {
 
     public CompanionSniffer(Player player) {
         super(player, CompanionUtils.getCompanionLevel(player, "sniffer"));
-        sniffer = new CompanionSnifferBehavior(EntityType.SNIFFER, ((CraftWorld) player.getWorld()).getHandle());
+        sniffer = new CompanionSnifferBehavior(EntityType.SNIFFER, ((CraftWorld) player.getWorld()).getHandle(), level);
         editSniffer(player);
         setLivingEntity(sniffer.getBukkitLivingEntity());
         startCompanionLoop(this::runSnifferLoop);
     }
 
     private void editSniffer(Player player) {
+        double health = 20 * level;
+        if(health > 2048D){
+            health = 2048D;
+        }
         craftSniffer = (Sniffer) sniffer.getBukkitLivingEntity();
-        craftSniffer.setMaxHealth(20 * level); // Ajusta la salud máxima del Sniffer
-        craftSniffer.setHealth(20 * level);
+        craftSniffer.setMaxHealth(health); // Ajusta la salud máxima del Sniffer
+        craftSniffer.setHealth(health);
         craftSniffer.setRemoveWhenFarAway(false);
         craftSniffer.addScoreboardTag("companionMob");
-        craftSniffer.setCustomName(ChatColor.GREEN.toString() + ChatColor.BOLD + "Sifilis " + ChatColor.GOLD + "lvl<" + level + ">");
+        craftSniffer.setCustomName(ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "Bahorrina " + ChatColor.GOLD + "lvl<" + level + ">");
+        craftSniffer.setBaby();
         Bukkit.getLogger().info("Spawn companion Sniffer: " + ((CraftWorld) player.getWorld()).getHandle().addFreshEntity(((CraftEntity) craftSniffer).getHandle(), CreatureSpawnEvent.SpawnReason.CUSTOM));
     }
 

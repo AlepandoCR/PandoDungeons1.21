@@ -298,6 +298,12 @@ public class CompanionUtils {
         trade4.addIngredient(polarBearFur(16));
         recipes.add(trade4);
 
+        ItemStack result5 = snifferFragmentItem(1);
+        MerchantRecipe trade5 = new MerchantRecipe(result5, 0, 10000, false);
+        trade5.addIngredient(new ItemStack(Material.TURTLE_SCUTE, 10));
+        trade5.addIngredient(new ItemStack(Material.SNIFFER_EGG, 5));
+        recipes.add(trade5);
+
         merchant.setRecipes(recipes);
 
         player.openMerchant(merchant, true);

@@ -1,6 +1,5 @@
 package pandodungeons.pandodungeons.Listeners;
 
-import net.minecraft.network.chat.ChatDecorator;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -14,10 +13,10 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.Companion;
 import pandodungeons.pandodungeons.Elements.CompanionMenu;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -175,6 +174,13 @@ public class PlayerEventListener implements Listener {
                 } else {
                     player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Oso");
                 }
+            } else if (item.asOne().equals(snifferUnlockItem(1))) {
+                if (!CompanionUtils.hasUnlockedCompanion(player, "sniffer")) {
+                    event.getItem().setAmount(event.getItem().getAmount() - 1);
+                    CompanionUtils.unlockCompanion(player, "sniffer", 1);
+                } else {
+                    player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Sniffer");
+                }
             }
         }
     }
@@ -187,12 +193,14 @@ public class PlayerEventListener implements Listener {
     }
 
     private final Map<Player, Long> lastPrestigeConsume = new HashMap<>();
+    private final Map<Player, Long> copperGum = new HashMap<>();
 
     @EventHandler
-    public void depositPrestige(PlayerInteractEvent event){
+    public void consumables(PlayerInteractEvent event){
         Player player = event.getPlayer();
         if(event.getItem() != null){
-            if(event.getItem().asOne().equals(physicalPrestigeNoAmount())){
+            ItemStack item = event.getItem();
+            if(item.asOne().equals(physicalPrestigeNoAmount())){
                 long currentTime = System.currentTimeMillis();
                 long lastTime = lastPrestigeConsume.getOrDefault(player, 0L);
                 if (currentTime - lastTime < 200) { // 200 ms intervalo de tiempo para prevenir múltiples registros
@@ -203,6 +211,15 @@ public class PlayerEventListener implements Listener {
                 statsManager.setPrestige(statsManager.getPrestige() + 1);
                 player.getItemInHand().setAmount(player.getItemInHand().getAmount() - 1);
                 player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Se añadió un prestigio a tu cuenta");
+            } else if (item.asOne().equals(comperGum(1))) {
+                long currentTime = System.currentTimeMillis();
+                long lastTime = copperGum.getOrDefault(player, 0L);
+                if (currentTime - lastTime < 2000) { // 2000 ms intervalo de tiempo para prevenir múltiples registros
+                    return;
+                }
+                copperGum.put(player, currentTime);
+                player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 80,0));
+                player.getItemInHand().setAmount(player.getItemInHand().getAmount() - 1);
             }
         }
     }

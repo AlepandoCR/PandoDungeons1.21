@@ -36,9 +36,13 @@ public class CompanionArmadillo extends Companion {
     }
 
     private void editArmadillo(Player player) {
+        double health = 10 * level;
+        if(health > 2048D){
+            health = 2048D;
+        }
         craftArmadillo = (Armadillo) armadillo.getBukkitEntity();
-        craftArmadillo.setMaxHealth(10 * level);
-        craftArmadillo.setHealth(10 * level);
+        craftArmadillo.setMaxHealth(health);
+        craftArmadillo.setHealth(health);
         craftArmadillo.setRemoveWhenFarAway(false);
         craftArmadillo.addScoreboardTag("companionMob");
         craftArmadillo.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Armandillo " + ChatColor.GREEN + "lvl<" + level + ">");
