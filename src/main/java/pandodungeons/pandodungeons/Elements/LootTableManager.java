@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pandodungeons.pandodungeons.Game.Stats;
@@ -121,17 +122,28 @@ public class LootTableManager {
     }
 
     // Método para obtener un ítem aleatorio de la tabla de botín basado en las probabilidades
-    public static ItemStack getRandomLoot() {
+    public static ItemStack getRandomLoot(Player player) {
+        boolean hasLuck = player.hasPotionEffect(PotionEffectType.LUCK);
         int totalWeight = 0;
+
         for (LootItem lootItem : lootTable) {
-            totalWeight += lootItem.getProbability();
+            int probability = lootItem.getProbability();
+            if (hasLuck && probability <= 10) {
+                // Incrementar la probabilidad para ítems con probabilidad <= 10
+                probability += 5; // Ajustar este valor según sea necesario
+            }
+            totalWeight += probability;
         }
 
         int randomIndex = random.nextInt(totalWeight);
         int currentWeight = 0;
 
         for (LootItem lootItem : lootTable) {
-            currentWeight += lootItem.getProbability();
+            int probability = lootItem.getProbability();
+            if (hasLuck && probability <= 10) {
+                probability += 5; // Ajustar este valor según sea necesario
+            }
+            currentWeight += probability;
             if (randomIndex < currentWeight) {
                 return lootItem.getItem();
             }
@@ -166,7 +178,7 @@ public class LootTableManager {
                     playerPrestige = chest.getInventory().getSize();
                 }
                 for (int i = 0; i < (playerPrestige + 1); i++) {
-                    ItemStack loot = LootTableManager.getRandomLoot();
+                    ItemStack loot = LootTableManager.getRandomLoot(player);
                     chest.getInventory().addItem(loot);
                 }
                 chestMeta.setBlockState(chest);

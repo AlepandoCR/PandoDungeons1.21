@@ -9,8 +9,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,9 +32,11 @@ import pandodungeons.pandodungeons.commands.game.CompanionSelection;
 import java.net.MalformedURLException;
 import java.util.*;
 
+import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadCompanions;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.openUnlockCompanionMenu;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
+import static pandodungeons.pandodungeons.Utils.LocationUtils.hasActiveDungeon;
 import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnParticleCircle;
 
 public class PlayerEventListener implements Listener {
@@ -186,8 +190,12 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler
-    public void stopPrestigeEating(PlayerItemConsumeEvent event){
-        if(event.getItem().equals(physicalPrestigeNoAmount())){
+    public void stopConsumes(PlayerItemConsumeEvent event){
+        ItemStack item = event.getItem();
+        if(item.asOne().equals(physicalPrestigeNoAmount())){
+            event.setCancelled(true);
+        }
+        if(item.asOne().getType().equals(Material.CHORUS_FRUIT) && hasActiveDungeon(event.getPlayer().getUniqueId().toString())){
             event.setCancelled(true);
         }
     }
@@ -230,7 +238,7 @@ public class PlayerEventListener implements Listener {
         loadCompanions(player);
         RoomManager.handlePlayerJoin(event);
         PlayerStatsManager.getPlayerStatsManager(player).loadStats();
-        if(LocationUtils.hasActiveDungeon(player.getUniqueId().toString())){
+        if(hasActiveDungeon(player.getUniqueId().toString())){
             player.performCommand("dungeons leave");
         }
     }
@@ -305,10 +313,11 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerKillMob(EntityDeathEvent event) {
+    public void onPlayerKillMob(EntityDeathEvent event) throws MalformedURLException {
         if (event.getEntity().getKiller() != null) {
             Player player = event.getEntity().getKiller();
-            if(LocationUtils.hasActiveDungeon(player.getUniqueId().toString())) {
+            handleSoulEaterEffect(player, event.getEntity());
+            if(hasActiveDungeon(player.getUniqueId().toString())) {
                 if(Companion.hasActiveCompanion(player)){
                     if(!Companion.getCompanion(player).getEntityType().equals(EntityType.ALLAY)){
                         event.getDrops().clear();
@@ -320,6 +329,35 @@ public class PlayerEventListener implements Listener {
                 PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);
                 statsManager.addMobKill();
             }
+        }
+    }
+
+    /**
+     * Maneja el evento PrepareAnvilEvent para aplicar el encantamiento Soul Eater.
+     * @param event El evento de preparación del yunque.
+     */
+    @EventHandler
+    public void onPrepareAnvil(PrepareAnvilEvent event) {
+        AnvilInventory anvil = event.getInventory();
+        ItemStack firstItem = anvil.getItem(0);
+        ItemStack secondItem = anvil.getItem(1);
+
+        if (firstItem == null || secondItem == null) {
+            return;
+        }
+
+        // Verificar si el segundo ítem es el libro de encantamiento Soul Eater
+        if (secondItem.equals(createSoulEaterEnchantedBook())) {
+            ItemMeta meta = firstItem.getItemMeta();
+            List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+
+           applySoulEater(firstItem);
+
+            // Establecer el resultado en el yunque
+            event.setResult(firstItem);
+
+            // Eliminar el libro de encantamiento
+            anvil.setItem(1, new ItemStack(Material.AIR));
         }
     }
 
@@ -347,7 +385,7 @@ public class PlayerEventListener implements Listener {
             // Comprueba si el destino es un mundo de dungeon
             if (LocationUtils.isDungeonWorld(toWorld.getName())) {
 
-                if(!LocationUtils.hasActiveDungeon(player.getUniqueId().toString())){
+                if(!hasActiveDungeon(player.getUniqueId().toString())){
                     event.setCancelled(true);
                     player.sendMessage(ChatColor.RED + "No puedes hacerte tp a otras dungeons");
                     return;
