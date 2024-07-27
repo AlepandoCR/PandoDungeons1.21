@@ -332,6 +332,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+
     /**
      * Maneja el evento PrepareAnvilEvent para aplicar el encantamiento Soul Eater.
      * @param event El evento de preparación del yunque.
@@ -348,16 +349,12 @@ public class PlayerEventListener implements Listener {
 
         // Verificar si el segundo ítem es el libro de encantamiento Soul Eater
         if (secondItem.equals(createSoulEaterEnchantedBook())) {
-            ItemMeta meta = firstItem.getItemMeta();
-            List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
-
-           applySoulEater(firstItem);
+            // Crear una copia del primer ítem para aplicar el encantamiento
+            ItemStack resultItem = firstItem.clone();
+            applySoulEater(resultItem);
 
             // Establecer el resultado en el yunque
-            event.setResult(firstItem);
-
-            // Eliminar el libro de encantamiento
-            anvil.setItem(1, new ItemStack(Material.AIR));
+            event.setResult(resultItem);
         }
     }
 
