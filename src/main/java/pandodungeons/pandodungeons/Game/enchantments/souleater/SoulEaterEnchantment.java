@@ -2,15 +2,14 @@ package pandodungeons.pandodungeons.Game.enchantments.souleater;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import org.bukkit.*;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
@@ -24,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnHeartParticleCircle;
 
 public class SoulEaterEnchantment {
 
@@ -42,12 +43,12 @@ public class SoulEaterEnchantment {
      * @param item El ítem al que se aplicará el encantamiento.
      */
     public static void applySoulEater(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) {
+        if (item == null || item.getType() == Material.AIR || item.getType() == Material.MACE) {
             return;
         }
 
         ItemMeta meta = item.getItemMeta();
-        if (meta != null && !hasSoulEater(item)) {
+        if (!hasSoulEater(item)) {
             // Obtener el lore existente
             List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
 
@@ -78,11 +79,13 @@ public class SoulEaterEnchantment {
 
         ItemMeta meta = item.getItemMeta();
         if (meta != null && meta.hasLore()) {
-            return Objects.requireNonNull(meta.getPersistentDataContainer().get(new NamespacedKey(plugin, SOUL_EATER_LORE), PersistentDataType.STRING)).contains(SOUL_EATER_LORE);
+            String loreValue = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, SOUL_EATER_LORE), PersistentDataType.STRING);
+            return loreValue != null && loreValue.contains(SOUL_EATER_LORE);
         }
 
         return false;
     }
+
     /**
      * Crea una mini cabeza con una textura específica.
      * @param displayName El nombre que se mostrará en la mini cabeza.
@@ -147,7 +150,7 @@ public class SoulEaterEnchantment {
      * @param toReduce La cantidad de almas a reducir.
      */
     public static void reduceSouls(ItemStack item, int toReduce) {
-        if (item == null || item.getType() == Material.AIR) {
+        if (item == null || item.getType() == Material.AIR || !hasSoulEater(item)) { // Verificar que el ítem tenga Soul Eater
             return;
         }
 
@@ -178,6 +181,31 @@ public class SoulEaterEnchantment {
         }
     }
 
+    public static void healAbility(Player player, ItemStack item){
+        if(getSoulCount(item) >= 100){
+            player.setHealth(player.getMaxHealth());
+            reduceSouls(item,50);
+            spawnHeartParticleCircle(player.getLocation(), 1, 10);
+        }else{
+            player.sendMessage(ChatColor.DARK_RED + "No tienes almas suficientes aun");
+        }
+    }
+
+    public static void freezeAbility(Player player, ItemStack item){
+        if(getSoulCount(item) >= 200){
+            List<Entity> entities = player.getNearbyEntities(5,5,5);
+            for(Entity entity : entities){
+                if(!(entity instanceof Player)){
+                    LivingEntity livingEntity = (LivingEntity) entity;
+                    livingEntity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100,10));
+                }
+            }
+            reduceSouls(item,100);
+        }else{
+            player.sendMessage(ChatColor.DARK_RED + "No tienes almas suficientes aun");
+        }
+    }
+
     /**
      * Obtiene la cantidad de almas del ítem.
      * @param item El ítem del cual se obtendrá la cantidad de almas.
@@ -202,7 +230,6 @@ public class SoulEaterEnchantment {
      * @param target El objetivo del ataque.
      */
     public static void handleSoulEaterEffect(Player attacker, LivingEntity target) throws MalformedURLException {
-        plugin.getLogger().info("handling soul eater");
         ItemStack weapon = attacker.getInventory().getItemInMainHand();
         if (hasSoulEater(weapon)) {
 
@@ -213,8 +240,6 @@ public class SoulEaterEnchantment {
             ItemStack soulHead = createHead("Soul", TEXTURE_URL);
 
             moveSoulHeadToPlayer(target.getLocation(), attacker, soulHead);
-        } else {
-            plugin.getLogger().info("player doesn't have souleater");
         }
     }
 

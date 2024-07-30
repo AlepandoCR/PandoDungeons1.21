@@ -5,7 +5,7 @@ import java.util.Queue;
 
 public class CommandQueue {
     private static CommandQueue instance;
-    private Queue<String> queue;  // Cola de jugadores
+    private final Queue<String> queue;  // Cola de jugadores
 
     private CommandQueue() {
         queue = new LinkedList<>();
@@ -26,12 +26,12 @@ public class CommandQueue {
         return queue.contains(playerName);
     }
 
-    public synchronized String dequeue() {
-        return queue.poll();
+    public synchronized void dequeue() {
+        queue.poll();
     }
 
     public synchronized boolean isEmpty() {
-        return queue.isEmpty();
+        return !queue.isEmpty();
     }
 
     public synchronized String peek() {

@@ -54,16 +54,17 @@ public class WaterBlastAttack {
                 currentLocation.add(direction);
                 waterBlast.teleport(currentLocation);
                 waterBlast.getWorld().spawnParticle(Particle.SPLASH, currentLocation, 10);
+                if(targetLocation.getWorld().equals(currentLocation.getWorld())){
+                    if (currentLocation.distance(targetLocation) < 1.5) {
+                        // Efecto de empuje
+                        target.setVelocity(direction.multiply(1.5));
 
-                if (currentLocation.distance(targetLocation) < 1.5) {
-                    // Efecto de empuje
-                    target.setVelocity(direction.multiply(1.5));
+                        // Efecto de lentitud
+                        target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 1));
 
-                    // Efecto de lentitud
-                    target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 1));
-
-                    waterBlast.remove();
-                    cancel();
+                        waterBlast.remove();
+                        cancel();
+                    }
                 }
                 projectileLife--;
             }

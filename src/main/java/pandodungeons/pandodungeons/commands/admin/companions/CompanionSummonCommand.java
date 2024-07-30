@@ -15,6 +15,9 @@ import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.commands.game.CompanionSelection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.selectCompanion;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.summonSelectedCompanion;
 

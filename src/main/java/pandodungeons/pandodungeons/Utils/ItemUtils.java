@@ -1,19 +1,117 @@
 package pandodungeons.pandodungeons.Utils;
 
+import net.minecraft.world.damagesource.DamageTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import javax.swing.plaf.SplitPaneUI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 public class ItemUtils {
+
+  private static final JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+
+  private static final NamespacedKey garabiThor = new NamespacedKey(plugin, "garabiThor");
+  private static final NamespacedKey bateria = new NamespacedKey(plugin, "bateria");
+
+  public static ItemStack garabiThor(int amount){
+    ItemStack item = new ItemStack(Material.MACE, amount);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.AQUA.toString() + ChatColor.BOLD + "GarabiThor");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add(ChatColor.GOLD.toString() + "Desata los poderes miticos de Garabito " + ChatColor.BOLD + "⚡");
+    lore.add("");
+    meta.setLore(lore);
+    meta.getPersistentDataContainer().set(garabiThor, PersistentDataType.STRING, "garabiThor");
+    meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, 0D);
+    meta.setCustomModelData(69);
+    meta.setRarity(ItemRarity.EPIC);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static double getBateria(ItemStack item){
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      return meta.getPersistentDataContainer().getOrDefault(bateria, PersistentDataType.DOUBLE, 0D);
+    }
+    return 0D;
+  }
+
+  public static void addBateria(ItemStack item){
+    Random random = new Random();
+    double min = 1.5;
+    double max = 15.0;
+
+    double amount = min + (max - min) * random.nextDouble() + getBateria(item);
+
+    if(amount > 1000){
+      amount = 1000;
+    }
+
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
+      item.setItemMeta(meta);
+    }
+  }
+
+  public static void removeBatery(ItemStack item, double toReduce){
+
+    double amount = getBateria(item) - toReduce;
+    if(amount < 0){
+      amount = 0;
+    }
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
+      item.setItemMeta(meta);
+    }
+  }
+
+  public static void setBatery(ItemStack item, double toPut){
+
+    double amount = toPut;
+    if(amount < 0){
+      amount = 0;
+    }
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
+      item.setItemMeta(meta);
+    }
+  }
+
+  public static boolean isGarabiThor(ItemStack item){
+    if(item == null || item.getType().equals(Material.AIR)){
+      return false;
+    }
+    if(item.hasItemMeta()){
+      ItemMeta meta = item.getItemMeta();
+      if(!item.getPersistentDataContainer().isEmpty()){
+        if(item.getPersistentDataContainer().getKeys().contains(garabiThor)){
+          String data = Objects.requireNonNull(meta.getPersistentDataContainer().get(garabiThor, PersistentDataType.STRING));
+          return data.contains("garabiThor");
+        }
+      }
+    }
+    return false;
+  }
+
 
   public static ItemStack polarBearFur(int amount){
     ItemStack item = new ItemStack(Material.SNOWBALL, amount);

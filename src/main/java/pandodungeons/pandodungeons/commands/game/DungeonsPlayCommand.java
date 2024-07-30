@@ -45,12 +45,15 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("Este comando solo puede ser ejecutado por jugadores.");
             return true;
         }
 
-        Player player = (Player) sender;
+        if(player.isOnline()){
+            playerDced = false;
+        }
+
         UUID playerUUID = player.getUniqueId();
         String playerName = playerUUID.toString();
         String playerNameLower = player.getName().toLowerCase(Locale.ROOT);
@@ -80,7 +83,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         // Añadir el jugador a la cola de espera
         CommandQueue queue = CommandQueue.getInstance();
         queue.enqueue(playerName);
-        if (!queue.isEmpty() && !queue.peek().equals(playerName)) {
+        if (queue.isEmpty() && !queue.peek().equals(playerName)) {
             player.sendMessage(ChatColor.DARK_RED + "Hay jugadores esperando para hacer su dungeon, intenta en unos segundos" + "\n"
                     + ChatColor.RESET + ChatColor.DARK_PURPLE + "Recomendación: Esperar 30 segundos ");
             //quitarlo pa que funque

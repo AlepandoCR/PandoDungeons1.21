@@ -55,13 +55,15 @@ public class PhantomBlade {
                     // Añadir partículas moradas
                     vexBoss.getVex().getWorld().spawnParticle(Particle.WITCH, blade.getLocation(), 10, 0.2, 0.2, 0.2, 0.05);
 
-                    if (currentLocation.distance(targetLocation) < 1.5) {
-                        // Golpear al jugador
-                        target.damage(5.0);
-                        target.sendMessage(ChatColor.DARK_PURPLE + "¡El Vex te corta con su Espada Fantasma!");
-                        blade.remove();
-                        cancel();
-                        return;
+                    if(targetLocation.getWorld().equals(currentLocation.getWorld())){
+                        if (currentLocation.distance(targetLocation) < 1.5) {
+                            // Golpear al jugador
+                            target.damage(5.0);
+                            target.sendMessage(ChatColor.DARK_PURPLE + "¡El Vex te corta con su Espada Fantasma!");
+                            blade.remove();
+                            cancel();
+                            return;
+                        }
                     }
                     projectileLife--;
                 }

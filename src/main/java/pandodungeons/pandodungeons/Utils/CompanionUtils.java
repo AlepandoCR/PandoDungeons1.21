@@ -354,8 +354,10 @@ public class CompanionUtils {
                     break;
                 case "oso":
                     compa = new CompanionPolarBear(player);
+                    break;
                 case "sniffer":
                     compa = new CompanionSniffer(player);
+                    break;
                 default:
                     // Handle if companion type is not recognized
                     break;
