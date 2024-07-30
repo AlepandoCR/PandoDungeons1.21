@@ -104,7 +104,6 @@ public class DungeonBuilder {
             spawnMobsInRoom(room.getLocation(), room.getClipBoard());
         });
 
-        // Schedule the next room and mobs to be spawned after a short delay
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             spawnRoomsAndMobs(rooms, index + 1);
         }, 80L); // 4 sg delay
@@ -255,7 +254,7 @@ public class DungeonBuilder {
 
                 @Override
                 public void run() {
-                    int batchSize = 5; // Número de mobs a generar por tick
+                    int batchSize = 5; // Número de iteraciones a generar por tick
                     int count = 0;
 
                     while (iterator.hasNext() && count < batchSize) {

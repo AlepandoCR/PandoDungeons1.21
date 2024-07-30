@@ -1,19 +1,117 @@
 package pandodungeons.pandodungeons.Utils;
 
+import net.minecraft.world.damagesource.DamageTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import javax.swing.plaf.SplitPaneUI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 public class ItemUtils {
+
+  private static final JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+
+  private static final NamespacedKey garabiThor = new NamespacedKey(plugin, "garabiThor");
+  private static final NamespacedKey bateria = new NamespacedKey(plugin, "bateria");
+
+  public static ItemStack garabiThor(int amount){
+    ItemStack item = new ItemStack(Material.MACE, amount);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.AQUA.toString() + ChatColor.BOLD + "GarabiThor");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add(ChatColor.GOLD.toString() + "Desata los poderes miticos de Garabito " + ChatColor.BOLD + "⚡");
+    lore.add("");
+    meta.setLore(lore);
+    meta.getPersistentDataContainer().set(garabiThor, PersistentDataType.STRING, "garabiThor");
+    meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, 0D);
+    meta.setCustomModelData(69);
+    meta.setRarity(ItemRarity.EPIC);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static double getBateria(ItemStack item){
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      return meta.getPersistentDataContainer().getOrDefault(bateria, PersistentDataType.DOUBLE, 0D);
+    }
+    return 0D;
+  }
+
+  public static void addBateria(ItemStack item){
+    Random random = new Random();
+    double min = 1.5;
+    double max = 15.0;
+
+    double amount = min + (max - min) * random.nextDouble() + getBateria(item);
+
+    if(amount > 1000){
+      amount = 1000;
+    }
+
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
+      item.setItemMeta(meta);
+    }
+  }
+
+  public static void removeBatery(ItemStack item, double toReduce){
+
+    double amount = getBateria(item) - toReduce;
+    if(amount < 0){
+      amount = 0;
+    }
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
+      item.setItemMeta(meta);
+    }
+  }
+
+  public static void setBatery(ItemStack item, double toPut){
+
+    double amount = toPut;
+    if(amount < 0){
+      amount = 0;
+    }
+    if(isGarabiThor(item)){
+      ItemMeta meta = item.getItemMeta();
+      meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
+      item.setItemMeta(meta);
+    }
+  }
+
+  public static boolean isGarabiThor(ItemStack item){
+    if(item == null || item.getType().equals(Material.AIR)){
+      return false;
+    }
+    if(item.hasItemMeta()){
+      ItemMeta meta = item.getItemMeta();
+      if(!item.getPersistentDataContainer().isEmpty()){
+        if(item.getPersistentDataContainer().getKeys().contains(garabiThor)){
+          String data = Objects.requireNonNull(meta.getPersistentDataContainer().get(garabiThor, PersistentDataType.STRING));
+          return data.contains("garabiThor");
+        }
+      }
+    }
+    return false;
+  }
+
 
   public static ItemStack polarBearFur(int amount){
     ItemStack item = new ItemStack(Material.SNOWBALL, amount);
@@ -30,20 +128,35 @@ public class ItemUtils {
     return item;
   }
 
-    public static ItemStack armadilloFragmentItem(int amount){
-      ItemStack item = new ItemStack(Material.ARMADILLO_SCUTE, amount);
-      item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
-      ItemMeta meta = item.getItemMeta();
-      meta.setItemName(ChatColor.translateAlternateColorCodes('&', "&x&6&b&4&2&2&6&lFragmento de Armadillo"));
-      meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-      List<String> lore = new ArrayList<>();
-      lore.add("");
-      lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Armadillo");
-      lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
-      meta.setLore(lore);
-      item.setItemMeta(meta);
-      return item;
-    }
+  public static ItemStack armadilloFragmentItem(int amount){
+    ItemStack item = new ItemStack(Material.ARMADILLO_SCUTE, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.translateAlternateColorCodes('&', "&x&6&b&4&2&2&6&lFragmento de Armadillo"));
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Armadillo");
+    lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static ItemStack snifferFragmentItem(int amount){
+    ItemStack item = new ItemStack(Material.YELLOW_DYE, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Fragmento de Sniffer");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Sniffer");
+    lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
 
   public static ItemStack breezeFragmentItem(int amount){
     ItemStack item = new ItemStack(Material.BREEZE_ROD, amount);
@@ -107,6 +220,23 @@ public class ItemUtils {
     return item;
   }
 
+  public static ItemStack snifferUnlockItem(int amount){
+    ItemStack item = new ItemStack(Material.HEAVY_CORE, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.LIGHT_PURPLE + "Compañero Sniffer");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    meta.setCustomModelData(420);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Sniffer");
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
   public static ItemStack breezeUnlockItem(int amount){
     ItemStack item = new ItemStack(Material.HEAVY_CORE, amount);
     item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
@@ -158,22 +288,38 @@ public class ItemUtils {
     return item;
   }
 
-    public static ItemStack physicalPrestige(int amount){
-      ItemStack item = new ItemStack(Material.PUMPKIN_PIE, amount);
-      item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
-      ItemMeta meta = item.getItemMeta();
-      meta.setItemName(ChatColor.GOLD.toString() + ChatColor.BOLD + "Prestiño");
-      meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-      List<String> lore = new ArrayList<>();
-      lore.add("");
-      lore.add(ChatColor.GOLD.toString() + "Vale por un prestigio ✦");
-      lore.add("");
-      lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
-      lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
-      meta.setLore(lore);
-      item.setItemMeta(meta);
-      return item;
-    }
+  public static ItemStack physicalPrestige(int amount){
+    ItemStack item = new ItemStack(Material.PUMPKIN_PIE, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.GOLD.toString() + ChatColor.BOLD + "Prestiño");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GOLD.toString() + "Vale por un prestigio ✦");
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
+    lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static ItemStack comperGum(int amount){
+    ItemStack item = new ItemStack(Material.RAW_COPPER, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Chicle de Cobre");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Muy rico sabor pero de corta duración");
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");;
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
 
   public static ItemStack physicalPrestigeNoAmount(){
     ItemStack item = new ItemStack(Material.PUMPKIN_PIE);
@@ -210,6 +356,84 @@ public class ItemUtils {
 
     // Registrar la receta en el servidor
     Bukkit.addRecipe(recipe);
+  }
+
+  public static void copperGumRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = comperGum(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "CopperGum");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', new ItemStack(Material.WAXED_COPPER_BLOCK));
+    recipe.setIngredient('0', new ItemStack(Material.POPPED_CHORUS_FRUIT));
+
+    // Registrar la receta en el servidor
+    Bukkit.addRecipe(recipe);
+  }
+
+  public static Recipe getCopperGumRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = comperGum(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "CopperGum");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', new ItemStack(Material.WAXED_COPPER_BLOCK));
+    recipe.setIngredient('0', new ItemStack(Material.POPPED_CHORUS_FRUIT));
+
+    return recipe;
+  }
+
+  public static void snifferCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = snifferUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "SnifferUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', snifferFragmentItem(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    // Registrar la receta en el servidor
+    Bukkit.addRecipe(recipe);
+  }
+
+  public static Recipe getSnifferCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = snifferUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "SnifferUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', snifferFragmentItem(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    return recipe;
   }
 
   public static void osoCompanionCustomRecipe() {

@@ -25,7 +25,7 @@ public class CompanionArmadilloBehavior extends Armadillo {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(0, new AttackHostileMobsGoal(this, 1.0D, true));
+        this.goalSelector.addGoal(0, new AttackHostileMobsGoal(this, 1.5D, true));
         this.goalSelector.addGoal(1, new FindHostileMobsGoal(this));
         this.goalSelector.addGoal(2, new FollowPlayerGoal(this, 1.0D, 10.0F, 2.0F));
     }

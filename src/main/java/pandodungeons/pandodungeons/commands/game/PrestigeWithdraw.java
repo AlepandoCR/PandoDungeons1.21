@@ -10,6 +10,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pandodungeons.pandodungeons.Elements.LootTableManager;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
+import pandodungeons.pandodungeons.Utils.LocationUtils;
+import pandodungeons.pandodungeons.Utils.StructureUtils;
 
 import static pandodungeons.pandodungeons.Utils.ItemUtils.physicalPrestige;
 
@@ -25,6 +27,11 @@ public class PrestigeWithdraw implements CommandExecutor {
         }
         Player player = (((Player) sender).getPlayer());
         if(player == null){
+            return false;
+        }
+
+        if(LocationUtils.isDungeonWorld(player.getWorld().getName()) || LocationUtils.hasActiveDungeon(player.getUniqueId().toString())){
+            player.sendMessage(ChatColor.RED + "No puedes hacer esto en una dungeon");
             return false;
         }
 

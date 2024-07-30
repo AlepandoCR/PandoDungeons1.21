@@ -25,20 +25,24 @@ public class CompanionArmadillo extends Companion {
         editArmadillo(player);
         level  = CompanionUtils.getCompanionLevel(player, "armadillo");
         resistance = (int) (level * 0.5);
-        if(resistance < 1){
-            resistance = 1;
+        if(resistance == 1){
+            resistance = 0;
         }
-        if(resistance > 4){
-            resistance = 4;
+        if(resistance > 3){
+            resistance = 3;
         }
         setLivingEntity(armadillo.getBukkitLivingEntity());
         startCompanionLoop(this::runArmadilloLoop);
     }
 
     private void editArmadillo(Player player) {
+        double health = 10 * level;
+        if(health > 2048D){
+            health = 2048D;
+        }
         craftArmadillo = (Armadillo) armadillo.getBukkitEntity();
-        craftArmadillo.setMaxHealth(10 * level);
-        craftArmadillo.setHealth(10 * level);
+        craftArmadillo.setMaxHealth(health);
+        craftArmadillo.setHealth(health);
         craftArmadillo.setRemoveWhenFarAway(false);
         craftArmadillo.addScoreboardTag("companionMob");
         craftArmadillo.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Armandillo " + ChatColor.GREEN + "lvl<" + level + ">");

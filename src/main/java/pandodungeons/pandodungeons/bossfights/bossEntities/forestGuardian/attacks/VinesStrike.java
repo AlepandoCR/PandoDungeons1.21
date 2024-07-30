@@ -37,11 +37,13 @@ public class VinesStrike {
                     return;
                 }
                 for (Player player : players) {
-                    if (location.distance(player.getLocation()) < 20) {
-                        player.damage(1.0);
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 4));
-                        // Generar partículas de enredaderas alrededor del jugador
-                        spawnVineParticles(player.getLocation());
+                    if(player.getWorld().equals(location.getWorld())){
+                        if (location.distance(player.getLocation()) < 20) {
+                            player.damage(1.0);
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 4));
+                            // Generar partículas de enredaderas alrededor del jugador
+                            spawnVineParticles(player.getLocation());
+                        }
                     }
                 }
                 ticks++;

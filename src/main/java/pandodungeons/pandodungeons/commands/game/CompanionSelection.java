@@ -63,6 +63,9 @@ public class CompanionSelection implements CommandExecutor {
             case "oso":
                 texture = "cbe8fa7f6651302712b233949552f3a6893d06d8e56894f4c4fee305722ba447";
                 break;
+            case "sniffer":
+                texture = "fe5a8341c478a134302981e6a7758ea4ecfd8d62a0df4067897e75502f9b25de";
+                break;
             default:
                 return null; // Manejar caso si el tipo de companion no es reconocido
         }

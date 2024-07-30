@@ -26,9 +26,13 @@ public class CompanionAllay extends Companion {
     }
 
     private void editAllay(Player player) {
+        double health = 5 * level;
+        if(health > 2048D){
+            health = 2048D;
+        }
         craftAllay = (Allay) allay.getBukkitLivingEntity();
-        craftAllay.setMaxHealth(5 * level);
-        craftAllay.setHealth(5 * level);
+        craftAllay.setMaxHealth(health);
+        craftAllay.setHealth(health);
         craftAllay.setRemoveWhenFarAway(false);
         craftAllay.addScoreboardTag("companionMob");
         craftAllay.setCustomName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Trini " + ChatColor.GOLD + "lvl<" + level + ">");

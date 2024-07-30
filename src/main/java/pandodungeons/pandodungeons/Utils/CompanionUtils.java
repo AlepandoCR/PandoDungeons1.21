@@ -27,7 +27,7 @@ public class CompanionUtils {
 
     private static final Map<UUID, Map<String, CompanionData>> playerCompanions = new HashMap<>();
     private static final Set<String> COMPANION_TYPES = Set.of(
-            "allay", "breeze", "armadillo", "oso"
+            "allay", "breeze", "armadillo", "oso", "sniffer"
     );
 
     private static class CompanionData {
@@ -57,14 +57,51 @@ public class CompanionUtils {
 
     public static void loadAllCompanions() {
         if (!DATA_FOLDER.exists()) {
-            DATA_FOLDER.mkdirs(); // Crea la carpeta si no existe
+            DATA_FOLDER.mkdirs(); // Create folder if it doesn't exist
         }
 
         for (File file : DATA_FOLDER.listFiles()) {
             if (file.isFile() && file.getName().endsWith(".json")) {
                 try (FileReader reader = new FileReader(file)) {
+                    // Check if the file is empty
+                    if (file.length() == 0) {
+                        Bukkit.getLogger().warning("File is empty: " + file.getName());
+                        continue;
+                    }
                     JSONObject json = (JSONObject) parser.parse(reader);
                     UUID uuid = UUID.fromString(file.getName().replace(".json", ""));
+                    Map<String, CompanionData> companions = new HashMap<>();
+
+                    for (Object key : json.keySet()) {
+                        String companionType = (String) key;
+                        JSONObject data = (JSONObject) json.get(companionType);
+                        companions.put(companionType, CompanionData.fromJSON(data));
+                    }
+
+                    playerCompanions.put(uuid, companions);
+                } catch (IOException e) {
+                    Bukkit.getLogger().severe("IOException while loading companions from file: " + file.getName());
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    Bukkit.getLogger().severe("ParseException while loading companions from file: " + file.getName());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    Bukkit.getLogger().severe("Unexpected error while loading companions from file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    public static void loadCompanions(Player player) {
+        UUID uuid = player.getUniqueId();
+        File playerFile = getPlayerFile(uuid);
+
+        if (playerFile.exists()) {
+            if (playerFile.length() > 0) {  // Verificar si el archivo no está vacío
+                try (FileReader reader = new FileReader(playerFile)) {
+                    JSONObject json = (JSONObject) parser.parse(reader);
                     Map<String, CompanionData> companions = new HashMap<>();
 
                     for (Object key : json.keySet()) {
@@ -77,28 +114,8 @@ public class CompanionUtils {
                 } catch (IOException | ParseException e) {
                     e.printStackTrace();
                 }
-            }
-        }
-    }
-
-    public static void loadCompanions(Player player) {
-        UUID uuid = player.getUniqueId();
-        File playerFile = getPlayerFile(uuid);
-
-        if (playerFile.exists()) {
-            try (FileReader reader = new FileReader(playerFile)) {
-                JSONObject json = (JSONObject) parser.parse(reader);
-                Map<String, CompanionData> companions = new HashMap<>();
-
-                for (Object key : json.keySet()) {
-                    String companionType = (String) key;
-                    JSONObject data = (JSONObject) json.get(companionType);
-                    companions.put(companionType, CompanionData.fromJSON(data));
-                }
-
-                playerCompanions.put(uuid, companions);
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
+            } else {
+                playerCompanions.put(uuid, new HashMap<>());
             }
         } else {
             playerCompanions.put(uuid, new HashMap<>());
@@ -127,19 +144,25 @@ public class CompanionUtils {
 
     private static File getPlayerFile(UUID uuid) {
         if (!DATA_FOLDER.exists()) {
-            DATA_FOLDER.mkdirs(); // Crea la carpeta y sus subdirectorios si no existen
+            DATA_FOLDER.mkdirs(); // Create the folder if it doesn't exist
         }
 
         File playerFile = new File(DATA_FOLDER, uuid.toString() + ".json");
         try {
             if (!playerFile.exists()) {
-                playerFile.createNewFile(); // Crea el archivo si no existe
+                playerFile.createNewFile(); // Create the file if it doesn't exist
+                // Initialize the file with an empty JSON object
+                try (FileWriter writer = new FileWriter(playerFile)) {
+                    writer.write("{}");
+                }
             }
         } catch (IOException e) {
+            Bukkit.getLogger().severe("IOException while creating player file: " + playerFile.getName());
             e.printStackTrace();
         }
         return playerFile;
     }
+
 
 
     public static String searchCompanionType(String input) {
@@ -290,6 +313,12 @@ public class CompanionUtils {
         trade4.addIngredient(polarBearFur(16));
         recipes.add(trade4);
 
+        ItemStack result5 = snifferFragmentItem(1);
+        MerchantRecipe trade5 = new MerchantRecipe(result5, 0, 10000, false);
+        trade5.addIngredient(new ItemStack(Material.TURTLE_SCUTE, 10));
+        trade5.addIngredient(new ItemStack(Material.SNIFFER_EGG, 5));
+        recipes.add(trade5);
+
         merchant.setRecipes(recipes);
 
         player.openMerchant(merchant, true);
@@ -325,6 +354,10 @@ public class CompanionUtils {
                     break;
                 case "oso":
                     compa = new CompanionPolarBear(player);
+                    break;
+                case "sniffer":
+                    compa = new CompanionSniffer(player);
+                    break;
                 default:
                     // Handle if companion type is not recognized
                     break;

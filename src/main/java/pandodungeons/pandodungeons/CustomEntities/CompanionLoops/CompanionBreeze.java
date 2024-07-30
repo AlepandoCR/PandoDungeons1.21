@@ -34,9 +34,13 @@ public class CompanionBreeze extends Companion {
     }
 
     private void editBreeze(Player player) {
+        double health = 5 * level;
+        if(health > 2048D){
+            health = 2048D;
+        }
         craftBreeze = (Mob) breeze.getBukkitEntity();
-        craftBreeze.setMaxHealth(5 * level);
-        craftBreeze.setHealth(5 * level);
+        craftBreeze.setMaxHealth(health);
+        craftBreeze.setHealth(health);
         craftBreeze.setRemoveWhenFarAway(false);
         craftBreeze.addScoreboardTag("companionMob");
         craftBreeze.setCustomName(ChatColor.translateAlternateColorCodes('&', "&x&6&b&4&2&2&6&lJepeto "  + ChatColor.GOLD + "lvl<" + level + ">"));

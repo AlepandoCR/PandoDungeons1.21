@@ -29,9 +29,13 @@ public class CompanionPolarBear extends Companion {
     }
 
     private void editPolarBear(Player player) {
+        double health = 10 * level;
+        if(health > 2048D){
+            health = 2048D;
+        }
         craftPolarBear = (PolarBear) polarBear.getBukkitEntity();
-        craftPolarBear.setMaxHealth(10 * level);
-        craftPolarBear.setHealth(10 * level);
+        craftPolarBear.setMaxHealth(health);
+        craftPolarBear.setHealth(health);
         craftPolarBear.setRemoveWhenFarAway(false);
         craftPolarBear.setBaby();
         craftPolarBear.addScoreboardTag("companionMob");

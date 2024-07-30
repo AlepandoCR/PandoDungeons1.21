@@ -62,11 +62,15 @@ public final class PandoDungeons extends JavaPlugin {
         armadilloCompanionCustomRecipe();
         allayCompanionCustomRecipe();
         osoCompanionCustomRecipe();
+        snifferCompanionCustomRecipe();
+        copperGumRecipe();
 
         unlockRecipeForAllPlayers(getOsoCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getArmadilloCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getBreezeCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getAllayCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getSnifferCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getCopperGumRecipe());
 
         loadAllCompanions();
 

@@ -23,10 +23,12 @@ public class NaturesWrath {
         List<Player> players = location.getWorld().getPlayers();
 
         for (Player player : players) {
-            if (location.distance(player.getLocation()) < 20) {
-                player.sendMessage(ChatColor.DARK_GREEN + "¡El Guardián del Bosque desata la furia de la naturaleza!");
-                player.damage(5.0);
-                player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, player.getLocation(), 50);
+            if(player.getWorld().equals(location.getWorld())){
+                if (location.distance(player.getLocation()) < 20) {
+                    player.sendMessage(ChatColor.DARK_GREEN + "¡El Guardián del Bosque desata la furia de la naturaleza!");
+                    player.damage(5.0);
+                    player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, player.getLocation(), 50);
+                }
             }
         }
     }

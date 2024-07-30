@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.commands.admin.companions.CompanionSummonCommand;
 import pandodungeons.pandodungeons.commands.admin.companions.CompanionUnlock;
+import pandodungeons.pandodungeons.commands.admin.enchantments.getEnchantment;
 import pandodungeons.pandodungeons.commands.game.*;
 import pandodungeons.pandodungeons.commands.admin.ResetStatsCommand;
 import pandodungeons.pandodungeons.commands.admin.bosses.BossSummonCommand;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
+    private final getEnchantment enchantment;
     private final DungeonsPlayCommand playCommand;
     private final DungeonsLeaveCommand leaveCommand;
     private final DungeonsStatsCommand statsCommand;
@@ -40,6 +42,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         this.companionSelection = new CompanionSelection(plugin);
         this.companionUnlock = new CompanionUnlock(plugin);
         this.prestigeWithdraw = new PrestigeWithdraw(plugin);
+        this.enchantment = new getEnchantment(plugin);
 
     }
 
@@ -78,6 +81,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return companionUnlock.onCommand(sender , command , label , args);
             case "retirarprestigio":
                 return prestigeWithdraw.onCommand(sender, command, label, args);
+            case "enchantment":
+                return enchantment.onCommand(sender, command, label, args);
             default:
                 sender.sendMessage("Comando desconocido. Uso: /dungeons play, /dungeons leave, /dungeons stats, /dungeons top, /dungeons statsbook, /dungeons companionmenu, /dungeons retirarprestigio");
                 return true;
@@ -102,6 +107,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                         completions.add("boss");
                         completions.add("companion");
                         completions.add("unlockcompanion");
+                        completions.add("enchantment");
                     }
                 }
                 completions.add("play");

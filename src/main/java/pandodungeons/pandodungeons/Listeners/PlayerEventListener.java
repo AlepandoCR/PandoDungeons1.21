@@ -1,39 +1,49 @@
 package pandodungeons.pandodungeons.Listeners;
 
-import net.minecraft.network.chat.ChatDecorator;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.Companion;
 import pandodungeons.pandodungeons.Elements.CompanionMenu;
+import pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment;
 import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Game.RoomManager;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.Utils.LocationUtils;
 import pandodungeons.pandodungeons.Utils.StructureUtils;
+import pandodungeons.pandodungeons.commands.Management.CommandQueue;
 import pandodungeons.pandodungeons.commands.game.CompanionSelection;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.BiFunction;
 
+import static pandodungeons.pandodungeons.Game.enchantments.garabiThor.garabiThor.handleGarabiThor;
+import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadCompanions;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.openUnlockCompanionMenu;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
+import static pandodungeons.pandodungeons.Utils.LocationUtils.hasActiveDungeon;
+import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnParticleCircle;
 
 public class PlayerEventListener implements Listener {
@@ -42,9 +52,20 @@ public class PlayerEventListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         RoomManager roomManager = RoomManager.getActiveRoomManager(player);
+        for(World world : Bukkit.getWorlds()){
+            if(world.getName().contains(player.getName().toLowerCase(Locale.ROOT)) && isDungeonWorld(world.getName())){
+                StructureUtils.removeDungeon(player.getName().toLowerCase(Locale.ROOT), plugin);
+                if(CommandQueue.getInstance().isEmpty()){
+                    CommandQueue.getInstance().dequeue();
+                }
+            }
+        }
         if (roomManager != null) {
             roomManager.handlePlayerQuit(event);
             StructureUtils.removeDungeon(player.getName().toLowerCase(Locale.ROOT), plugin);
+            if(CommandQueue.getInstance().isEmpty()) {
+                CommandQueue.getInstance().dequeue();
+            }
         }
         PlayerStatsManager.getPlayerStatsManager(player).saveStats();
     }
@@ -175,25 +196,183 @@ public class PlayerEventListener implements Listener {
                 } else {
                     player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Oso");
                 }
+            } else if (item.asOne().equals(snifferUnlockItem(1))) {
+                if (!CompanionUtils.hasUnlockedCompanion(player, "sniffer")) {
+                    event.getItem().setAmount(event.getItem().getAmount() - 1);
+                    CompanionUtils.unlockCompanion(player, "sniffer", 1);
+                } else {
+                    player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Sniffer");
+                }
             }
         }
     }
 
     @EventHandler
-    public void stopPrestigeEating(PlayerItemConsumeEvent event){
-        if(event.getItem().equals(physicalPrestigeNoAmount())){
+    public void stopConsumes(PlayerItemConsumeEvent event){
+        ItemStack item = event.getItem();
+        if(item.asOne().equals(physicalPrestigeNoAmount())){
+            event.setCancelled(true);
+        }
+        if(item.asOne().getType().equals(Material.CHORUS_FRUIT) && hasActiveDungeon(event.getPlayer().getUniqueId().toString())){
             event.setCancelled(true);
         }
     }
 
     private final Map<Player, Long> lastPrestigeConsume = new HashMap<>();
+    private final Map<Player, Long> copperGum = new HashMap<>();
+    private final Map<Player, Long> garabiThor = new HashMap<>();
+    private final Map<Player, Long> soulAbility = new HashMap<>();
+    private final Map<Player, BukkitRunnable> actionBarRunnables = new HashMap<>();
 
     @EventHandler
-    public void depositPrestige(PlayerInteractEvent event){
+    public void changeItem(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
+
+        // Cancel any existing action bar update tasks
+        if (actionBarRunnables.containsKey(player)) {
+            actionBarRunnables.get(player).cancel();
+            player.sendActionBar(" ");
+        }
+        handleSoulHabilities(newItem, player);
+        handleGarabiThorBar(newItem, player);
+    }
+
+    private void handleGarabiThorBar(ItemStack newItem, Player player) {
+        if (isGarabiThor(newItem)) {
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    long currentTime = System.currentTimeMillis();
+                    long lastTime = garabiThor.getOrDefault(player, 0L);
+                    long cooldown = 3000; // 3t seconds cooldown
+                    long timeLeft = cooldown - (currentTime - lastTime);
+                    int batery = (int) getBateria(newItem);
+                    String bateryString = String.valueOf(batery) + "W";
+                    if(batery == 1000){
+                        bateryString = "1Kw";
+                    }
+
+                    if(batery < 75){
+                        player.sendActionBar(ChatColor.RED.toString() + "\uD83E\uDEAB" + ChatColor.DARK_RED + ChatColor.BOLD + batery + ChatColor.RED + "\uD83E\uDEAB");
+                    }else{
+                        if(!newItem.equals(player.getItemInHand())){
+                            this.cancel();
+                            return;
+                        }
+
+                        if (timeLeft <= 0) {
+                            player.sendActionBar((ChatColor.GOLD.toString() + ChatColor.BOLD + "⚡ " + ChatColor.AQUA + "[" + ChatColor.GREEN + "▊▊▊" + ChatColor.AQUA + bateryString + ChatColor.GREEN + "▊▊▊" + ChatColor.AQUA + "]" + ChatColor.GOLD + ChatColor.BOLD + " ⚡"));
+                        }else{
+                            int progressBars = (int) ((timeLeft / (double) cooldown) * 10);
+                            progressBars = Math.max(0, Math.min(progressBars, 10));
+
+                            String progressBar = (ChatColor.GREEN + "▊").repeat(10 - progressBars) + (ChatColor.RED.toString() + "▬").repeat(progressBars);
+                            player.sendActionBar((ChatColor.GOLD.toString() + ChatColor.BOLD + "⚡ " + ChatColor.RESET + ChatColor.AQUA + "[" + ChatColor.RESET + progressBar + ChatColor.AQUA + "]" + ChatColor.GOLD + ChatColor.BOLD + " ⚡"));
+                        }
+                    }
+                }
+            };
+            runnable.runTaskTimer(plugin, 0L, 10L);
+            actionBarRunnables.put(player, runnable);
+        }
+    }
+
+    private void handleSoulHabilities(ItemStack newItem, Player player) {
+        if (hasSoulEater(newItem)) {
+            BukkitRunnable runnable = new BukkitRunnable() {
+                private static String line = ChatColor.WHITE.toString() + ChatColor.BOLD + " - ";
+                @Override
+                public void run() {
+                    String progressBar = "";
+                    if(!newItem.equals(player.getItemInHand())){
+                        this.cancel();
+                        return;
+                    }
+                    if(getSoulCount(newItem) >= 100){
+                        progressBar = progressBar + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DDD" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Curación" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 50" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                    }
+                    if(getSoulCount(newItem) >= 200){
+                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DID" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Inmovilizar" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 100" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                    }
+                    player.sendActionBar(progressBar);
+                }
+            };
+            runnable.runTaskTimer(plugin, 0L, 10L); // Update every 10 ticks (0.5 seconds)
+            actionBarRunnables.put(player, runnable);
+        }
+    }
+
+    private final Map<Player, String> combinations = new HashMap<>();
+
+    @EventHandler
+    public void consumables(PlayerInteractEvent event){
+        long currentTime = System.currentTimeMillis();
         Player player = event.getPlayer();
         if(event.getItem() != null){
-            if(event.getItem().asOne().equals(physicalPrestigeNoAmount())){
-                long currentTime = System.currentTimeMillis();
+            ItemStack item = event.getItem();
+            if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                if(isGarabiThor(item)){
+                    long lastTime = garabiThor.getOrDefault(player, 0L);
+                    if (currentTime - lastTime < 3000 || getBateria(item) < 75) { // 200 ms intervalo de tiempo para prevenir múltiples registros
+                        return;
+                    }
+                    removeBatery(item, 75D);
+                    handleGarabiThorBar(item, player);
+                    garabiThor.put(player, currentTime);
+                    handleGarabiThor(player, item);
+                }
+            }
+            if (hasSoulEater(item)) {
+                long lastTime = soulAbility.getOrDefault(player, 0L);
+
+                // Prevenir múltiples registros en un corto período de tiempo
+                if (currentTime - lastTime < 200) {
+                    return;
+                }
+
+                // Restablecer combinaciones si han pasado menos de 2 segundos desde la última acción
+                if (currentTime - lastTime >= 2000) {
+                    combinations.remove(player);
+                }
+
+                soulAbility.put(player, currentTime);
+                String combination = combinations.getOrDefault(player, "");
+
+                // Actualizar combinaciones basadas en las acciones del jugador
+                if(combination.startsWith("D")){
+                    if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                        combination += "I";
+                    }
+                }
+                if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                    combination += "D";
+                }
+
+                // Almacenar la nueva combinación
+                combinations.put(player, combination);
+
+                if(combination.toCharArray().length > 3){
+                    combination = "";
+                    combinations.remove(player);
+                }
+                // Enviar la combinación actual al jugador
+                if(combination.startsWith("D")){
+                    player.sendTitle((ChatColor.AQUA + "[" + ChatColor.GOLD + ChatColor.BOLD + combination + ChatColor.AQUA + "]"), "", 0, 20, 10);
+                }
+
+                // Verificar si la combinación es "III" para activar la habilidad de curación
+                if (combination.equals("DDD")) {
+                    healAbility(player, item);
+                    combinations.remove(player); // Restablecer la combinación después de activar la habilidad
+                }
+
+                if(combination.equals("DID")){
+                    freezeAbility(player, item);
+                    combinations.remove(player);
+                }
+            }
+            if(item.asOne().equals(physicalPrestigeNoAmount())){
                 long lastTime = lastPrestigeConsume.getOrDefault(player, 0L);
                 if (currentTime - lastTime < 200) { // 200 ms intervalo de tiempo para prevenir múltiples registros
                     return;
@@ -203,6 +382,14 @@ public class PlayerEventListener implements Listener {
                 statsManager.setPrestige(statsManager.getPrestige() + 1);
                 player.getItemInHand().setAmount(player.getItemInHand().getAmount() - 1);
                 player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Se añadió un prestigio a tu cuenta");
+            } else if (item.asOne().equals(comperGum(1))) {
+                long lastTime = copperGum.getOrDefault(player, 0L);
+                if (currentTime - lastTime < 2000) { // 2000 ms intervalo de tiempo para prevenir múltiples registros
+                    return;
+                }
+                copperGum.put(player, currentTime);
+                player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 200,0));
+                player.getItemInHand().setAmount(player.getItemInHand().getAmount() - 1);
             }
         }
     }
@@ -213,7 +400,7 @@ public class PlayerEventListener implements Listener {
         loadCompanions(player);
         RoomManager.handlePlayerJoin(event);
         PlayerStatsManager.getPlayerStatsManager(player).loadStats();
-        if(LocationUtils.hasActiveDungeon(player.getUniqueId().toString())){
+        if(hasActiveDungeon(player.getUniqueId().toString())){
             player.performCommand("dungeons leave");
         }
     }
@@ -288,10 +475,25 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerKillMob(EntityDeathEvent event) {
+    public void onPlayerKillMob(EntityDeathEvent event) throws MalformedURLException {
         if (event.getEntity().getKiller() != null) {
             Player player = event.getEntity().getKiller();
-            if(LocationUtils.hasActiveDungeon(player.getUniqueId().toString())) {
+            LivingEntity target = event.getEntity();
+
+            if(isGarabiThor(player.getItemInHand())){
+                if(target instanceof Creeper){
+                    addBateria(player.getItemInHand());
+                }
+            }
+
+
+            try {
+                handleSoulEaterEffect(player, target);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            if(hasActiveDungeon(player.getUniqueId().toString())) {
                 if(Companion.hasActiveCompanion(player)){
                     if(!Companion.getCompanion(player).getEntityType().equals(EntityType.ALLAY)){
                         event.getDrops().clear();
@@ -303,6 +505,32 @@ public class PlayerEventListener implements Listener {
                 PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);
                 statsManager.addMobKill();
             }
+        }
+    }
+
+
+    /**
+     * Maneja el evento PrepareAnvilEvent para aplicar el encantamiento Soul Eater.
+     * @param event El evento de preparación del yunque.
+     */
+    @EventHandler
+    public void onPrepareAnvil(PrepareAnvilEvent event) {
+        AnvilInventory anvil = event.getInventory();
+        ItemStack firstItem = anvil.getItem(0);
+        ItemStack secondItem = anvil.getItem(1);
+
+        if (firstItem == null || secondItem == null) {
+            return;
+        }
+
+        // Verificar si el segundo ítem es el libro de encantamiento Soul Eater
+        if (secondItem.equals(createSoulEaterEnchantedBook())) {
+            // Crear una copia del primer ítem para aplicar el encantamiento
+            ItemStack resultItem = firstItem.clone();
+            applySoulEater(resultItem);
+
+            // Establecer el resultado en el yunque
+            event.setResult(resultItem);
         }
     }
 
@@ -328,9 +556,9 @@ public class PlayerEventListener implements Listener {
         World toWorld = event.getTo().getWorld();
         if(!player.isOp()){
             // Comprueba si el destino es un mundo de dungeon
-            if (LocationUtils.isDungeonWorld(toWorld.getName())) {
+            if (isDungeonWorld(toWorld.getName())) {
 
-                if(!LocationUtils.hasActiveDungeon(player.getUniqueId().toString())){
+                if(!hasActiveDungeon(player.getUniqueId().toString())){
                     event.setCancelled(true);
                     player.sendMessage(ChatColor.RED + "No puedes hacerte tp a otras dungeons");
                     return;
@@ -351,7 +579,7 @@ public class PlayerEventListener implements Listener {
                 Player player = (Player) event.getEntity().getShooter();
                 World world = player.getWorld();
 
-                if (LocationUtils.isDungeonWorld(world.getName())) {
+                if (isDungeonWorld(world.getName())) {
                     event.setCancelled(true);
                     player.sendMessage(ChatColor.DARK_PURPLE + "No puedes usar enderpearls aqui");
                 }

@@ -139,8 +139,8 @@ public class RoomManager {
                     Location villagerLocation = StructureUtils.findDriedKelpBlock(player.getLocation(),50);
                     spawnVillager(villagerLocation);
                     player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "¡Has matado al jefe, ahora subes a nivel: " + (playerStats.getDungeonLevel() + 1) + "!");
-                    this.cancel();
                     statsManager.addDungeonCompletion();
+                    this.cancel();
                 }
             }
         };
