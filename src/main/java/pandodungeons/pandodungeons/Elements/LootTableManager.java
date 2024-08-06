@@ -44,6 +44,7 @@ public class LootTableManager {
         addItemToLootTable(createEnchantedBook(Enchantment.SWIFT_SNEAK, 3, 1, "Libro encantado"), 6); // 30% cantidad 2
         addItemToLootTable(createEnchantedBook(Enchantment.SOUL_SPEED, 3, 1, "Libro encantado"), 6); // 30% cantidad 2
         addItemToLootTable(createEnchantedBook(Enchantment.MENDING, 1, 1, "Libro encantado"), 6); // 30% cantidad 2
+        addItemToLootTable(createEnchantedBook(Enchantment.WIND_BURST, 2, 1, "Libro encantado"), 6); // 30% cantidad 2
         addItemToLootTable(createCustomRabbitFoot(3), 3); // 1% cantidad 3
         addItemToLootTable(createCustomChickenEgg(3), 3); // 1% cantidad 3
         addItemToLootTable(createItem(Material.TNT, "Tnt", 37), 10); // 10% cantidad 37
@@ -174,8 +175,10 @@ public class LootTableManager {
                 // Un premio + cada prestigio
                 Stats playerStats = Stats.fromPlayer(player);
                 int playerPrestige = playerStats.getPrestige();
-                if(playerPrestige > chest.getInventory().getSize()){
-                    playerPrestige = chest.getInventory().getSize();
+                int prestigeLeft = 0;
+                if(playerPrestige >= chest.getInventory().getSize()){
+                    prestigeLeft = playerPrestige - chest.getInventory().getSize();
+                    playerPrestige = chest.getInventory().getSize() - 1;
                 }
                 for (int i = 0; i < (playerPrestige + 1); i++) {
                     ItemStack loot = LootTableManager.getRandomLoot(player);
@@ -183,12 +186,48 @@ public class LootTableManager {
                 }
                 chestMeta.setBlockState(chest);
                 chestItem.setItemMeta(chestMeta);
+                if(prestigeLeft > 0){
+                    giveRandomLootByNumber(player, prestigeLeft);
+                }
             }
         }
 
         // Dar el cofre al jugador
         player.getInventory().addItem(chestItem);
         player.sendMessage(ChatColor.GOLD + "¡Has recibido un cofre con premios!");
+    }
+
+    public static void giveRandomLootByNumber(Player player, int lootAmount) {
+        // Crear un nuevo cofre
+        ItemStack chestItem = new ItemStack(Material.CHEST);
+        BlockStateMeta chestMeta = (BlockStateMeta) chestItem.getItemMeta();
+        if (chestMeta != null) {
+            BlockState state = chestMeta.getBlockState();
+            if (state instanceof Chest) {
+                Chest chest = (Chest) state;
+
+                // Nombrar el cofre
+                chestMeta.setDisplayName(ChatColor.DARK_GREEN.toString() + "Premios");
+                int prestigeLeft = 0;
+                if(lootAmount >= chest.getInventory().getSize()){
+                    prestigeLeft = lootAmount - chest.getInventory().getSize();
+                    lootAmount = chest.getInventory().getSize() - 1;
+                }
+                for (int i = 0; i < (lootAmount + 1); i++) {
+                    ItemStack loot = LootTableManager.getRandomLoot(player);
+                    chest.getInventory().addItem(loot);
+                }
+                chestMeta.setBlockState(chest);
+                chestItem.setItemMeta(chestMeta);
+                if(prestigeLeft > 0){
+                    giveRandomLootByNumber(player, prestigeLeft);
+                }
+            }
+        }
+
+        // Dar el cofre al jugador
+        player.getInventory().addItem(chestItem);
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "¡Has recibido otro cofre con premios!");
     }
 
     // Método para obtener el nombre de un ítem

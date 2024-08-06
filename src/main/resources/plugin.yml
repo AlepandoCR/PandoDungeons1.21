@@ -4,7 +4,13 @@ main: pandodungeons.pandodungeons.PandoDungeons
 api-version: 1.21
 authors: [Alepando]
 website: mapachos.com
+
 commands:
   dungeons:
     description: Comando principal de Dungeons.
     usage: /<command> [play|leave|stats|stadistics|boss|statsbook|companion|companionmenu]
+
+permissions:
+  pandodungeons.pandaMount:
+    description: Permiso para montar y controlar un panda.
+    default: op

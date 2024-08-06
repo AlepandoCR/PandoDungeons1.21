@@ -1,16 +1,19 @@
 package pandodungeons.pandodungeons.commands.admin.companions;
 
+import net.minecraft.world.entity.EntityType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.*;
+import pandodungeons.pandodungeons.CustomEntities.pandaMount.CustomPanda;
 import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.commands.game.CompanionSelection;
@@ -46,9 +49,11 @@ public class CompanionSummonCommand implements CommandExecutor, Listener {
             return true;
         }
 
-        Companion compa;
-
-        Location location = player.getLocation();
+        if(args[1].equalsIgnoreCase("panda")){
+           CustomPanda panda = new CustomPanda(EntityType.PANDA, ((CraftWorld)player.getWorld()).getHandle(), player);
+           panda.setRider(player);
+           return true;
+        }
 
         selectCompanion(player, args[1]);
         summonSelectedCompanion(player);

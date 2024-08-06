@@ -26,6 +26,13 @@ public class PlayerStatsManager {
         // Constructor vacío para permitir la inicialización manual de variables
     }
 
+    public static List<String> getAllPlayerNames() {
+        List<String> playerNames = new ArrayList<>();
+        for (PlayerStatsManager statsManager : playerStats.values()) {
+            playerNames.add(statsManager.getPlayerName());
+        }
+        return playerNames;
+    }
 
     public PlayerStatsManager(Player player) {
         this.playerFile = new File("plugins/PandoDungeons/PlayerData", player.getUniqueId() + ".yml");

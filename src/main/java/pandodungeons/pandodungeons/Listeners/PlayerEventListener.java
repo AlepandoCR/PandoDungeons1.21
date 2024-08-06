@@ -37,6 +37,7 @@ import java.net.MalformedURLException;
 import java.util.*;
 import java.util.function.BiFunction;
 
+import static pandodungeons.pandodungeons.CustomEntities.pandaMount.CustomPanda.setPandaRider;
 import static pandodungeons.pandodungeons.Game.enchantments.garabiThor.garabiThor.handleGarabiThor;
 import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadCompanions;
@@ -77,6 +78,7 @@ public class PlayerEventListener implements Listener {
         Player player = event.getPlayer();
         if(event.getRightClicked() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) event.getRightClicked();
+            setPandaRider(player, entity);
             double health = entity.getHealth();
             if (entity.getScoreboardTags().contains("companionMob")) {
                 // Previene múltiples registros del evento
@@ -253,14 +255,14 @@ public class PlayerEventListener implements Listener {
                         bateryString = "1Kw";
                     }
 
+                    if(!newItem.equals(player.getItemInHand())){
+                        this.cancel();
+                        return;
+                    }
+
                     if(batery < 75){
                         player.sendActionBar(ChatColor.RED.toString() + "\uD83E\uDEAB" + ChatColor.DARK_RED + ChatColor.BOLD + batery + ChatColor.RED + "\uD83E\uDEAB");
                     }else{
-                        if(!newItem.equals(player.getItemInHand())){
-                            this.cancel();
-                            return;
-                        }
-
                         if (timeLeft <= 0) {
                             player.sendActionBar((ChatColor.GOLD.toString() + ChatColor.BOLD + "⚡ " + ChatColor.AQUA + "[" + ChatColor.GREEN + "▊▊▊" + ChatColor.AQUA + bateryString + ChatColor.GREEN + "▊▊▊" + ChatColor.AQUA + "]" + ChatColor.GOLD + ChatColor.BOLD + " ⚡"));
                         }else{

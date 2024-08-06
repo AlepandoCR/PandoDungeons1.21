@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
+import static pandodungeons.pandodungeons.Utils.ItemUtils.reduceWritterUses;
 import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnHeartParticleCircle;
 
 public class SoulEaterEnchantment {
@@ -232,14 +234,18 @@ public class SoulEaterEnchantment {
     public static void handleSoulEaterEffect(Player attacker, LivingEntity target) throws MalformedURLException {
         ItemStack weapon = attacker.getInventory().getItemInMainHand();
         if (hasSoulEater(weapon)) {
+            ItemStack soulWritter = getSlayerSoulWritter(attacker);
+            if(soulWritter != null){
+                if(playerHasSoulWritter(attacker) && getWritterUses(soulWritter) > 0){
+                    // Mostrar partículas de almas
+                    showSoulParticles(target.getLocation());
 
-            // Mostrar partículas de almas
-            showSoulParticles(target.getLocation());
-
-            // Crear y mover la mini cabeza hacia el jugador
-            ItemStack soulHead = createHead("Soul", TEXTURE_URL);
-
-            moveSoulHeadToPlayer(target.getLocation(), attacker, soulHead);
+                    // Crear y mover la mini cabeza hacia el jugador
+                    reduceWritterUses(soulWritter);
+                    ItemStack soulHead = createHead("Soul", TEXTURE_URL);
+                    moveSoulHeadToPlayer(target.getLocation(), attacker, soulHead);
+                }
+            }
         }
     }
 

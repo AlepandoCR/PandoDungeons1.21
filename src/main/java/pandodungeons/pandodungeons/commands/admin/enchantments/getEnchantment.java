@@ -65,6 +65,9 @@ public class getEnchantment implements CommandExecutor {
         } else if (args[1].equalsIgnoreCase("garabithor")) {
             player.getInventory().addItem(garabiThor(1));
         }
+        else if (args[1].equalsIgnoreCase("pergamino")) {
+            player.getInventory().addItem(soulWritter(1));
+        }
 
         return false;
     }

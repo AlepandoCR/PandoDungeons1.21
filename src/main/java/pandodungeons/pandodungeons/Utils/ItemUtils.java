@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -24,10 +25,12 @@ public class ItemUtils {
 
   private static final JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
 
+  private static final NamespacedKey soulUses = new NamespacedKey(plugin, "soulUses");
+  private static final NamespacedKey soulWritter = new NamespacedKey(plugin, "soulWritter");
   private static final NamespacedKey garabiThor = new NamespacedKey(plugin, "garabiThor");
   private static final NamespacedKey bateria = new NamespacedKey(plugin, "bateria");
 
-  public static ItemStack garabiThor(int amount){
+  public static ItemStack garabiThor(int amount) {
     ItemStack item = new ItemStack(Material.MACE, amount);
     ItemMeta meta = item.getItemMeta();
     meta.setItemName(ChatColor.AQUA.toString() + ChatColor.BOLD + "GarabiThor");
@@ -44,66 +47,66 @@ public class ItemUtils {
     return item;
   }
 
-  public static double getBateria(ItemStack item){
-    if(isGarabiThor(item)){
+  public static double getBateria(ItemStack item) {
+    if (isGarabiThor(item)) {
       ItemMeta meta = item.getItemMeta();
       return meta.getPersistentDataContainer().getOrDefault(bateria, PersistentDataType.DOUBLE, 0D);
     }
     return 0D;
   }
 
-  public static void addBateria(ItemStack item){
+  public static void addBateria(ItemStack item) {
     Random random = new Random();
     double min = 1.5;
     double max = 15.0;
 
     double amount = min + (max - min) * random.nextDouble() + getBateria(item);
 
-    if(amount > 1000){
+    if (amount > 1000) {
       amount = 1000;
     }
 
-    if(isGarabiThor(item)){
+    if (isGarabiThor(item)) {
       ItemMeta meta = item.getItemMeta();
       meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
       item.setItemMeta(meta);
     }
   }
 
-  public static void removeBatery(ItemStack item, double toReduce){
+  public static void removeBatery(ItemStack item, double toReduce) {
 
     double amount = getBateria(item) - toReduce;
-    if(amount < 0){
+    if (amount < 0) {
       amount = 0;
     }
-    if(isGarabiThor(item)){
+    if (isGarabiThor(item)) {
       ItemMeta meta = item.getItemMeta();
       meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
       item.setItemMeta(meta);
     }
   }
 
-  public static void setBatery(ItemStack item, double toPut){
+  public static void setBatery(ItemStack item, double toPut) {
 
     double amount = toPut;
-    if(amount < 0){
+    if (amount < 0) {
       amount = 0;
     }
-    if(isGarabiThor(item)){
+    if (isGarabiThor(item)) {
       ItemMeta meta = item.getItemMeta();
       meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, amount);
       item.setItemMeta(meta);
     }
   }
 
-  public static boolean isGarabiThor(ItemStack item){
-    if(item == null || item.getType().equals(Material.AIR)){
+  public static boolean isGarabiThor(ItemStack item) {
+    if (item == null || item.getType().equals(Material.AIR)) {
       return false;
     }
-    if(item.hasItemMeta()){
+    if (item.hasItemMeta()) {
       ItemMeta meta = item.getItemMeta();
-      if(!item.getPersistentDataContainer().isEmpty()){
-        if(item.getPersistentDataContainer().getKeys().contains(garabiThor)){
+      if (!item.getPersistentDataContainer().isEmpty()) {
+        if (item.getPersistentDataContainer().getKeys().contains(garabiThor)) {
           String data = Objects.requireNonNull(meta.getPersistentDataContainer().get(garabiThor, PersistentDataType.STRING));
           return data.contains("garabiThor");
         }
@@ -112,6 +115,92 @@ public class ItemUtils {
     return false;
   }
 
+  public static ItemStack soulWritter(int amount) {
+    ItemStack item = new ItemStack(Material.FLOWER_BANNER_PATTERN, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.GOLD.toString() + ChatColor.BOLD + "Escritos de Minor");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add(ChatColor.DARK_AQUA.toString() + "Ancla el alma de los seres a este mundo");
+    lore.add(ChatColor.YELLOW + "Usos: " + ChatColor.GOLD + "150");
+    lore.add("");
+    meta.getPersistentDataContainer().set(soulWritter, PersistentDataType.STRING, "soulWritter");
+    meta.getPersistentDataContainer().set(soulUses, PersistentDataType.INTEGER, 150);
+    meta.setLore(lore);
+    meta.setCustomModelData(69);
+    meta.setRarity(ItemRarity.RARE);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static boolean isSoulWritter(ItemStack item) {
+    if (item == null || item.getType().equals(Material.AIR)) {
+      return false;
+    }
+    if (item.hasItemMeta()) {
+      ItemMeta itemMeta = item.getItemMeta();
+      if (!item.getPersistentDataContainer().isEmpty()) {
+        if (item.getPersistentDataContainer().getKeys().contains(soulWritter)) {
+          String data = Objects.requireNonNull(itemMeta.getPersistentDataContainer().get(soulWritter, PersistentDataType.STRING));
+          return data.contains("soulWritter");
+        }
+      }
+    }
+    return false;
+  }
+
+  public static boolean playerHasSoulWritter(Player player){
+    for(int i = 0; i <= player.getInventory().getSize(); i++){
+      if(isSoulWritter(player.getInventory().getItem(i))){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static ItemStack getSlayerSoulWritter(Player player){
+    for(int i = 0; i <= player.getInventory().getSize(); i++){
+      if(isSoulWritter(player.getInventory().getItem(i))){
+        return player.getInventory().getItem(i);
+      }
+    }
+    return null;
+  }
+
+  public static int getWritterUses(ItemStack item){
+    if(isSoulWritter(item)){
+      return item.getItemMeta().getPersistentDataContainer().getOrDefault(soulUses, PersistentDataType.INTEGER, 0);
+    }
+    return 0;
+  }
+
+  public static void reduceWritterUses(ItemStack item){
+    int amount = getWritterUses(item) - 1;
+    if(amount < 0){
+      amount = 0;
+    }
+    if(isSoulWritter(item)){
+      ItemMeta meta = item.getItemMeta();
+      meta.getPersistentDataContainer().set(soulUses, PersistentDataType.INTEGER, amount);
+      // Actualizar el lore con la cantidad de almas
+      List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+      assert lore != null;
+      boolean found = false;
+      for (int i = 0; i < lore.size(); i++) {
+        if (lore.get(i).startsWith(ChatColor.YELLOW.toString() + "Usos: ")) {
+          lore.set(i, ChatColor.YELLOW.toString() + "Usos: " + ChatColor.GOLD + amount);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        lore.add(ChatColor.YELLOW.toString() + "Usos: " + ChatColor.GOLD + amount);
+      }
+      meta.setLore(lore);
+      item.setItemMeta(meta);
+    }
+  }
 
   public static ItemStack polarBearFur(int amount){
     ItemStack item = new ItemStack(Material.SNOWBALL, amount);

@@ -32,7 +32,7 @@ public class PrestigeWithdraw implements CommandExecutor {
 
         if(LocationUtils.isDungeonWorld(player.getWorld().getName()) || LocationUtils.hasActiveDungeon(player.getUniqueId().toString())){
             player.sendMessage(ChatColor.RED + "No puedes hacer esto en una dungeon");
-            return false;
+            return true;
         }
 
         PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);

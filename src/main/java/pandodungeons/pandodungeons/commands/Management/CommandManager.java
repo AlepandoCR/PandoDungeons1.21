@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.commands.admin.companions.CompanionSummonCommand;
 import pandodungeons.pandodungeons.commands.admin.companions.CompanionUnlock;
@@ -19,6 +20,7 @@ import java.util.List;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
     private final getEnchantment enchantment;
+    private final mountCommand mountCommand;
     private final DungeonsPlayCommand playCommand;
     private final DungeonsLeaveCommand leaveCommand;
     private final DungeonsStatsCommand statsCommand;
@@ -43,6 +45,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         this.companionUnlock = new CompanionUnlock(plugin);
         this.prestigeWithdraw = new PrestigeWithdraw(plugin);
         this.enchantment = new getEnchantment(plugin);
+        this.mountCommand = new mountCommand();
 
     }
 
@@ -83,6 +86,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return prestigeWithdraw.onCommand(sender, command, label, args);
             case "enchantment":
                 return enchantment.onCommand(sender, command, label, args);
+            case "montura":
+                return mountCommand.onCommand(sender,command,label,args);
             default:
                 sender.sendMessage("Comando desconocido. Uso: /dungeons play, /dungeons leave, /dungeons stats, /dungeons top, /dungeons statsbook, /dungeons companionmenu, /dungeons retirarprestigio");
                 return true;
@@ -92,23 +97,20 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
-
         Player player = null;
 
-        if(sender instanceof Player){
+        if (sender instanceof Player) {
             player = (Player) sender;
         }
 
         if (command.getName().equalsIgnoreCase("dungeons")) {
             if (args.length == 1) {
-                if(player != null){
-                    if(player.isOp()){
-                        completions.add("resetstats");
-                        completions.add("boss");
-                        completions.add("companion");
-                        completions.add("unlockcompanion");
-                        completions.add("enchantment");
-                    }
+                if (player != null && player.isOp()) {
+                    completions.add("resetstats");
+                    completions.add("boss");
+                    completions.add("companion");
+                    completions.add("unlockcompanion");
+                    completions.add("enchantment");
                 }
                 completions.add("play");
                 completions.add("leave");
@@ -118,15 +120,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 completions.add("statsbook");
                 completions.add("companionmenu");
                 completions.add("retirarprestigio");
-            }
-            if(args.length > 1 && args[1].equals("stats")){
-                for (Player players : Bukkit.getOnlinePlayers()) {
-                    completions.add(players.getName());
-                }
-            }
-            if(args.length > 1 && args[1].equals("resetstats")){
-                for (Player players : Bukkit.getOnlinePlayers()) {
-                    completions.add(players.getName());
+                completions.add("montura");
+            } else if (args.length == 2) { // Verifica si es el segundo argumento
+                if (args[0].equalsIgnoreCase("stats") || args[0].equalsIgnoreCase("resetstats")) {
+                    completions.addAll(PlayerStatsManager.getAllPlayerNames());
                 }
             }
         }
