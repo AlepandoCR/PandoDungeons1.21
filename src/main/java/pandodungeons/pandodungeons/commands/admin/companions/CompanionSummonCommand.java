@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import pandodungeons.pandodungeons.CustomEntities.Ball.BallArmadillo;
 import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.*;
 import pandodungeons.pandodungeons.CustomEntities.pandaMount.CustomPanda;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -53,6 +54,12 @@ public class CompanionSummonCommand implements CommandExecutor, Listener {
            CustomPanda panda = new CustomPanda(EntityType.PANDA, ((CraftWorld)player.getWorld()).getHandle(), player);
            panda.setRider(player);
            return true;
+        }
+
+        if(args[1].equalsIgnoreCase("bola")){
+            BallArmadillo ball = new BallArmadillo(EntityType.ARMADILLO, ((CraftWorld)player.getWorld()).getHandle());
+            ball.spawn(player);
+            return true;
         }
 
         selectCompanion(player, args[1]);

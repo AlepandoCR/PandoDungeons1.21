@@ -108,7 +108,7 @@ public class QueenBeeFight {
                     venomAttkTicks = 0;
                 }
 
-                queen.updateBodyRotation(); // Actualizar la rotación del BlockDisplay
+                queen.  updateBodyRotation(); // Actualizar la rotación del BlockDisplay
 
                 if(kamikazeBeeTicks >= 500){
                     if(kamikazeBees.isEmpty()){

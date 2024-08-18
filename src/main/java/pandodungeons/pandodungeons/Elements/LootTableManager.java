@@ -18,6 +18,8 @@ import pandodungeons.pandodungeons.Game.Stats;
 
 import java.util.*;
 
+import static pandodungeons.pandodungeons.Utils.ItemUtils.comperGum;
+
 public class LootTableManager {
 
     private static final List<LootItem> lootTable = new ArrayList<>();
@@ -25,30 +27,37 @@ public class LootTableManager {
 
     static {
         // Añadir ítems a la tabla de botín con sus probabilidades y cantidades
-        addItemToLootTable(createItem(Material.RAW_IRON_BLOCK, "Hierro", 16), 30); // 10% cantidad 16
-        addItemToLootTable(createItem(Material.RAW_GOLD_BLOCK, "Oro", 16), 20); // 20% cantidad 16
-        addItemToLootTable(createItem(Material.RAW_COPPER_BLOCK, "Cobre", 16), 30); // 20% cantidad 16
-        addItemToLootTable(createItem(Material.ANCIENT_DEBRIS, "Resto ancestral", 8), 10); // 30% cantidad 8
-        addItemToLootTable(createItem(Material.REDSTONE_ORE, "Mineral de redstone", 16), 20); // 20% cantidad 16
-        addItemToLootTable(createItem(Material.EMERALD, "Esmeralda", 26), 15); // 20% cantidad 26
-        addItemToLootTable(createItem(Material.PRISMARINE, "Prismarina", 36), 20); // 20% cantidad 36
-        addItemToLootTable(createItem(Material.DARK_PRISMARINE, "Prismarina Oscura", 36), 20); // 20% cantidad 36
-        addItemToLootTable(createItem(Material.NAUTILUS_SHELL, "Caparazon de Nautilo", 6), 15); // 20% cantidad 6
-        addItemToLootTable(createItem(Material.SHULKER_SHELL, "Caparazon de Shulker", 6), 10); // 20% cantidad 6
-        addItemToLootTable(createItem(Material.ENCHANTED_GOLDEN_APPLE, "Manzana Dorada Encantada", 7), 2); // 20% cantidad 7
-        addItemToLootTable(createItem(Material.TOTEM_OF_UNDYING, "Tótem de la Inmortalidad", 2), 7); // 10% cantidad 2
-        addItemToLootTable(createItem(Material.HEARTBREAK_POTTERY_SHERD, "Trozo de ceramica", 8), 8); // 30% cantidad 8
-        addItemToLootTable(createItem(Material.DANGER_POTTERY_SHERD, "Trozo de ceramica", 8), 11); // 15% cantidad 8
-        addItemToLootTable(createItem(Material.PRIZE_POTTERY_SHERD, "Trozo de ceramica", 8), 11); // 15% cantidad 8
-        addItemToLootTable(createItem(Material.ANGLER_POTTERY_SHERD, "Trozo de ceramica", 8), 11); // 15% cantidad 8
-        addItemToLootTable(createEnchantedBook(Enchantment.SWIFT_SNEAK, 3, 1, "Libro encantado"), 6); // 30% cantidad 2
-        addItemToLootTable(createEnchantedBook(Enchantment.SOUL_SPEED, 3, 1, "Libro encantado"), 6); // 30% cantidad 2
-        addItemToLootTable(createEnchantedBook(Enchantment.MENDING, 1, 1, "Libro encantado"), 6); // 30% cantidad 2
-        addItemToLootTable(createEnchantedBook(Enchantment.WIND_BURST, 2, 1, "Libro encantado"), 6); // 30% cantidad 2
-        addItemToLootTable(createCustomRabbitFoot(3), 3); // 1% cantidad 3
-        addItemToLootTable(createCustomChickenEgg(3), 3); // 1% cantidad 3
-        addItemToLootTable(createItem(Material.TNT, "Tnt", 37), 10); // 10% cantidad 37
+        addItemToLootTable(createItem(Material.RAW_IRON_BLOCK, "Hierro", 16), 30);
+        addItemToLootTable(createItem(Material.RAW_GOLD_BLOCK, "Oro", 16), 20);
+        addItemToLootTable(createItem(Material.HEART_OF_THE_SEA, "Corazon del Mar", 1), 7);
+        addItemToLootTable(createItem(Material.RAW_COPPER_BLOCK, "Cobre", 16), 30);
+        addItemToLootTable(createItem(Material.ANCIENT_DEBRIS, "Resto ancestral", 8), 10);
+        addItemToLootTable(createItem(Material.REDSTONE_ORE, "Mineral de redstone", 16), 20);
+        addItemToLootTable(createItem(Material.EMERALD, "Esmeralda", 26), 15);
+        addItemToLootTable(createItem(Material.PRISMARINE, "Prismarina", 36), 20);
+        addItemToLootTable(createItem(Material.DARK_PRISMARINE, "Prismarina Oscura", 36), 20);
+        addItemToLootTable(createItem(Material.NAUTILUS_SHELL, "Caparazon de Nautilo", 6), 15);
+        addItemToLootTable(createItem(Material.WIND_CHARGE, "Carga de Viento", 16), 15);
+        addItemToLootTable(createItem(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE, "Mejora de netherita", 1), 3);
+        addItemToLootTable(comperGum(1), 10);
+        addItemToLootTable(createItem(Material.SHULKER_SHELL,  "Caparazon de Shulker", 6), 10);
+        addItemToLootTable(createItem(Material.ENCHANTED_GOLDEN_APPLE, "Manzana Dorada Encantada", 7), 2);
+        addItemToLootTable(createItem(Material.TOTEM_OF_UNDYING, "Tótem de la Inmortalidad", 2), 7);
+        addItemToLootTable(createItem(Material.HEARTBREAK_POTTERY_SHERD, "Trozo de ceramica", 8), 8);
+        addItemToLootTable(createItem(Material.DANGER_POTTERY_SHERD, "Trozo de ceramica", 8), 11);
+        addItemToLootTable(createItem(Material.PRIZE_POTTERY_SHERD, "Trozo de ceramica", 8), 11);
+        addItemToLootTable(createItem(Material.ANGLER_POTTERY_SHERD, "Trozo de ceramica", 8), 11);
+        addItemToLootTable(createEnchantedBook(Enchantment.SWIFT_SNEAK, 3, 1, "Libro encantado"), 6);
+        addItemToLootTable(createEnchantedBook(Enchantment.SWEEPING_EDGE, 3, 1, "Libro encantado"), 3);
+        addItemToLootTable(createEnchantedBook(Enchantment.SOUL_SPEED, 3, 1, "Libro encantado"), 6);
+        addItemToLootTable(createEnchantedBook(Enchantment.MENDING, 1, 1, "Libro encantado"), 6);
+        addItemToLootTable(createEnchantedBook(Enchantment.WIND_BURST, 2, 1, "Libro encantado"), 6);
+        addItemToLootTable(createCustomRabbitFoot(3), 3);
+        addItemToLootTable(createCustomChickenEgg(3), 3);
+        addItemToLootTable(createItem(Material.TNT, "Tnt", 37), 10);
+        addItemToLootTable(createItem(Material.WITHER_SKELETON_SKULL, "Cabeza de Wither", 2), 5);
         addItemToLootTable(createItem(Material.NAME_TAG, "NameTag", 1), 15);
+        addItemToLootTable(createItem(Material.OMINOUS_TRIAL_KEY, "Trial Key", 1), 11);
     }
 
     // Método para crear un ítem con un nombre personalizado y una cantidad específica
@@ -125,13 +134,14 @@ public class LootTableManager {
     // Método para obtener un ítem aleatorio de la tabla de botín basado en las probabilidades
     public static ItemStack getRandomLoot(Player player) {
         boolean hasLuck = player.hasPotionEffect(PotionEffectType.LUCK);
+        int lvl = Objects.requireNonNull(player.getPotionEffect(PotionEffectType.LUCK)).getAmplifier();
         int totalWeight = 0;
 
         for (LootItem lootItem : lootTable) {
             int probability = lootItem.getProbability();
             if (hasLuck && probability <= 10) {
                 // Incrementar la probabilidad para ítems con probabilidad <= 10
-                probability += 5; // Ajustar este valor según sea necesario
+                probability += 5 + (2 * lvl); // Ajustar este valor según sea necesario
             }
             totalWeight += probability;
         }

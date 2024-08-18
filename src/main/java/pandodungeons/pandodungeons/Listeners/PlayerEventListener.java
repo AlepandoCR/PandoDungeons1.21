@@ -1,6 +1,8 @@
 package pandodungeons.pandodungeons.Listeners;
 
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import pandodungeons.pandodungeons.CustomEntities.Ball.BallArmadillo;
 import pandodungeons.pandodungeons.CustomEntities.CompanionLoops.Companion;
 import pandodungeons.pandodungeons.Elements.CompanionMenu;
 import pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment;
@@ -107,6 +110,30 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+    private final Map<Player, Long> ballCooldown = new HashMap<>();
+
+    @EventHandler
+    public void interactBlock(PlayerInteractEvent event){
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Block block = event.getClickedBlock();
+            if(block != null){
+                Player player = event.getPlayer();
+                if(player.getItemInHand().asOne().equals(soccerBall(1))){
+                    long currentTime = System.currentTimeMillis();
+                    long lastTime = ballCooldown.getOrDefault(player, 0L);
+                    if (currentTime - lastTime < (200)) {
+                        return;
+                    }
+                    ballCooldown.put(player, currentTime);
+                    Location location = block.getLocation();
+                    BallArmadillo ball = new BallArmadillo(net.minecraft.world.entity.EntityType.ARMADILLO, ((CraftWorld)location.getWorld()).getHandle());
+                    ball.spawnLocation(location.add(0,1,0));
+                    player.getItemInHand().setAmount(player.getItemInHand().getAmount() - 1);
+                }
+            }
+        }
+    }
+
     private final Map<Entity, Long> polarShear = new HashMap<>();
 
 
@@ -163,7 +190,6 @@ public class PlayerEventListener implements Listener {
             }
         }
     }
-
 
     @EventHandler
     public void unlockCompanion(PlayerInteractEvent event){
@@ -297,6 +323,9 @@ public class PlayerEventListener implements Listener {
                     if(getSoulCount(newItem) >= 200){
                         progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DID" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Inmovilizar" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 100" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
                     }
+                    if(getSoulCount(newItem) >= 300){
+                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DDI" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Berserk" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 200" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                    }
                     player.sendActionBar(progressBar);
                 }
             };
@@ -373,9 +402,14 @@ public class PlayerEventListener implements Listener {
                     freezeAbility(player, item);
                     combinations.remove(player);
                 }
+
+                if(combination.equals("DDI")){
+                    berserkAttack(player, item);
+                    combinations.remove(player);
+                }
             }
             if(item.asOne().equals(physicalPrestigeNoAmount())){
-                long lastTime = lastPrestigeConsume.getOrDefault(player, 0L);
+                long lastTime =     lastPrestigeConsume.getOrDefault(player, 0L);
                 if (currentTime - lastTime < 200) { // 200 ms intervalo de tiempo para prevenir múltiples registros
                     return;
                 }
@@ -477,10 +511,15 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerKillMob(EntityDeathEvent event) throws MalformedURLException {
+    public void onPlayerKillMob(EntityDeathEvent event) {
         if (event.getEntity().getKiller() != null) {
             Player player = event.getEntity().getKiller();
             LivingEntity target = event.getEntity();
+
+            if(target.getScoreboardTags().contains("bolaFut")){
+                event.getDrops().clear();
+                target.getWorld().dropItemNaturally(target.getLocation(), soccerBall(1));
+            }
 
             if(isGarabiThor(player.getItemInHand())){
                 if(target instanceof Creeper){

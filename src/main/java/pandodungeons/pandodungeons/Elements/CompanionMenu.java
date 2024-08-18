@@ -1,6 +1,7 @@
 package pandodungeons.pandodungeons.Elements;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.event.entity.PufferFishStateChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -44,7 +45,6 @@ public class CompanionMenu {
 
         return companionMenu;
     }
-
     private ItemStack createHead(String displayName, String textureUrl) throws MalformedURLException {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();

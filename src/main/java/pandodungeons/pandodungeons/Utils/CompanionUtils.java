@@ -27,7 +27,7 @@ public class CompanionUtils {
 
     private static final Map<UUID, Map<String, CompanionData>> playerCompanions = new HashMap<>();
     private static final Set<String> COMPANION_TYPES = Set.of(
-            "allay", "breeze", "armadillo", "oso", "sniffer"
+            "allay", "breeze", "armadillo", "oso", "sniffer", "pufferfish"
     );
 
     private static class CompanionData {
@@ -357,6 +357,9 @@ public class CompanionUtils {
                     break;
                 case "sniffer":
                     compa = new CompanionSniffer(player);
+                    break;
+                case "pufferfish":
+                    compa = new CompanionPufferfish(player);
                     break;
                 default:
                     // Handle if companion type is not recognized

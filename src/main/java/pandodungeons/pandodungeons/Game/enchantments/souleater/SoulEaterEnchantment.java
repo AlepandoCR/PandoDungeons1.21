@@ -58,7 +58,7 @@ public class SoulEaterEnchantment {
             assert lore != null;
             if (!lore.contains(SOUL_EATER_LORE)) {
                 lore.add(ChatColor.DARK_AQUA + SOUL_EATER_LORE);
-                lore.add(ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + "0/1k");
+                lore.add(ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + "0");
                 meta.setLore(lore);
                 meta.getPersistentDataContainer().set(new NamespacedKey(plugin, SOUL_EATER_LORE), PersistentDataType.STRING, SOUL_EATER_LORE);
                 meta.getPersistentDataContainer().set(SOUL_COUNT_KEY, PersistentDataType.INTEGER, 0);
@@ -132,13 +132,13 @@ public class SoulEaterEnchantment {
             boolean found = false;
             for (int i = 0; i < lore.size(); i++) {
                 if (lore.get(i).startsWith(ChatColor.AQUA.toString() + "Almas: ")) {
-                    lore.set(i, ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount + "/1k");
+                    lore.set(i, ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount);
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                lore.add(ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount + "/1k");
+                lore.add(ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount);
             }
             meta.setLore(lore);
             item.setItemMeta(meta);
@@ -170,13 +170,13 @@ public class SoulEaterEnchantment {
             boolean found = false;
             for (int i = 0; i < lore.size(); i++) {
                 if (lore.get(i).startsWith(ChatColor.AQUA.toString() + "Almas: ")) {
-                    lore.set(i, ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount + "/1k");
+                    lore.set(i, ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount);
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                lore.add(ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount + "/1k");
+                lore.add(ChatColor.AQUA.toString() + "Almas: " + ChatColor.YELLOW + soulCount);
             }
             meta.setLore(lore);
             item.setItemMeta(meta);
@@ -205,6 +205,22 @@ public class SoulEaterEnchantment {
             reduceSouls(item,100);
         }else{
             player.sendMessage(ChatColor.DARK_RED + "No tienes almas suficientes aun");
+        }
+    }
+
+    public static void berserkAttack(Player player, ItemStack item){
+        if(getSoulCount(item) > 300){
+            player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 200 * 4, 3, false,false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 200 * 4, 4, false,false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200 * 4, 1, false,false));
+            List<Entity> entities = player.getNearbyEntities(10,10,10);
+            for(Entity entity : entities){
+                if(!(entity instanceof Player)){
+                    LivingEntity livingEntity = (LivingEntity) entity;
+                    livingEntity.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100,3));
+                }
+            }
+            reduceSouls(item,200);
         }
     }
 

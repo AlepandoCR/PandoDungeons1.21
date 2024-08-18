@@ -37,7 +37,7 @@ public class MinionVex {
             }
 
             // Ajustar la velocidad de movimiento
-            AttributeInstance movementSpeedAttr = vex.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            AttributeInstance movementSpeedAttr = vex.getAttribute  (Attribute.GENERIC_MOVEMENT_SPEED);
             if (movementSpeedAttr != null) {
                 movementSpeedAttr.setBaseValue(0.3); // Ajustar la velocidad de movimiento
             }

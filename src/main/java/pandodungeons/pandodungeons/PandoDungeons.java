@@ -1,5 +1,6 @@
 package pandodungeons.pandodungeons;
 
+import net.minecraft.world.level.block.CarrotBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -8,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
@@ -45,7 +47,8 @@ public final class PandoDungeons extends JavaPlugin {
         }
 
         // Register events and commands
-        getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
+        getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
 
         // Ensure player data folder exists
@@ -64,6 +67,7 @@ public final class PandoDungeons extends JavaPlugin {
         osoCompanionCustomRecipe();
         snifferCompanionCustomRecipe();
         copperGumRecipe();
+        soccerBallRecipe();
 
         unlockRecipeForAllPlayers(getOsoCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getArmadilloCompanionCustomRecipe());
@@ -71,7 +75,7 @@ public final class PandoDungeons extends JavaPlugin {
         unlockRecipeForAllPlayers(getAllayCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getSnifferCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getCopperGumRecipe());
-
+        unlockRecipeForAllPlayers(getSoccerBallRecipe());
         loadAllCompanions();
 
         // Create or load player stats files

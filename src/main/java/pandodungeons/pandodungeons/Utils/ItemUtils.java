@@ -410,6 +410,22 @@ public class ItemUtils {
     return item;
   }
 
+  public static ItemStack soccerBall(int amount){
+    ItemStack item = new ItemStack(Material.POPPED_CHORUS_FRUIT, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Bola");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GREEN.toString() + "Podrás jugar todo lo que quierás con ella!");
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");;
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
   public static ItemStack physicalPrestigeNoAmount(){
     ItemStack item = new ItemStack(Material.PUMPKIN_PIE);
     item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
@@ -465,6 +481,45 @@ public class ItemUtils {
 
     // Registrar la receta en el servidor
     Bukkit.addRecipe(recipe);
+  }
+
+  public static void soccerBallRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = soccerBall(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "SoccerBall");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', new ItemStack(Material.LEATHER));
+    recipe.setIngredient('0', new ItemStack(Material.WIND_CHARGE));
+
+    // Registrar la receta en el servidor
+    Bukkit.addRecipe(recipe);
+  }
+
+  public static Recipe getSoccerBallRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = soccerBall(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "SoccerBall");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', new ItemStack(Material.LEATHER));
+    recipe.setIngredient('0', new ItemStack(Material.WIND_CHARGE));
+
+    return recipe;
   }
 
   public static Recipe getCopperGumRecipe() {

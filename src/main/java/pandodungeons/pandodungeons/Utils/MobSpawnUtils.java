@@ -207,7 +207,7 @@ public class MobSpawnUtils {
             }
         }
         if(playerLvl > 1){
-            double health = (20.0 * playerLvl) + (playerPrestige * 2);
+            double health = (12.0 * playerLvl) + (playerPrestige * 2);
             if(health > 2048){
                 int totalLevel = playerPrestige + playerLvl;
                 health = 2048;
