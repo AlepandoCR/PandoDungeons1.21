@@ -54,6 +54,9 @@ public class BossSummonCommand implements CommandExecutor, Listener {
         else if(args[1].equalsIgnoreCase("spider")){
             SpiderBossFight fight = new SpiderBossFight(location);
             fight.startSpiderBossFight();
+        }else if(args[1].equalsIgnoreCase("cube")){
+            CubitoBoomFight cubitoBoomFight = new CubitoBoomFight(location);
+            cubitoBoomFight.startMagmaCubeBossFight();
         }
 
         return false;

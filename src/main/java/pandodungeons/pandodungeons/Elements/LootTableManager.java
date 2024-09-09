@@ -7,11 +7,13 @@ import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
+import org.eclipse.aether.util.listener.ChainedTransferListener;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pandodungeons.pandodungeons.Game.Stats;
@@ -19,6 +21,7 @@ import pandodungeons.pandodungeons.Game.Stats;
 import java.util.*;
 
 import static pandodungeons.pandodungeons.Utils.ItemUtils.comperGum;
+import static pandodungeons.pandodungeons.Utils.ItemUtils.soulWritter;
 
 public class LootTableManager {
 
@@ -27,6 +30,12 @@ public class LootTableManager {
 
     static {
         // Añadir ítems a la tabla de botín con sus probabilidades y cantidades
+        addItemToLootTable(createItem(Material.GOLDEN_CARROT, "Zanahoria Dorada", 5), 9);
+        addItemToLootTable(createItem(Material.ENDER_CHEST, "Ender Chest", 1), 1);
+        addItemToLootTable(createItem(Material.ENDER_EYE, "Ojo de Ender", 5), 12);
+        addItemToLootTable(createItem(Material.HOPPER, "Tolva", 1), 15);
+        addItemToLootTable(createItem(Material.COAL_BLOCK, "Bloque de Carbón", 16), 15);
+        addItemToLootTable(createItem(Material.SEA_LANTERN, "Linterna Marina", 5), 12);
         addItemToLootTable(createItem(Material.RAW_IRON_BLOCK, "Hierro", 16), 30);
         addItemToLootTable(createItem(Material.RAW_GOLD_BLOCK, "Oro", 16), 20);
         addItemToLootTable(createItem(Material.HEART_OF_THE_SEA, "Corazon del Mar", 1), 7);
@@ -52,6 +61,10 @@ public class LootTableManager {
         addItemToLootTable(createEnchantedBook(Enchantment.SOUL_SPEED, 3, 1, "Libro encantado"), 6);
         addItemToLootTable(createEnchantedBook(Enchantment.MENDING, 1, 1, "Libro encantado"), 6);
         addItemToLootTable(createEnchantedBook(Enchantment.WIND_BURST, 2, 1, "Libro encantado"), 6);
+        addItemToLootTable(createEnchantedBook(Enchantment.UNBREAKING, 2, 1, "Libro encantado"), 6);
+        addItemToLootTable(createEnchantedBook(Enchantment.EFFICIENCY, 2, 1, "Libro encantado"), 8);
+        addItemToLootTable(createEnchantedBook(Enchantment.SHARPNESS, 2, 1, "Libro encantado"), 8);
+        addItemToLootTable(soulWritter(1),6);
         addItemToLootTable(createCustomRabbitFoot(3), 3);
         addItemToLootTable(createCustomChickenEgg(3), 3);
         addItemToLootTable(createItem(Material.TNT, "Tnt", 37), 10);
@@ -63,9 +76,11 @@ public class LootTableManager {
     // Método para crear un ítem con un nombre personalizado y una cantidad específica
     private static @NotNull ItemStack createItem(Material material, String name, int amount) {
         ItemStack item = new ItemStack(material, amount);
+        name = ChatColor.BOLD + name;
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(name);
+            meta.setRarity(ItemRarity.EPIC);
             item.setItemMeta(meta);
         }
         return item;
@@ -134,7 +149,11 @@ public class LootTableManager {
     // Método para obtener un ítem aleatorio de la tabla de botín basado en las probabilidades
     public static ItemStack getRandomLoot(Player player) {
         boolean hasLuck = player.hasPotionEffect(PotionEffectType.LUCK);
-        int lvl = Objects.requireNonNull(player.getPotionEffect(PotionEffectType.LUCK)).getAmplifier();
+        int lvl = 0;
+        if(hasLuck){
+            lvl = Objects.requireNonNull(player.getPotionEffect(PotionEffectType.LUCK)).getAmplifier();
+        }
+
         int totalWeight = 0;
 
         for (LootItem lootItem : lootTable) {
@@ -167,6 +186,13 @@ public class LootTableManager {
     @Contract(value = " -> new", pure = true)
     public static @NotNull List<LootItem> getLootTable() {
         return new ArrayList<>(lootTable);
+    }
+
+
+    public static void giveLootToPlayerList(List<Player> list){
+        for(Player player : list){
+            giveRandomLoot(player);
+        }
     }
 
     public static void giveRandomLoot(Player player) {

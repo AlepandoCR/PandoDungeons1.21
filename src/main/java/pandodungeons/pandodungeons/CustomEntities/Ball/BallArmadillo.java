@@ -89,8 +89,16 @@ public class BallArmadillo extends Armadillo {
 
         // Detecta colisiones y maneja rebote horizontal
         if (this.horizontalCollision) {
-            double xSpeed = -previousDeltaMovement.getX() * 0.4;
-            double zSpeed = -previousDeltaMovement.getZ() * 0.4;
+            double xSpeed;
+            double zSpeed;
+            if(previousDeltaMovement.getX() > previousDeltaMovement.getZ()){
+                xSpeed = previousDeltaMovement.getX() * 0.4;
+                zSpeed = -previousDeltaMovement.getZ() * 0.4;
+            }else{
+                xSpeed = -previousDeltaMovement.getX() * 0.4;
+                zSpeed = previousDeltaMovement.getZ() * 0.4;
+            }
+
 
             // Asegura una velocidad mínima para que el rebote sea efectivo
             if (Math.abs(xSpeed) < 0.1) {

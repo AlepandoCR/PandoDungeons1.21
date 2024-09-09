@@ -224,6 +224,7 @@ public class StructureUtils {
         if (world != null) {
             List<Player> players = world.getPlayers();
             for(Player player: players){
+                player.setGameMode(GameMode.SURVIVAL);
                 if(!player.getName().toLowerCase(Locale.ROOT).equals(playerName)){
                     Location playerSpawnPoint = player.getBedSpawnLocation();
                     if(playerSpawnPoint != null){

@@ -13,7 +13,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import pandodungeons.pandodungeons.CustomEntities.pandaMount.CustomPanda;
 
-public class mountCommand implements CommandExecutor {
+public class MountCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

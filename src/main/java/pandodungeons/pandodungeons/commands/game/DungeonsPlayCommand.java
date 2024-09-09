@@ -8,36 +8,42 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import pandodungeons.pandodungeons.Utils.CompanionUtils;
+import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.pandodungeons.Utils.*;
 import pandodungeons.pandodungeons.commands.Management.CommandQueue;
 import pandodungeons.pandodungeons.DungeonBuilders.DungeonBuilder;
 import pandodungeons.pandodungeons.Elements.LootTableManager;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
-import pandodungeons.pandodungeons.Utils.LocationUtils;
 import pandodungeons.pandodungeons.Elements.Room;
 import pandodungeons.pandodungeons.Game.RoomManager;
-import pandodungeons.pandodungeons.Utils.StructureUtils;
 
 import java.util.*;
 
+import static pandodungeons.pandodungeons.Elements.LootTableManager.giveLootToPlayerList;
+import static pandodungeons.pandodungeons.Utils.LocationUtils.hasActiveDungeon;
+import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
+import static pandodungeons.pandodungeons.Utils.StructureUtils.removeDungeon;
 import static pandodungeons.pandodungeons.commands.game.DungeonsLeaveCommand.removeAllBossBars;
 
 public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
-    private final JavaPlugin plugin;
+    private final PandoDungeons plugin;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private static final long COOLDOWN_TIME = 180000 * 2; // 6 minutos en milisegundos
     private static final long GLOBAL_COOLDOWN_TIME = 5000; // 50 segundos en milisegundos
     private static long lastCommandExecutionTime = 0;
     private boolean playerDced = false;
+    private boolean isPartyDungeon = false;
+    private PlayerParty playerParty;
 
-    public DungeonsPlayCommand(JavaPlugin plugin) {
+    public DungeonsPlayCommand(PandoDungeons plugin) {
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin); // Registrar este comando como listener
     }
@@ -48,6 +54,15 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Este comando solo puede ser ejecutado por jugadores.");
             return true;
+        }
+
+        if(plugin.playerPartyList.isOwner(player) || plugin.playerPartyList.isMember(player)){
+            isPartyDungeon = true;
+            playerParty = plugin.playerPartyList.getPartyByMember(player);
+            if(plugin.playerPartyList.isMember(player) && !(plugin.playerPartyList.isOwner(player))){
+                player.sendMessage(ChatColor.DARK_RED + "No puedes iniciar una dungeon si no eres el lider de la party");
+                return true;
+            }
         }
 
         if(player.isOnline()){
@@ -118,7 +133,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         player.sendMessage(ChatColor.DARK_GREEN.toString() + "Generando mundo..." + "\n" + ChatColor.RESET + ChatColor.GOLD + "Esto puede tardar hasta 1 minuto");
 
         if(!player.isOnline()){
-            StructureUtils.removeDungeon(playerName, plugin);
+            removeDungeon(playerName, plugin);
             playerDced = true;
             //quitarlo pa que funque
             queue.dequeue();
@@ -140,7 +155,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
                 if(!player.isOnline() || playerDced){
                     playerDced = true;
-                    StructureUtils.removeDungeon(playerName, plugin);
+                    removeDungeon(playerName, plugin);
                     //quitarlo pa que funque
                     queue.dequeue();
                     this.cancel();
@@ -157,7 +172,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
                 if(!player.isOnline() || playerDced){
                     playerDced = true;
-                    StructureUtils.removeDungeon(playerName, plugin);
+                    removeDungeon(playerName, plugin);
                     //quitarlo pa que funque
                     queue.dequeue();
                     this.cancel();
@@ -175,7 +190,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                     public void run() {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
-                            StructureUtils.removeDungeon(playerName, plugin);
+                            removeDungeon(playerName, plugin);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -191,7 +206,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                     public void run() {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
-                            StructureUtils.removeDungeon(playerName, plugin);
+                            removeDungeon(playerName, plugin);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -208,7 +223,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                     public void run() {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
-                            StructureUtils.removeDungeon(playerName, plugin);
+                            removeDungeon(playerName, plugin);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -225,7 +240,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                     public void run() {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
-                            StructureUtils.removeDungeon(playerName, plugin);
+                            removeDungeon(playerName, plugin);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -243,7 +258,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
-                            StructureUtils.removeDungeon(playerName, plugin);
+                            removeDungeon(playerName, plugin);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -255,7 +270,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                             public void run() {
                                 if(!player.isOnline() || playerDced){
                                     playerDced = true;
-                                    StructureUtils.removeDungeon(playerName, plugin);
+                                    removeDungeon(playerName, plugin);
                                     //quitarlo pa que funque
                                     queue.dequeue();
                                     this.cancel();
@@ -273,7 +288,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
                                 if(!player.isOnline() || playerDced){
                                     playerDced = true;
-                                    StructureUtils.removeDungeon(playerName, plugin);
+                                    removeDungeon(playerName, plugin);
                                     //quitarlo pa que funque
                                     queue.dequeue();
                                     this.cancel();
@@ -297,17 +312,26 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                                     LocationUtils.saveDungeonLocationData(dungeonID, dungeonSpawnLocation);
 
                                     // Iniciar el RoomManager para este jugador
-                                    RoomManager roomManager = new RoomManager(dungeonWorld, player);
+                                    RoomManager roomManager = new RoomManager(dungeonWorld, player, isPartyDungeon, plugin);
 
+                                    if(isPartyDungeon){
+                                        for(Player player1 : playerParty.getMembers()){
+                                            player1.teleport(kelpBlockLocation.add(0.5, 1.1, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
+                                            player1.setGameMode(GameMode.ADVENTURE);
+                                            if(CompanionUtils.hasSelectedCompanion(player1) && !plugin.playerPartyList.isOwner(player)){
+                                                CompanionUtils.summonSelectedCompanion(player1);
+                                            }
+                                        }
+                                    }
                                     player.teleport(kelpBlockLocation.add(0.5, 1, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
                                     player.setGameMode(GameMode.ADVENTURE);
+                                    if(CompanionUtils.hasSelectedCompanion(player)){
+                                        CompanionUtils.summonSelectedCompanion(player);
+                                    }
                                 } else {
                                     player.sendMessage("No se pudo encontrar el bloque de dried kelp en la estructura de spawn.");
                                 }
 
-                                if(CompanionUtils.hasSelectedCompanion(player)){
-                                    CompanionUtils.summonSelectedCompanion(player);
-                                }
                                 // Informar al jugador
                                 player.sendMessage(ChatColor.BOLD + "¡Bienvenido a tu dungeon personal! Usa /dungeons leave para salir.");
                             }
@@ -345,53 +369,91 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
             removeAllBossBars(player);
             player.performCommand("dungeons leave");
         }
-        // Manejar si un jugador externo al mundo dungeon entra
-        if(LocationUtils.isDungeonWorld(player.getWorld().getName()) && !player.getWorld().getName().contains(player.getName().toLowerCase(Locale.ROOT)) && !player.isOp()){
-            Location playerSpawnPoint = player.getBedSpawnLocation();
-            if(playerSpawnPoint != null){
-                player.teleport(playerSpawnPoint);
-            }else{
-                World spawn = Bukkit.getWorld("spawn");
-                if(spawn != null){
-                    Location spawnSpawn = spawn.getSpawnLocation();
-                    player.teleport(spawnSpawn);
-                }else{
-                    player.damage(1000);
+
+        boolean isPartOfDungeon = hasActiveDungeon(player.getUniqueId().toString());
+
+        if(plugin.playerPartyList.isMember(player) && hasActiveDungeon(plugin.playerPartyList.getPartyByMember(player).getOwner().getUniqueId().toString())){
+            isPartOfDungeon = true;
+        }
+
+        if(!isPartOfDungeon) {
+
+            // Manejar si un jugador externo al mundo dungeon entra
+            if (isDungeonWorld(player.getWorld().getName()) && !player.getWorld().getName().contains(player.getName().toLowerCase(Locale.ROOT)) && !player.isOp()) {
+                Location playerSpawnPoint = player.getBedSpawnLocation();
+                if (playerSpawnPoint != null) {
+                    player.teleport(playerSpawnPoint);
+                } else {
+                    World spawn = Bukkit.getWorld("spawn");
+                    if (spawn != null) {
+                        Location spawnSpawn = spawn.getSpawnLocation();
+                        player.teleport(spawnSpawn);
+                    } else {
+                        player.damage(1000);
+                    }
                 }
             }
-        }
-        if(!LocationUtils.hasActiveDungeon(playerName) && LocationUtils.isDungeonWorld(player.getWorld().getName()) && !player.isOp()){
-            Location playerSpawnPoint = player.getBedSpawnLocation();
-            if(playerSpawnPoint != null){
-                player.teleport(playerSpawnPoint);
-            }else{
-                World spawn = Bukkit.getWorld("spawn");
-                if(spawn != null){
-                    Location spawnSpawn = spawn.getSpawnLocation();
-                    player.teleport(spawnSpawn);
-                }else{
-                    player.damage(1000);
+
+            if (!LocationUtils.hasActiveDungeon(playerName) && isDungeonWorld(player.getWorld().getName()) && !player.isOp() && !LocationUtils.hasActiveDungeon(plugin.playerPartyList.getPartyByMember(player).getOwner().getUniqueId().toString())) {
+                Location playerSpawnPoint = player.getBedSpawnLocation();
+                if (playerSpawnPoint != null) {
+                    player.teleport(playerSpawnPoint);
+                } else {
+                    World spawn = Bukkit.getWorld("spawn");
+                    if (spawn != null) {
+                        Location spawnSpawn = spawn.getSpawnLocation();
+                        player.teleport(spawnSpawn);
+                    } else {
+                        player.damage(1000);
+                    }
                 }
             }
         }
     }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event){
+        Player player = event.getPlayer();
+
+        if(plugin.playerPartyList.isMember(player) && hasActiveDungeon(plugin.playerPartyList.getPartyByMember(player).getOwner().getUniqueId().toString())){
+            player.setRespawnLocation(player.getLastDeathLocation());
+        }
+    }
+
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
+
+        if(player.getLastDeathLocation() != null){
+            event.setRespawnLocation(Objects.requireNonNull(event.getPlayer().getLastDeathLocation()));
+        }
+
         String playerName = player.getUniqueId().toString();
 
-        if (LocationUtils.hasActiveDungeon(playerName) && player.getWorld().getName().contains(player.getName().toLowerCase(Locale.ROOT))) {
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                player.performCommand("dungeons leave");
-                player.sendMessage(ChatColor.RED + "Se eliminó tu dungeon por morir");
+        PlayerPartyList partyList = plugin.playerPartyList;
 
-                PlayerStatsManager stats = PlayerStatsManager.getPlayerStatsManager(player);
-                if (stats != null) {
-                    stats.resetLevelProgress();
-                }
-            });
+        boolean isPartyDungeons = partyList.isMember(player);
+
+        if(isPartyDungeons && isDungeonWorld(plugin.playerPartyList.getPartyByMember(player).getOwner().getWorld().getName())){
+            player.setGameMode(GameMode.SPECTATOR);
+            event.setRespawnLocation(player.getLastDeathLocation());
+        }else{
+            if (LocationUtils.hasActiveDungeon(playerName)
+                    && player.getWorld().getName().contains(player.getName().toLowerCase(Locale.ROOT))) {
+
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    player.performCommand("dungeons leave");
+                    player.sendMessage(ChatColor.RED + "Se eliminó tu dungeon por morir");
+
+                    PlayerStatsManager stats = PlayerStatsManager.getPlayerStatsManager(player);
+                    if (stats != null) {
+                        stats.resetLevelProgress();
+                    }
+                });
+            }
         }
     }
+
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
@@ -412,18 +474,40 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
     }
 
     private void handleStartVillagerInteraction(Player player, Villager villager) {
-        String dungeonID = "dungeon_" + player.getUniqueId();
+
+        Player dungeonPlayer = player;
+
+        boolean isPartyDungeon = false;
+
+        PlayerParty party = null;
+
+        if(plugin.playerPartyList.isMember(player)){
+            isPartyDungeon = true;
+            party = plugin.playerPartyList.getPartyByMember(player);
+            dungeonPlayer = plugin.playerPartyList.getPartyByMember(player).getOwner();
+        }
+
+        String dungeonID = "dungeon_" + dungeonPlayer.getUniqueId();
         List<Location> roomLocations = LocationUtils.getAllDungeonRoomLocations(dungeonID);
 
         if (!roomLocations.isEmpty()) {
-            Room firstRoom = new Room(roomLocations.get(0), 1, false);
+            Room firstRoom = new Room(roomLocations.getFirst(), 1, false);
             Location playerTpLocation = StructureUtils.findDriedKelpBlock(firstRoom.getLocation(), 50);
             if (playerTpLocation != null) {
-                playerTpLocation.setY(playerTpLocation.getY() + 1);
-                player.teleport(playerTpLocation);
+                if(isPartyDungeon){
+                    for(Player player1 : party.getMembers()){
+                        playerTpLocation.setY(playerTpLocation.getY() + 1);
+                        player1.teleport(playerTpLocation);
+
+                        player1.sendMessage("¡Teletransportado a la habitación #1!");
+                    }
+                }else{
+                    playerTpLocation.setY(playerTpLocation.getY() + 1);
+                    player.teleport(playerTpLocation);
+                    player.sendMessage("¡Teletransportado a la habitación #1!");
+                }
                 villager.remove();
-                player.sendMessage("¡Teletransportado a la habitación #1!");
-            } else {
+            }   else {
                 player.sendMessage("No se encontró la ubicación de la dungeon para teletransportarte.");
             }
         } else {
@@ -433,8 +517,21 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
     private void handleNextRoomVillagerInteraction(Player player, Villager villager) {
         String roomTag = getRoomTag(villager);
+
+        Player dungeonPlayer = player;
+
+        boolean isPartyDungeon = false;
+
+        PlayerParty party = null;
+
+        if(plugin.playerPartyList.isMember(player)){
+            isPartyDungeon = true;
+            party = plugin.playerPartyList.getPartyByMember(player);
+            dungeonPlayer = plugin.playerPartyList.getPartyByMember(player).getOwner();
+        }
+
         if (roomTag != null) {
-            String dungeonID = "dungeon_" + player.getUniqueId();
+            String dungeonID = "dungeon_" + dungeonPlayer.getUniqueId();
             List<Location> roomLocations = LocationUtils.getAllDungeonRoomLocations(dungeonID);
             int currentRoomNumber = getCurrentRoomNumber(villager, roomLocations);
             int nextRoomNumber = currentRoomNumber + 1;
@@ -449,27 +546,61 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                 Location nextRoomLocation = nextRoom.getLocation();
                 Location playerTpLocation = StructureUtils.findDriedKelpBlock(nextRoomLocation, 50);
                 if (playerTpLocation != null) {
-                    playerTpLocation.setY(playerTpLocation.getY() + 1);
-                    player.teleport(playerTpLocation);
+                    if(isPartyDungeon){
+                        for(Player player1 : party.getMembers()){
+                            playerTpLocation.setY(playerTpLocation.getY() + 1);
+                            player1.teleport(playerTpLocation);
+                            player1.sendMessage("¡Teletransportado a la habitación #" + nextRoomNumber + "!");
+                        }
+                    }else{
+                        playerTpLocation.setY(playerTpLocation.getY() + 1);
+                        player.teleport(playerTpLocation);
+                        player.sendMessage("¡Teletransportado a la habitación #" + nextRoomNumber + "!");
+                    }
                     villager.remove();
-                    player.sendMessage("¡Teletransportado a la habitación #" + nextRoomNumber + "!");
                 } else {
                     player.sendMessage("No se encontró la ubicación de la dungeon para teletransportarte.");
                 }
             } else {
-                boolean emptyStack = false;
-                for (ItemStack item : player.getInventory().getContents()) {
-                    if (item == null) {
-                        emptyStack = true;
-                        player.performCommand("dungeons leave");
-                        LootTableManager.giveRandomLoot(player);
-                        break;
+                if(isPartyDungeon) {
+                    boolean allHaveEmptyStacks = true;
+
+                    for (Player player1 : party.getMembers()) {
+                        boolean hasEmptyStack = false;
+
+                        for (ItemStack item : player1.getInventory().getContents()) {
+                            if (item == null) { // Esto verifica si hay un slot vacío
+                                hasEmptyStack = true;
+                                break;
+                            }
+                        }
+
+                        if (!hasEmptyStack) { // Si no se encontró ningún slot vacío
+                            allHaveEmptyStacks = false;
+                            player1.sendMessage(ChatColor.RED + "Tu inventario está lleno, no puedes recibir los premios.");
+                        }
                     }
+
+                    if (allHaveEmptyStacks) {
+                        plugin.playerPartyList.getPartyByMember(player).getOwner().performCommand("dungeons leave");
+                        giveLootToPlayerList(party.getMembers());
+                        player.sendMessage("¡Has llegado al final de la dungeon y has recibido tus premios!");
+                    }
+                }else{
+                    boolean emptyStack = false;
+                    for (ItemStack item : player.getInventory().getContents()) {
+                        if (item == null) {
+                            emptyStack = true;
+                            player.performCommand("dungeons leave");
+                            LootTableManager.giveRandomLoot(player);
+                            break;
+                        }
+                    }
+                    if(!emptyStack){
+                        player.sendMessage(ChatColor.RED + "Tu inventario esta lleno");
+                    }
+                    player.sendMessage("¡Has llegado al final de la dungeon!");
                 }
-                if(!emptyStack){
-                    player.sendMessage(ChatColor.RED + "Tu inventario esta lleno");
-                }
-                player.sendMessage("¡Has llegado al final de la dungeon!");
             }
         }
     }

@@ -11,6 +11,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
+import pandodungeons.pandodungeons.Utils.PlayerPartyList;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
@@ -22,10 +23,12 @@ import java.io.IOException;
 import java.util.Objects;
 
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadAllCompanions;
+import static pandodungeons.pandodungeons.Utils.CompanionUtils.unlockCompanion;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
 public final class PandoDungeons extends JavaPlugin {
     private CommandManager commandManager;
+    public PlayerPartyList playerPartyList = new PlayerPartyList();
 
     @Override
     public void onEnable() {
@@ -66,9 +69,11 @@ public final class PandoDungeons extends JavaPlugin {
         allayCompanionCustomRecipe();
         osoCompanionCustomRecipe();
         snifferCompanionCustomRecipe();
+        pufferFishCompanionCustomRecipe();
         copperGumRecipe();
         soccerBallRecipe();
 
+        unlockRecipeForAllPlayers(getPufferFishCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getOsoCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getArmadilloCompanionCustomRecipe());
         unlockRecipeForAllPlayers(getBreezeCompanionCustomRecipe());

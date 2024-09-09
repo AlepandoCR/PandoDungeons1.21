@@ -18,6 +18,7 @@ import pandodungeons.pandodungeons.Utils.LocationUtils;
 public class CompanionPufferfish extends Companion {
     private final CompanionPufferfishBehavior pufferfish;
     private PufferFish craftPufferfish;
+    private int stateClock = 0;
 
     public CompanionPufferfish(Player player) {
         super(player, CompanionUtils.getCompanionLevel(player, "pufferfish"));
@@ -29,7 +30,7 @@ public class CompanionPufferfish extends Companion {
     }
 
     private void editPufferfish(Player player) {
-        double health=6 * level;
+        double health = 7 * level;
         if (health > 2048D) {
             health = 2048D;
         }
@@ -37,22 +38,32 @@ public class CompanionPufferfish extends Companion {
         craftPufferfish.setMaxHealth(health);
         craftPufferfish.setHealth(health);
         craftPufferfish.setRemoveWhenFarAway(false);
+        craftPufferfish.setSilent(true);
         craftPufferfish.addScoreboardTag("companionMob");
-        craftPufferfish.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Pufferfish " + ChatColor.GREEN + "lvl<" + level + ">");
+        craftPufferfish.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Globerto García " + ChatColor.GREEN + "lvl<" + level + ">");
         Bukkit.getLogger().info("Spawn companion Pufferfish: " + ((CraftWorld) player.getLocation().getWorld()).getHandle().addFreshEntity(((CraftEntity) craftPufferfish).getHandle(), CreatureSpawnEvent.SpawnReason.CUSTOM));
     }
 
     private void runPufferfishLoop() {
+
+        craftPufferfish.setPuffState(1);
+
+        craftPufferfish.setFallDistance(0);
+
+        craftPufferfish.setRemainingAir(1000);
+
+        stateClock++;
+
         if (craftPufferfish.isDead()) {
             craftPufferfish.remove();
             keepLooping = false;
             return;
         }
 
-        if (craftPufferfish.getPuffState() > 0) {
-            craftPufferfish.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Pufferfish " + ChatColor.GREEN + "lvl<" + level + ">" + ChatColor.RESET + ChatColor.RED + ChatColor.BOLD + " ⚔");
-        } else if (!craftPufferfish.getCustomName().equals(ChatColor.WHITE.toString() + ChatColor.BOLD + "Pufferfish " + ChatColor.GREEN + "lvl<" + level + ">")) {
-            craftPufferfish.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Pufferfish " + ChatColor.GREEN + "lvl<" + level + ">");
+        if (craftPufferfish.getTarget() != null) {
+            craftPufferfish.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Globerto García "  + ChatColor.GREEN + "lvl<" + level + ">" + ChatColor.RESET + ChatColor.RED + ChatColor.BOLD + " ⚔");
+        }else{
+            craftPufferfish.setCustomName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Globerto García "  + ChatColor.GREEN + "lvl<" + level + ">");
         }
 
         if (!LocationUtils.hasActiveDungeon(playerCompanion.getUniqueId().toString()) && !playerCompanion.isOp()) {

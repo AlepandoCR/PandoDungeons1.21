@@ -20,7 +20,7 @@ import java.util.List;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
     private final getEnchantment enchantment;
-    private final mountCommand mountCommand;
+    private final MountCommand mountCommand;
     private final DungeonsPlayCommand playCommand;
     private final DungeonsLeaveCommand leaveCommand;
     private final DungeonsStatsCommand statsCommand;
@@ -32,6 +32,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     private final CompanionSelection companionSelection;
     private final CompanionUnlock companionUnlock;
     private final PrestigeWithdraw prestigeWithdraw;
+    private final PartyCommand partyCommand;
+    private final PandoDungeons plugin;
     public CommandManager(PandoDungeons plugin) {
         this.playCommand = new DungeonsPlayCommand(plugin);
         this.leaveCommand = new DungeonsLeaveCommand(plugin);
@@ -45,7 +47,9 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         this.companionUnlock = new CompanionUnlock(plugin);
         this.prestigeWithdraw = new PrestigeWithdraw(plugin);
         this.enchantment = new getEnchantment(plugin);
-        this.mountCommand = new mountCommand();
+        this.partyCommand = new PartyCommand(plugin);
+        this.mountCommand = new MountCommand();
+        this.plugin = plugin;
 
     }
 
@@ -88,6 +92,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return enchantment.onCommand(sender, command, label, args);
             case "montura":
                 return mountCommand.onCommand(sender,command,label,args);
+            case "party":
+                return partyCommand.onCommand(sender, command, label, args);
             default:
                 sender.sendMessage("Comando desconocido. Uso: /dungeons play, /dungeons leave, /dungeons stats, /dungeons top, /dungeons statsbook, /dungeons companionmenu, /dungeons retirarprestigio");
                 return true;
@@ -121,12 +127,36 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 completions.add("companionmenu");
                 completions.add("retirarprestigio");
                 completions.add("montura");
+                completions.add("party");
             } else if (args.length == 2) { // Verifica si es el segundo argumento
-                if (args[0].equalsIgnoreCase("stats") || args[0].equalsIgnoreCase("resetstats")) {
+                if (args[0].equalsIgnoreCase("stats") || args[1].equalsIgnoreCase("resetstats")) {
                     completions.addAll(PlayerStatsManager.getAllPlayerNames());
                 }
+                if (args[0].equalsIgnoreCase("party")) {
+                    completions.add("invite");
+                    completions.add("create");
+                    completions.add("accept");
+                    completions.add("deny");
+                    completions.add("delete");
+                    completions.add("leave");
+                    completions.add("info");
+                }
+            } else if (args.length == 3) {
+                if(args[1].equalsIgnoreCase("invite")){
+                    completions.addAll(AllPlayerNamesToStringList());
+                }
             }
+
         }
         return completions;
+    }
+
+    private List<String> AllPlayerNamesToStringList(){
+        List<? extends Player> players = plugin.getServer().getOnlinePlayers().stream().toList();
+        List<String> playersNames = new ArrayList<>();
+        for(Player player1 : players){
+            playersNames.add(player1.getName());
+        }
+        return playersNames;
     }
 }

@@ -319,6 +319,12 @@ public class CompanionUtils {
         trade5.addIngredient(new ItemStack(Material.SNIFFER_EGG, 5));
         recipes.add(trade5);
 
+        ItemStack result6 = pufferFishFragment(1);
+        MerchantRecipe trade6 = new MerchantRecipe(result6, 0,100000, false);
+        trade6.addIngredient(new ItemStack(Material.POISONOUS_POTATO, 30));
+        trade6.addIngredient(new ItemStack(Material.SEA_LANTERN, 32));
+        recipes.add(trade6);
+
         merchant.setRecipes(recipes);
 
         player.openMerchant(merchant, true);

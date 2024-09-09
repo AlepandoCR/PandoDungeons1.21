@@ -15,7 +15,7 @@ public class RandomFight {
 
     public void startRandomFight() {
         Random random = new Random();
-        int fightIndex = random.nextInt(5); // Escoge entre 0 y 4
+        int fightIndex = random.nextInt(6); // Escoge entre 0 y 4
 
         switch (fightIndex) {
             case 0:
@@ -33,9 +33,18 @@ public class RandomFight {
             case 4:
                 startSpiderFight();
                 break;
+            case 5:
+                startMagmaCubeBossFight();
+                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + fightIndex);
         }
+    }
+
+
+    private void startMagmaCubeBossFight() {
+        CubitoBoomFight cubitoBoomFight = new CubitoBoomFight(location);
+        cubitoBoomFight.startMagmaCubeBossFight();
     }
 
     private void startQueenBeeFight() {

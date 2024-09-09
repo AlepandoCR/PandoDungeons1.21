@@ -76,7 +76,6 @@ public class FireballAttackGoal extends Goal {
                     fireball.setPos(this.sniffer.getX(), this.sniffer.getY(0.5) + 0.5, this.sniffer.getZ());
                     world.addFreshEntity(fireball);
                     lastFireballTime = currentTime;
-                    Bukkit.getLogger().info("Fireball shot at: " + currentTime + " with fireRate: " + fireRate);
                 }
             }
         } else {

@@ -1,10 +1,7 @@
 package pandodungeons.pandodungeons.Game;
 
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.*;
@@ -14,18 +11,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.pandodungeons.Utils.*;
 import pandodungeons.pandodungeons.bossfights.fights.randomFight.RandomFight;
 import pandodungeons.pandodungeons.DungeonBuilders.DungeonBuilder;
 import pandodungeons.pandodungeons.Elements.Room;
 import pandodungeons.pandodungeons.Game.Behaviours.NextRoomVillager;
-import pandodungeons.pandodungeons.Utils.BossUtils;
-import pandodungeons.pandodungeons.Utils.LocationUtils;
-import pandodungeons.pandodungeons.Utils.MobSpawnUtils;
-import pandodungeons.pandodungeons.Utils.StructureUtils;
 
 import java.util.*;
 
-import static pandodungeons.pandodungeons.Utils.CompanionUtils.unlockRandomCompanion;
+import static pandodungeons.pandodungeons.Game.PlayerStatsManager.getPlayerStatsManager;
 
 public class RoomManager {
     private static final Map<UUID, RoomManager> activeRoomManagers = new HashMap<>();
@@ -36,10 +30,14 @@ public class RoomManager {
     private BukkitRunnable roomHandlingTask;
     private boolean shouldStopRoomHandling = false;
     private final Stats playerStats;
+    private final boolean isPartyDungeon;
+    private final PandoDungeons plugin;
 
-    public RoomManager(World world, Player player) {
+    public RoomManager(World world, Player player, boolean isPartyDungeon, PandoDungeons plugin) {
         this.rooms = new ArrayList<>();
         this.player = player;
+        this.isPartyDungeon = isPartyDungeon;
+        this.plugin = plugin;
         playerStats = Stats.fromPlayer(player);
 
         List<Location> roomLocations = LocationUtils.getAllDungeonRoomLocations("dungeon_" + player.getUniqueId());
@@ -55,11 +53,22 @@ public class RoomManager {
     }
 
     private void startRoomHandlingLoop() {
+        PlayerParty playerParty = null;
+        final Map<Player, Integer> listaKills = new HashMap<>();
+        if(isPartyDungeon){
+            playerParty = plugin.playerPartyList.getPartyByOwner(player);
+            for(Player player1 : playerParty.getMembers()){
+                listaKills.put(player1, getPlayerStatsManager(player1).getMobsKilled());
+            }
+        }else{
+            listaKills.put(player,getPlayerStatsManager(player).getMobsKilled());
+        }
+        PlayerParty finalPlayerParty = playerParty;
         roomHandlingTask = new BukkitRunnable() {
             boolean bossSummoned = false;
             boolean bossDeath = false;
             boolean roomsRetry = false;
-            final PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);
+            final PlayerStatsManager statsManager = getPlayerStatsManager(player);
             @Override
             public void run() {
                 if (shouldStopRoomHandling) {
@@ -72,6 +81,39 @@ public class RoomManager {
                     stopRoomHandling();
                     this.cancel();
                     return;
+                }
+
+                if(isPartyDungeon){
+
+                    for(Player player1 : finalPlayerParty.getMembers()){
+                        player1.sendActionBar(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "💀" + ChatColor.BLACK + " : " + ChatColor.WHITE + ChatColor.BOLD + (getPlayerStatsManager(player1).getMobsKilled() - listaKills.get(player1)));
+                    }
+
+                    boolean alldeath = false;
+
+                    // Recorremos todos los miembros de la party
+
+                    if(finalPlayerParty != null){
+                        for (Player member : finalPlayerParty.getMembers()) {
+                            // Verifica si el miembro está vivo o es el jugador que acaba de respawnear
+                            alldeath = member.getGameMode() == GameMode.SPECTATOR;  // Si encontramos a un miembro vivo o el mismo jugador que acaba de respawnear, alldeath se pone a false
+                        }
+
+
+                        if(alldeath){
+                            player.performCommand("dungeons leave");
+                            for(Player player1 : finalPlayerParty.getMembers()){
+                                player1.sendMessage(ChatColor.LIGHT_PURPLE + "Todo tu equipo ha muerto....");
+                                PlayerStatsManager stats = getPlayerStatsManager(player1);
+                                if (stats != null) {
+                                    stats.resetLevelProgress();
+                                }
+                                player1.setGameMode(GameMode.SURVIVAL);  // Asegúrate de cambiar el modo de juego del jugador correcto
+                            }
+                        }
+                    }
+                } else {
+                    player.sendActionBar(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "💀 " + ChatColor.BLACK + ChatColor.WHITE + ChatColor.BOLD + (statsManager.getMobsKilled() - listaKills.get(player)) + ChatColor.DARK_RED.toString() + ChatColor.BOLD +  " 💀");
                 }
 
                 if(rooms.isEmpty()){
@@ -125,12 +167,31 @@ public class RoomManager {
                     if (playerStats.getLevelProgress() < 2) {
                         this.cancel();
                         player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "¡Has completado todas las habitaciones de la dungeon!");
-                        statsManager.addDungeonCompletion();
+                        if(isPartyDungeon){
+                            for(Player player1 : finalPlayerParty.getMembers()){
+                               getPlayerStatsManager(player1).addDungeonCompletion();
+                            }
+                        }else{
+                            statsManager.addDungeonCompletion();
+                        }
                     }
                     if((playerStats.getLevelProgress() + 1) >= 3 && !bossSummoned){
                         killVillagers(player.getLocation(), 50);
-                        RandomFight bossFight = new RandomFight(StructureUtils.findNetheriteBlock(player.getLocation(),50).add(0.5,1,0.5));
-                        bossFight.startRandomFight();
+                        if(isPartyDungeon){
+                            int i = 1;
+                            for(Player player1 : finalPlayerParty.getMembers()){
+                                if(i > 5){
+                                    break;
+                                }
+                                RandomFight bossFight = new RandomFight(StructureUtils.findNetheriteBlock(player.getLocation(),50).add(0.5,1,0.5));
+                                bossFight.startRandomFight();
+                                i++;
+                            }
+                        }else{
+                            RandomFight bossFight = new RandomFight(StructureUtils.findNetheriteBlock(player.getLocation(),50).add(0.5,1,0.5));
+                            bossFight.startRandomFight();
+                        }
+
                         bossSummoned = true;
                     }
                 }
@@ -139,6 +200,13 @@ public class RoomManager {
                     Location villagerLocation = StructureUtils.findDriedKelpBlock(player.getLocation(),50);
                     spawnVillager(villagerLocation);
                     player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "¡Has matado al jefe, ahora subes a nivel: " + (playerStats.getDungeonLevel() + 1) + "!");
+                    if(isPartyDungeon){
+                        for(Player player1 : finalPlayerParty.getMembers()){
+                            if(!finalPlayerParty.isOwner(player1)){
+                                getPlayerStatsManager(player1).addDungeonCompletion();
+                            }
+                        }
+                    }
                     statsManager.addDungeonCompletion();
                     this.cancel();
                 }
@@ -147,7 +215,7 @@ public class RoomManager {
 
         // Ejecutar cada 5 segundos (20 ticks = 1 segundo)
         if (!shouldStopRoomHandling) {
-            roomHandlingTask.runTaskTimer(JavaPlugin.getPlugin(PandoDungeons.class), 20 * 5, 20 * 5);
+            roomHandlingTask.runTaskTimer(JavaPlugin.getPlugin(PandoDungeons.class), 20 * 2, 20 * 2);
         }
     }
 

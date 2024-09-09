@@ -6,9 +6,11 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import pandodungeons.pandodungeons.Game.Stats;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -17,21 +19,28 @@ import java.util.Set;
 
 public class MobSpawnUtils {
 
+    private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
     private static final Random random = new Random();
 
     public static void spawnMobs(Location location, Material blockType, World world) {
         int playerLvl = 0;
         String worldName = location.getWorld().getName().toLowerCase(Locale.ROOT);
 
+        PlayerParty party = null;
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (worldName.contains(player.getName().toLowerCase(Locale.ROOT))) {
                 playerLvl = Stats.fromPlayer(player).getDungeonLevel();
+                if(plugin.playerPartyList.isOwner(player)){
+                    party = plugin.playerPartyList.getPartyByOwner(player);
+                }
                 break;
             }
         }
 
         int minMobs;
         int maxMobs;
+
 
         if (playerLvl < 2) {
             minMobs = 1;
@@ -42,6 +51,12 @@ public class MobSpawnUtils {
         } else {
             minMobs = 5;
             maxMobs = 7;
+        }
+        if(party != null){
+            maxMobs += 2 + party.getMembers().size();
+            if(maxMobs > 15){
+                maxMobs = 15;
+            }
         }
 
         location.setY(location.getY() + 1);

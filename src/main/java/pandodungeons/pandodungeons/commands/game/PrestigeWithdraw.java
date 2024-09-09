@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import pandodungeons.pandodungeons.Elements.LootTableManager;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Utils.LocationUtils;
+import pandodungeons.pandodungeons.Utils.PlayerParty;
 import pandodungeons.pandodungeons.Utils.StructureUtils;
 
 import static pandodungeons.pandodungeons.Utils.ItemUtils.physicalPrestige;
@@ -35,22 +36,53 @@ public class PrestigeWithdraw implements CommandExecutor {
             return true;
         }
 
-        PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);
-        if(statsManager.getPrestige() > 0){
-            boolean emptyStack = false;
-            for (ItemStack item : player.getInventory().getContents()) {
-                if (item == null) {
-                    emptyStack = true;
-                    statsManager.setPrestige(statsManager.getPrestige() - 1);
-                    player.getInventory().addItem(physicalPrestige(1));
-                    break;
-                }
+        if(args.length == 2){
+            int castedQuantity = 0;
+            try{
+                castedQuantity = Integer.parseInt(args[1]);
+            }catch (NumberFormatException err){
+                player.sendMessage("No dijitaste un numero como argumento");
             }
-            if(!emptyStack){
-                player.sendMessage(ChatColor.RED + "Tu inventario esta lleno");
+
+            if(castedQuantity > 0){
+                PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);
+                if(statsManager.getPrestige() >= castedQuantity){
+                    boolean emptyStack = false;
+                    for (ItemStack item : player.getInventory().getContents()) {
+                        if (item == null) {
+                            emptyStack = true;
+                            statsManager.setPrestige(statsManager.getPrestige() - castedQuantity);
+                            player.getInventory().addItem(physicalPrestige(castedQuantity));
+                            break;
+                        }
+                    }
+                    if(!emptyStack){
+                        player.sendMessage(ChatColor.RED + "Tu inventario esta lleno");
+                    }
+                }else{
+                    player.sendMessage(ChatColor.DARK_RED + "No tienes nivel de prestigio suficiente");
+                }
+            }else{
+                player.sendMessage("Te deberia restar prestigios por esto...");
             }
         }else{
-            player.sendMessage(ChatColor.DARK_RED + "No tienes nivel de prestigio virtual");
+            PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);
+            if(statsManager.getPrestige() > 0){
+                boolean emptyStack = false;
+                for (ItemStack item : player.getInventory().getContents()) {
+                    if (item == null) {
+                        emptyStack = true;
+                        statsManager.setPrestige(statsManager.getPrestige() - 1);
+                        player.getInventory().addItem(physicalPrestige(1));
+                        break;
+                    }
+                }
+                if(!emptyStack){
+                    player.sendMessage(ChatColor.RED + "Tu inventario esta lleno");
+                }
+            }else{
+                player.sendMessage(ChatColor.DARK_RED + "No tienes nivel de prestigio virtual");
+            }
         }
         return true;
     }

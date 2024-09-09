@@ -10,6 +10,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -32,6 +33,7 @@ import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Game.RoomManager;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.Utils.LocationUtils;
+import pandodungeons.pandodungeons.Utils.PlayerParty;
 import pandodungeons.pandodungeons.Utils.StructureUtils;
 import pandodungeons.pandodungeons.commands.Management.CommandQueue;
 import pandodungeons.pandodungeons.commands.game.CompanionSelection;
@@ -51,7 +53,7 @@ import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnParticleCircle;
 
 public class PlayerEventListener implements Listener {
-    JavaPlugin plugin = PandoDungeons.getPlugin(PandoDungeons.class);
+    PandoDungeons plugin = PandoDungeons.getPlugin(PandoDungeons.class);
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
@@ -231,6 +233,13 @@ public class PlayerEventListener implements Listener {
                 } else {
                     player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Sniffer");
                 }
+            } else if(item.asOne().equals(pufferFishUnlockItem(1))){
+                if (!CompanionUtils.hasUnlockedCompanion(player, "pufferfish")) {
+                    event.getItem().setAmount(event.getItem().getAmount() - 1);
+                    CompanionUtils.unlockCompanion(player, "pufferfish", 1);
+                } else {
+                    player.sendMessage(ChatColor.DARK_RED + "Ya has desbloqueado el compañero Puffer Fish");
+                }
             }
         }
     }
@@ -326,6 +335,9 @@ public class PlayerEventListener implements Listener {
                     if(getSoulCount(newItem) >= 300){
                         progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DDI" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Berserk" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 200" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
                     }
+                    if((getSoulCount(newItem) >= 500)){
+                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DII" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Soul Army" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 500" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                    }
                     player.sendActionBar(progressBar);
                 }
             };
@@ -337,7 +349,7 @@ public class PlayerEventListener implements Listener {
     private final Map<Player, String> combinations = new HashMap<>();
 
     @EventHandler
-    public void consumables(PlayerInteractEvent event){
+    public void consumables(PlayerInteractEvent event) throws MalformedURLException {
         long currentTime = System.currentTimeMillis();
         Player player = event.getPlayer();
         if(event.getItem() != null){
@@ -407,6 +419,10 @@ public class PlayerEventListener implements Listener {
                     berserkAttack(player, item);
                     combinations.remove(player);
                 }
+                if(combination.equals("DII")){
+                    soulArmyAbility(player,item);
+                    combinations.remove(player);
+                }
             }
             if(item.asOne().equals(physicalPrestigeNoAmount())){
                 long lastTime =     lastPrestigeConsume.getOrDefault(player, 0L);
@@ -442,13 +458,46 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerQuitParty(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+
+        // Obtener la party del jugador si está en una
+        PlayerParty playerParty = plugin.playerPartyList.getPartyByMember(player);
+        if (playerParty != null) {
+            if (playerParty.isOwner(player)) {
+                // Si el owner se desconecta, transferir el ownership o disolver la party
+                if (playerParty.getMembers().size() > 1) {
+                    Player newOwner = playerParty.getMembers().stream()
+                            .filter(p -> !p.equals(player))
+                            .findFirst().orElse(null);
+                    if (newOwner != null) {
+                        playerParty.setOwner(newOwner);
+                        newOwner.sendMessage("Has sido promovido a owner de la party ya que " + player.getName() + " se ha desconectado.");
+                        playerParty.removeMember(player);
+                    }
+                } else {
+                    // Disolver la party si no hay más miembros
+                    playerParty.disbandParty();
+                    plugin.playerPartyList.removeParty(playerParty);
+
+                }
+            } else {
+                // Remover al jugador desconectado de la party
+                playerParty.removeMember(player);
+                for (Player member : playerParty.getMembers()) {
+                    member.sendMessage(player.getName() + " se ha desconectado y ha sido removido de la party.");
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onInventoryClick(InventoryClickEvent event) throws MalformedURLException {
         Player player = (Player) event.getWhoClicked();
         Inventory clickedInventory = event.getClickedInventory();
 
         if (clickedInventory != null && event.getView().getTitle().equals(ChatColor.BOLD + "Selecciona tu Compañero")) {
             event.setCancelled(true); // Cancelar el evento para evitar sacar o meter ítems manualmente
-
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasCustomModelData()) {
                 String companionType = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
@@ -534,7 +583,9 @@ public class PlayerEventListener implements Listener {
                 e.printStackTrace();
             }
 
-            if(hasActiveDungeon(player.getUniqueId().toString())) {
+
+
+            if(hasActiveDungeon(player.getUniqueId().toString()) || (plugin.playerPartyList.isMember(player) && hasActiveDungeon(plugin.playerPartyList.getPartyByMember(player).getOwner().getUniqueId().toString()))) {
                 if(Companion.hasActiveCompanion(player)){
                     if(!Companion.getCompanion(player).getEntityType().equals(EntityType.ALLAY)){
                         event.getDrops().clear();
@@ -599,15 +650,30 @@ public class PlayerEventListener implements Listener {
             // Comprueba si el destino es un mundo de dungeon
             if (isDungeonWorld(toWorld.getName())) {
 
-                if(!hasActiveDungeon(player.getUniqueId().toString())){
-                    event.setCancelled(true);
-                    player.sendMessage(ChatColor.RED + "No puedes hacerte tp a otras dungeons");
-                    return;
+                boolean isPartOfDungeon = hasActiveDungeon(player.getUniqueId().toString());
+
+                if(plugin.playerPartyList.isMember(player) && hasActiveDungeon(plugin.playerPartyList.getPartyByMember(player).getOwner().getUniqueId().toString())){
+                    isPartOfDungeon = true;
                 }
-                // Si el mundo de destino es diferente al mundo de dungeon del jugador, cancela el TP
-                if (!toWorld.getName().contains(player.getName().toLowerCase(Locale.ROOT))) {
-                    event.setCancelled(true);
-                    player.sendMessage(ChatColor.RED + "No puedes hacerte tp a otras dungeons");
+
+                if(!isPartOfDungeon){
+                    if(!hasActiveDungeon(player.getUniqueId().toString())){
+                        event.setCancelled(true);
+                        player.sendMessage(ChatColor.RED + "No puedes hacerte tp a otras dungeons");
+                        return;
+                    }
+                    // Si el mundo de destino es diferente al mundo de dungeon del jugador, cancela el TP
+                    if (!toWorld.getName().contains(player.getName().toLowerCase(Locale.ROOT))) {
+                        event.setCancelled(true);
+                        player.sendMessage(ChatColor.RED + "No puedes hacerte tp a otras dungeons");
+                    }
+                }else{
+                    if(!plugin.playerPartyList.isOwner(player)){
+                        if(!toWorld.getName().contains(plugin.playerPartyList.getPartyByMember(player).getOwner().getName().toLowerCase(Locale.ROOT))){
+                            event.setCancelled(true);
+                            player.sendMessage(ChatColor.RED + "No puedes salir de la dungeon, si deseas salir debes decirle al owner");
+                        }
+                    }
                 }
             }
         }
@@ -634,8 +700,7 @@ public class PlayerEventListener implements Listener {
     }
     @EventHandler
     public void onBeeDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Bee) {
-            Bee bee = (Bee) event.getEntity();
+        if (event.getEntity() instanceof Bee bee) {
             if (bee.getScoreboardTags().contains("beefight") && event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
                 event.setCancelled(true);
             }

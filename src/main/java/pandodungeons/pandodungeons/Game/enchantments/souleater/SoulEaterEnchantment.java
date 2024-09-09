@@ -13,6 +13,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 import org.checkerframework.checker.units.qual.N;
 import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.bossfights.bossEntities.queenBee.attacks.NectarBombAttack;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.reduceWritterUses;
@@ -223,6 +225,99 @@ public class SoulEaterEnchantment {
             reduceSouls(item,200);
         }
     }
+
+    public static void soulArmyAbility(Player player, ItemStack item) throws MalformedURLException {
+        if (getSoulCount(item) >= 500) {
+            List<LivingEntity> nearbyMobs = player.getNearbyEntities(40, 40, 40)
+                    .stream()
+                    .filter(entity -> entity instanceof Monster && !(entity instanceof Player))
+                    .map(entity -> (LivingEntity) entity)
+                    .collect(Collectors.toList());
+
+            if (nearbyMobs.isEmpty()) {
+                player.sendMessage(ChatColor.DARK_RED + "No hay enemigos cercanos.");
+                return;
+            }
+
+            int numberOfArmorStands = 10;
+            int mobsToTarget = Math.min(nearbyMobs.size(), numberOfArmorStands); // Limitar el número de mobs a 10
+            List<List<LivingEntity>> targetsDistribution = distributeTargets(nearbyMobs, mobsToTarget);
+
+            for (int i = 0; i < mobsToTarget; i++) {
+                List<LivingEntity> targets = targetsDistribution.get(i);
+                LivingEntity target = targets.get(0); // Asignar un objetivo al armorstand
+
+                // Crear y configurar el ArmorStand
+                ArmorStand armorStand = spawnSoulArmorStand(player.getLocation());
+                moveArmorStandToTarget(armorStand, target, player);
+            }
+
+            reduceSouls(item, 500);
+        } else {
+            player.sendMessage(ChatColor.DARK_RED + "No tienes almas suficientes aún.");
+        }
+    }
+
+    private static ArmorStand spawnSoulArmorStand(Location location) throws MalformedURLException {
+        ArmorStand armorStand = location.getWorld().spawn(location, ArmorStand.class);
+        armorStand.setVisible(false);
+        armorStand.setInvulnerable(true);
+        armorStand.setGravity(false);
+        armorStand.setHelmet(createHead("Soul", TEXTURE_URL));
+        return armorStand;
+    }
+
+    private static void moveArmorStandToTarget(ArmorStand armorStand, LivingEntity target, Player player) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (armorStand.isDead() || target.isDead() || !target.isValid() || !armorStand.getChunk().isLoaded()) {
+                    armorStand.remove();
+                    this.cancel();
+                    return;
+                }
+
+                Location targetLocation = target.getLocation().add(0, 0, 0);
+                Location armorStandLocation = armorStand.getLocation();
+
+                // Calcular la dirección desde el ArmorStand al objetivo
+                Vector direction = targetLocation.toVector().subtract(armorStandLocation.toVector()).normalize();
+                armorStand.teleport(armorStandLocation.add(direction.multiply(0.5)));
+
+                // Hacer que el ArmorStand mire hacia el objetivo
+                armorStandLocation.setDirection(direction);
+                float yaw = armorStandLocation.getYaw();
+                float pitch = armorStandLocation.getPitch();
+                armorStand.teleport(new Location(armorStandLocation.getWorld(), armorStandLocation.getX(), armorStandLocation.getY(), armorStandLocation.getZ(), yaw, pitch));
+
+                // Verificar si el ArmorStand está lo suficientemente cerca del objetivo para impactar
+                if (armorStandLocation.distance(targetLocation) < 1) {
+                    // Crear la explosión de partículas y hacer daño
+                    target.getWorld().spawnParticle(Particle.SOUL, targetLocation, 40, 0.5, 0.5, 0.5, 0.1);
+                    double damage = target.getMaxHealth() * 0.2; // 20% del máximo de vida como daño
+                    target.damage(damage, player);
+
+                    armorStand.remove(); // Eliminar el ArmorStand
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+
+    private static List<List<LivingEntity>> distributeTargets(List<LivingEntity> mobs, int slots) {
+        List<List<LivingEntity>> distribution = new ArrayList<>();
+        for (int i = 0; i < slots; i++) {
+            distribution.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < mobs.size(); i++) {
+            distribution.get(i % slots).add(mobs.get(i));
+        }
+
+        return distribution;
+    }
+
 
     /**
      * Obtiene la cantidad de almas del ítem.

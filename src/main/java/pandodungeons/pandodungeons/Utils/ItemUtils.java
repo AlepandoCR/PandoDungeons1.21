@@ -247,6 +247,21 @@ public class ItemUtils {
     return item;
   }
 
+  public static ItemStack pufferFishFragment(int amount){
+    ItemStack item = new ItemStack(Material.PUFFERFISH, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Fragmento de PufferFish");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero PufferFish");
+    lore.add(ChatColor.DARK_GRAY.toString() + "Funciona en la mesa de crafteo ⚃");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
   public static ItemStack breezeFragmentItem(int amount){
     ItemStack item = new ItemStack(Material.BREEZE_ROD, amount);
     item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
@@ -319,6 +334,23 @@ public class ItemUtils {
     List<String> lore = new ArrayList<>();
     lore.add("");
     lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Sniffer");
+    lore.add("");
+    lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static ItemStack pufferFishUnlockItem(int amount){
+    ItemStack item = new ItemStack(Material.HEAVY_CORE, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.LIGHT_PURPLE + "Compañero Puffer Fish");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    meta.setCustomModelData(420);
+    List<String> lore = new ArrayList<>();
+    lore.add("");
+    lore.add(ChatColor.GRAY.toString() + "Se utiliza para desbloquear al compañero Puffer Fish");
     lore.add("");
     lore.add(ChatColor.LIGHT_PURPLE.toString() + "Consumible \uD83D\uDDB1");
     meta.setLore(lore);
@@ -559,6 +591,46 @@ public class ItemUtils {
 
     // Registrar la receta en el servidor
     Bukkit.addRecipe(recipe);
+  }
+
+  public static void pufferFishCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = pufferFishUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "PufferUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', pufferFishFragment(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    // Registrar la receta en el servidor
+    Bukkit.addRecipe(recipe);
+  }
+
+  public static Recipe getPufferFishCompanionCustomRecipe() {
+    JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    // Crear el item que será el resultado del crafteo
+    ItemStack customItem = snifferUnlockItem(1);
+
+    // Crear una receta con forma para el item
+    NamespacedKey key = new NamespacedKey(plugin, "PufferUnlock");
+    ShapedRecipe recipe = new ShapedRecipe(key, customItem);
+
+    // Definir el patrón de la receta
+    recipe.shape("XXX", "X0X", "XXX");
+
+    // Asignar los ingredientes a los caracteres del patrón
+    recipe.setIngredient('X', pufferFishFragment(1));
+    recipe.setIngredient('0', physicalPrestigeNoAmount());
+
+    // Registrar la receta en el servidor
+    return  recipe;
   }
 
   public static Recipe getSnifferCompanionCustomRecipe() {
