@@ -1,6 +1,7 @@
 package pandodungeons.pandodungeons.commands.admin.enchantments;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
+import static pandodungeons.pandodungeons.Utils.DisplayModels.createMiniCrystal;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
 public class getEnchantment implements CommandExecutor {
@@ -67,6 +69,9 @@ public class getEnchantment implements CommandExecutor {
         }
         else if (args[1].equalsIgnoreCase("pergamino")) {
             player.getInventory().addItem(soulWritter(1));
+        }
+        else if (args[1].equalsIgnoreCase("cristal")) {
+            createMiniCrystal(player.getWorld(), player.getLocation(), Material.DIAMOND_BLOCK);
         }
 
         return false;
