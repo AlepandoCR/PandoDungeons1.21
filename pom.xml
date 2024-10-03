@@ -86,11 +86,9 @@
             <systemPath>C:/Users/WPC/IdeaProjects/PandoDungeons 1.21/lib/paper-1.21.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>mojang</groupId>
-            <artifactId>mojang</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>C:/Users/WPC/IdeaProjects/PandoDungeons/lib/datafixerupper-6.0.8.jar</systemPath>
+            <groupId>com.mojang</groupId>
+            <artifactId>datafixerupper</artifactId>
+            <version>6.0.9</version>
         </dependency>
     </dependencies>
 </project>
