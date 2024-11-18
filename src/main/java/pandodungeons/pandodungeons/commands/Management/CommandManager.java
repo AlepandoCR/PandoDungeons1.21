@@ -64,40 +64,26 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             }
         }
 
-        switch (args[0].toLowerCase()) {
-            case "play":
-                return playCommand.onCommand(sender, command, label, args);
-            case "leave":
-                return leaveCommand.onCommand(sender, command, label, args);
-            case "stats":
-            case "statistics":
-                return statsCommand.onCommand(sender, command, label, args);
-            case "resetstats":
-                return resetStatsCommand.onCommand(sender ,command ,label ,args);
-            case "boss":
-                return bossSummon.onCommand(sender ,command ,label ,args);
-            case "top":
-                return topCommand.onCommand(sender ,command ,label ,args);
-            case "statsbook":
-                return statsBookCommand.onCommand(sender, command, label, args);
-            case "companion":
-                return companionCommand.onCommand(sender, command, label, args);
-            case "companionmenu":
-                return companionSelection.onCommand(sender ,command ,label ,args);
-            case "unlockcompanion":
-                return companionUnlock.onCommand(sender , command , label , args);
-            case "retirarprestigio":
-                return prestigeWithdraw.onCommand(sender, command, label, args);
-            case "enchantment":
-                return enchantment.onCommand(sender, command, label, args);
-            case "montura":
-                return mountCommand.onCommand(sender,command,label,args);
-            case "party":
-                return partyCommand.onCommand(sender, command, label, args);
-            default:
+        return switch (args[0].toLowerCase()) {
+            case "play" -> playCommand.onCommand(sender, command, label, args);
+            case "leave" -> leaveCommand.onCommand(sender, command, label, args);
+            case "stats", "statistics" -> statsCommand.onCommand(sender, command, label, args);
+            case "resetstats" -> resetStatsCommand.onCommand(sender, command, label, args);
+            case "boss" -> bossSummon.onCommand(sender, command, label, args);
+            case "top" -> topCommand.onCommand(sender, command, label, args);
+            case "statsbook" -> statsBookCommand.onCommand(sender, command, label, args);
+            case "companion" -> companionCommand.onCommand(sender, command, label, args);
+            case "companionmenu" -> companionSelection.onCommand(sender, command, label, args);
+            case "unlockcompanion" -> companionUnlock.onCommand(sender, command, label, args);
+            case "retirarprestigio" -> prestigeWithdraw.onCommand(sender, command, label, args);
+            case "enchantment" -> enchantment.onCommand(sender, command, label, args);
+            case "montura" -> mountCommand.onCommand(sender, command, label, args);
+            case "party" -> partyCommand.onCommand(sender, command, label, args);
+            default -> {
                 sender.sendMessage("Comando desconocido. Uso: /dungeons play, /dungeons leave, /dungeons stats, /dungeons top, /dungeons statsbook, /dungeons companionmenu, /dungeons retirarprestigio");
-                return true;
-        }
+                yield true;
+            }
+        };
     }
 
     @Override

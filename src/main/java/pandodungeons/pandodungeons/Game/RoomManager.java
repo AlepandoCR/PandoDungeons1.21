@@ -276,6 +276,10 @@ public class RoomManager {
         return false;
     }
 
+    public void spawnRandomShop(Location location){
+
+    }
+
     public void killVillagers(Location location, double radius) {
         for (Entity entity : location.getWorld().getNearbyEntities(location, radius, radius, radius)) {
             if (entity.getType() == EntityType.VILLAGER) {

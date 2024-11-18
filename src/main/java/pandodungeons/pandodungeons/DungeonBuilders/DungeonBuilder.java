@@ -4,9 +4,11 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.math.BlockVector3;
+import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.Elements.Room;
 import pandodungeons.pandodungeons.Utils.LocationUtils;
@@ -23,18 +25,24 @@ public class DungeonBuilder {
     private final World world;
     private final Random random;
     private static List<Room> rooms;
+    private static Player player;
     List<Location> roomLocations;
 
-    public DungeonBuilder(JavaPlugin plugin, World world) {
+    public DungeonBuilder(JavaPlugin plugin, World world, Player player) {
         this.plugin = plugin;
         this.world = world;
         this.random = new Random();
+        DungeonBuilder.player = player;
         rooms = new ArrayList<>();
         roomLocations = new ArrayList<>();
     }
     public void buildDungeon(Location baseLocation, String theme, String playerName) {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            int numRooms = 7 + random.nextInt(4);  // 7 to 10 rooms
+            PlayerStatsManager stats = PlayerStatsManager.getPlayerStatsManager(player);
+
+            int prestige = stats.getPrestige();
+
+            int numRooms = 7 + random.nextInt(4) + (prestige / 3);  // 7 to 10 rooms + half of prestige
 
             List<Location> roomLocations = new ArrayList<>();
             List<Room> rooms = new ArrayList<>();

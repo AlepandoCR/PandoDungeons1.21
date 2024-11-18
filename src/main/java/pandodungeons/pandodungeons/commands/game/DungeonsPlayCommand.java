@@ -182,7 +182,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                 // Construir la dungeon dentro del mundo generado
                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                 player.sendMessage(ChatColor.AQUA + "Generando estructuras...");
-                DungeonBuilder dungeonBuilder = new DungeonBuilder(plugin, dungeonWorld);
+                DungeonBuilder dungeonBuilder = new DungeonBuilder(plugin, dungeonWorld, player);
                 dungeonBuilder.buildDungeon(dungeonSpawnLocation, theme, playerName);
 
                 BukkitRunnable Warn1 = new BukkitRunnable() {
@@ -302,7 +302,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                                 } else {
                                     player.sendMessage("No se pudo encontrar el bloque de netherite en la estructura de spawn.");
                                 }
-                                Location kelpBlockLocation = StructureUtils.findDriedKelpBlock(dungeonSpawnLocation, 50);
+                                Location kelpBlockLocation = StructureUtils.findDriedKelpBlock(dungeonSpawnLocation, 60);
                                 if (kelpBlockLocation != null) {
                                     // Guardar la ubicación inicial del jugador y la información de la dungeon
                                     String dungeonID = "dungeon_" + playerName;
@@ -313,15 +313,17 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
                                     // Iniciar el RoomManager para este jugador
                                     RoomManager roomManager = new RoomManager(dungeonWorld, player, isPartyDungeon, plugin);
-
+                                    player.teleport(kelpBlockLocation.add(0.5, 1, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
                                     if(isPartyDungeon){
                                         for(Player player1 : playerParty.getMembers()){
-                                            player1.teleport(kelpBlockLocation.add(0.5, 1.1, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
+                                            player1.teleport(kelpBlockLocation.add(0.5, 2, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
                                             player1.setGameMode(GameMode.ADVENTURE);
                                             if(CompanionUtils.hasSelectedCompanion(player1) && !plugin.playerPartyList.isOwner(player)){
                                                 CompanionUtils.summonSelectedCompanion(player1);
                                             }
                                         }
+                                    }else{
+                                        player.teleport(kelpBlockLocation.add(0.5, 1, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
                                     }
                                     player.teleport(kelpBlockLocation.add(0.5, 1, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
                                     player.setGameMode(GameMode.ADVENTURE);
@@ -407,6 +409,10 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                         player.damage(1000);
                     }
                 }
+            }
+        }else{
+            if(!player.isOp()){
+                player.setGameMode(GameMode.ADVENTURE);
             }
         }
     }

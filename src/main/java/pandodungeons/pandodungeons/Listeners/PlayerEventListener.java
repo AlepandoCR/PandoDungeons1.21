@@ -51,6 +51,7 @@ import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.hasActiveDungeon;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnParticleCircle;
+import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnSoulCircle;
 
 public class PlayerEventListener implements Listener {
     PandoDungeons plugin = PandoDungeons.getPlugin(PandoDungeons.class);
@@ -166,7 +167,6 @@ public class PlayerEventListener implements Listener {
             player.playSound(player.getLocation(), Sound.ENTITY_SHEEP_SHEAR, 1, 1);
         }
     }
-
 
     @EventHandler
     public void companionUnlockMenu(PlayerInteractEntityEvent event) {
@@ -364,7 +364,7 @@ public class PlayerEventListener implements Listener {
                     handleGarabiThorBar(item, player);
                     garabiThor.put(player, currentTime);
                     handleGarabiThor(player, item);
-                }
+                }   
             }
             if (hasSoulEater(item)) {
                 long lastTime = soulAbility.getOrDefault(player, 0L);
@@ -595,6 +595,7 @@ public class PlayerEventListener implements Listener {
                 }
 
                 PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(player);
+                spawnSoulCircle(event.getEntity().getLocation(),2,10);
                 statsManager.addMobKill();
             }
         }

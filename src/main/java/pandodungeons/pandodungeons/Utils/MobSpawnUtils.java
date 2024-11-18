@@ -234,6 +234,7 @@ public class MobSpawnUtils {
             }
             mob.setMaxHealth(health);
             mob.setHealth(health);
+            mob.addScoreboardTag("dungeonMob");
             mob.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, (playerLvl/2)));
         }
         if(mob instanceof Skeleton || mob instanceof Stray){

@@ -10,8 +10,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import static pandoToros.Entities.toro.Toro.summonToro;
 import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
 import static pandodungeons.pandodungeons.Utils.DisplayModels.createMiniCrystal;
+import static pandodungeons.pandodungeons.Utils.DisplayModels.spawnTable;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
 public class getEnchantment implements CommandExecutor {
@@ -72,6 +74,10 @@ public class getEnchantment implements CommandExecutor {
         }
         else if (args[1].equalsIgnoreCase("cristal")) {
             createMiniCrystal(player.getWorld(), player.getLocation(), Material.DIAMOND_BLOCK);
+        } else if (args[1].equalsIgnoreCase("toro")) {
+            summonToro(player.getLocation());
+        } else if (args[1].equalsIgnoreCase("mesa")){
+            spawnTable(player.getLocation());
         }
 
         return false;

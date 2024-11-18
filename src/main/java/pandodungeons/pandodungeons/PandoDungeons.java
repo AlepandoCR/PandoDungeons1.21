@@ -50,7 +50,7 @@ public final class PandoDungeons extends JavaPlugin {
         }
 
         // Register events and commands
-            getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
 
