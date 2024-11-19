@@ -24,7 +24,7 @@ public class Toro extends Ravager {
     protected void registerGoals() {
         // Agrega comportamientos personalizados
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Evitar ahogarse
-        this.goalSelector.addGoal(1, new ChargePlayerGoal(this, 1.5)); // Comportamiento de embestida
+        this.goalSelector.addGoal(1, new ChargePlayerGoal(this, 2)); // Comportamiento de embestida
         this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Mira al jugador
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 0.4)); // Camina aleatoriamente
 
