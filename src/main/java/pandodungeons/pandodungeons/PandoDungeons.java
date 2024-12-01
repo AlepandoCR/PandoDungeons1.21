@@ -9,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import pandoToros.listeners.ToroGameListener;
+import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
 import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.Utils.PlayerPartyList;
@@ -51,8 +53,10 @@ public final class PandoDungeons extends JavaPlugin {
 
         // Register events and commands
         getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
+        getServer().getPluginManager().registerEvents(new ToroGameListener(), this);
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
+        this.getCommand("redondel").setExecutor(new RedondelCommand(this));
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");

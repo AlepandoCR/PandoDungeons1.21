@@ -10,6 +10,10 @@ commands:
     description: Comando principal de Dungeons.
     usage: /<command> [play|leave|stats|stadistics|boss|statsbook|companion|companionmenu]
 
+  redondel:
+    description: Comando para redondel
+    usage: /<command> play
+
 permissions:
   pandodungeons.pandaMount:
     description: Permiso para montar y controlar un panda.

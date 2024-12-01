@@ -76,14 +76,14 @@
             <artifactId>worldedit-bukkit</artifactId>
             <version>1.0.0</version>
             <scope>system</scope>
-            <systemPath>C:/Users/WPC/IdeaProjects/PandoDungeons 1.21/lib/Fawe.jar</systemPath>
+            <systemPath>D:/Plugins/PandoDungeons/lib/Fawe.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>paper</groupId>
-            <artifactId>paper20.6</artifactId>
+            <artifactId>paper21.1</artifactId>
             <version>1.0.0</version>
             <scope>system</scope>
-            <systemPath>C:/Users/WPC/IdeaProjects/PandoDungeons 1.21/lib/paper-1.21.jar</systemPath>
+            <systemPath>D:/Plugins/PandoDungeons/lib/paper-1.21.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.mojang</groupId>

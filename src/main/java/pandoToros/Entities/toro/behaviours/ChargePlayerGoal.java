@@ -7,10 +7,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Sound;
+import org.joml.Math;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+
+import static pandoToros.utils.PlayerArmorChecker.hasArmor;
 
 public class ChargePlayerGoal extends Goal {
     private final Ravager toro;
@@ -21,6 +24,7 @@ public class ChargePlayerGoal extends Goal {
     private Vec3 chargeDirection; // Current charging direction
     private boolean preChargeNoise;
     private int cooldownTicks; // Cooldown period for the charge
+    private int anger;
     private Vec3 calculatedPosition; // Strategic position during cooldown
 
     public ChargePlayerGoal(Ravager toro, double speedModifier) {
@@ -41,6 +45,7 @@ public class ChargePlayerGoal extends Goal {
         this.charging = false;
         this.preChargeNoise = false;
         this.cooldownTicks = 0;
+        this.anger = 0;
     }
 
     @Override
@@ -105,25 +110,40 @@ public class ChargePlayerGoal extends Goal {
                 for (int dy = 0; dy <= 2; dy++) {
                     for (int dz = -1; dz <= 1; dz++) {
                         BlockPos blockPos = centerPos.offset(dx, dy, dz);
-                        if (!this.toro.level().getBlockState(blockPos).isAir()) {
-                            this.toro.level().destroyBlock(blockPos, true);
+                        if (!this.toro.level().getBlockState(blockPos).getBlock().equals(Blocks.BAMBOO_BLOCK)) {
+                            this.toro.level().destroyBlock(blockPos, false);
                         }
                     }
                 }
             }
-
+            String killedPlayer = null;
+            for(org.bukkit.entity.Player player : this.toro.getBukkitEntity().getLocation().getNearbyPlayers(1)){
+                player.damage(5);
+                if(player.isDead()){
+                    killedPlayer = player.getName();
+                    for(org.bukkit.entity.Player players : this.toro.getBukkitEntity().getLocation().getNearbyPlayers(1)){
+                        players.sendMessage(this.target.getName() + "mató a " + killedPlayer);
+                    }
+                }
+            }
             // Impact phase or charge miss
             if (this.toro.distanceTo(this.target) <= 2.0) {
                 for (org.bukkit.entity.Player player : this.toro.getBukkitEntity().getLocation().getNearbyPlayers(20)) {
                     player.playSound(this.toro.getBukkitEntity(), Sound.ENTITY_HORSE_BREATHE, 10, 0.7f);
                 }
                 Vec3 knockbackDirection = calculateKnockbackDirection(this.toro, this.target);
-                this.target.hurt(this.toro.damageSources().mobAttack(this.toro), 9.0F);
+                if(hasArmor((org.bukkit.entity.Player) this.target.getBukkitEntity(),false)){
+                    this.target.hurt(this.toro.damageSources().mobAttack(this.toro), 10.0F);
+                } else {
+                    this.target.hurt(this.toro.damageSources().mobAttack(this.toro), 7.0F);
+                }
                 this.target.push(knockbackDirection.x, 1.0, knockbackDirection.z);
                 this.resetCharge();
+                anger++;
             } else if (this.toro.getNavigation().isDone()) {
                 this.resetCharge();
                 this.dodgeMessage(this.target);
+                anger++;
             }
         }
     }
@@ -144,7 +164,8 @@ public class ChargePlayerGoal extends Goal {
 
     private void resetCharge() {
         this.target = this.toro.level().getNearestPlayer(this.toro, 40.0);
-        this.cooldownTicks = 100; // 3 seconds cooldown (60 ticks)
+        this.cooldownTicks = java.lang.Math.max((100 - (anger * 10)), 0);
+       // 3 seconds cooldown (60 ticks)
         this.stareTicks = 40; // Restart staring phase
         this.charging = false;
         this.preChargeNoise = false;
