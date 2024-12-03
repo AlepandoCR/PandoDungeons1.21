@@ -56,7 +56,12 @@ public class Toro extends Ravager {
         toro.setCustomName(net.minecraft.network.chat.Component.literal("Toro"));
         toro.setCustomNameVisible(true);
 
-        // Add the Toro to the world
-        return nmsWorld.addFreshEntity(toro);
+        try {
+            return nmsWorld.addFreshEntity(toro);
+        } catch (Exception e) {
+            Bukkit.getLogger().severe("Error al invocar el toro: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }

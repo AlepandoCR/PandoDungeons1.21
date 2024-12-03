@@ -11,8 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
 
 import static pandoToros.utils.PlayerArmorChecker.hasArmor;
+import static pandodungeons.pandodungeons.Utils.StructureUtils.deleteWorld;
 
 public class ArenaMaker {
 
@@ -57,6 +59,17 @@ public class ArenaMaker {
         WorldCreator worldCreator = new WorldCreator(newWorldName);
         return Bukkit.createWorld(worldCreator);
     }
+
+    public static String extractUsername(String input) {
+        // Verifica si la cadena comienza con "redondel_"
+        if (input.startsWith("redondel_")) {
+            // Devuelve la parte de la cadena después del prefijo
+            return input.substring("redondel_".length());
+        }
+        // Si no tiene el prefijo esperado, lanza una excepción o devuelve null
+        throw new IllegalArgumentException("La cadena no tiene el formato esperado: redondel_nombreusuario");
+    }
+
 
 
 
@@ -115,21 +128,11 @@ public class ArenaMaker {
             return false;
         }
 
-        World world = Bukkit.getWorld(worldName);
-        if (world != null) {
-            // Descargar el mundo
-            Bukkit.unloadWorld(world, false);
+        if(Bukkit.getWorld(worldName) != null){
+            File worldFile = Objects.requireNonNull(Bukkit.getWorld(worldName)).getWorldFolder();
+            deleteWorld(worldFile);
         }
-
-        // Eliminar la carpeta del mundo
-        File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
-        try {
-            deleteWorldFolder(worldFolder);
-            return true;
-        } catch (IOException e) {
-            Bukkit.getLogger().severe("Error al eliminar el mundo: " + e.getMessage());
-            return false;
-        }
+        return true;
     }
 
     /**

@@ -256,7 +256,7 @@ public class StructureUtils {
         return Bukkit.getWorlds().contains(world);
     }
 
-    private static void deleteWorld(File worldFolder) {
+    public static void deleteWorld(File worldFolder) {
         // Busca el mundo correspondiente al folder
         World world = Bukkit.getWorld(worldFolder.getName());
         if (world != null) {

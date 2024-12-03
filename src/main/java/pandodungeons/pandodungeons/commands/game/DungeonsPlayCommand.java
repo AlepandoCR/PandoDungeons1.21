@@ -26,6 +26,7 @@ import pandodungeons.pandodungeons.Game.RoomManager;
 
 import java.util.*;
 
+import static pandoToros.game.RedondelGame.hasActiveRedondel;
 import static pandodungeons.pandodungeons.Elements.LootTableManager.giveLootToPlayerList;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.hasActiveDungeon;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
@@ -51,8 +52,14 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+
+
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Este comando solo puede ser ejecutado por jugadores.");
+            return true;
+        }
+
+        if(hasActiveRedondel(player)){
             return true;
         }
 
