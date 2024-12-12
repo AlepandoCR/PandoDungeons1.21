@@ -39,6 +39,13 @@ public class RedondelGame {
             newWorld.setSpawnLocation(8, -3, 12);
             for (Player player : players) {
                 activeRedondel.put(player.getUniqueId(),true);
+                for(ItemStack item : player.getInventory().getContents()){
+                    if(item != null) {
+                        if (item.getType().equals(Material.BAMBOO_BLOCK)) {
+                            item.setAmount(0);
+                        }
+                    }
+                }
                 if (hasArmor(player, false)) { // Verifica si el jugador tiene armadura
                     player.sendMessage(ChatColor.GOLD.toString() + ChatColor.BOLD + "Aviso: "
                             + ChatColor.RED + "Tienes armadura, por lo que recibirás daño extra. "
@@ -82,6 +89,7 @@ public class RedondelGame {
                     // Envía un aviso a los jugadores cada minuto
                     allDeath = true;
                     for (Player player : players) {
+                        ToroStatManager.getToroStatsManager(player).addTime();
                         player.sendActionBar(ChatColor.YELLOW + "Tiempo restante: " + ChatColor.RED + remainingTime + ChatColor.YELLOW + " segundos.");
                         if(!player.getGameMode().equals(GameMode.SPECTATOR)){
                             allDeath = false;

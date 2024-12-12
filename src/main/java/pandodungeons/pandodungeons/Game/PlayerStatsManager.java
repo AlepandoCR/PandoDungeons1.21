@@ -152,15 +152,18 @@ public class PlayerStatsManager {
         }
 
         for (File playerFile : playerFiles) {
-            String fileName = playerFile.getName();
-            String uuidString = fileName.substring(0, fileName.length() - 4); // Remove ".yml"
-            try {
-                PlayerStatsManager manager = loadStatsManagerReturn(uuidString);
-                allStats.add(fromStatsManager(manager));
-            } catch (IllegalArgumentException e) {
-                // Handle invalid UUID format
-                e.printStackTrace();
+            if(!playerFile.getName().contains("Toro")){
+                String fileName = playerFile.getName();
+                String uuidString = fileName.substring(0, fileName.length() - 4); // Remove ".yml"
+                try {
+                    PlayerStatsManager manager = loadStatsManagerReturn(uuidString);
+                    allStats.add(fromStatsManager(manager));
+                } catch (IllegalArgumentException e) {
+                    // Handle invalid UUID format
+                    e.printStackTrace();
+                }
             }
+
         }
         return allStats;
     }
@@ -177,20 +180,22 @@ public class PlayerStatsManager {
         }
 
         for (File playerFile : playerFiles) {
-            String fileName = playerFile.getName();
-            String uuidString = fileName.substring(0, fileName.length() - 4); // Remove ".yml"
-            try {
-                loadStatsManager(uuidString);
-            } catch (IllegalArgumentException e) {
-                // Handle invalid UUID format
-                e.printStackTrace();
+            if(!playerFile.getName().contains("Toro")){
+                String fileName = playerFile.getName();
+                String uuidString = fileName.substring(0, fileName.length() - 4); // Remove ".yml"
+                try {
+                    loadStatsManager(uuidString);
+                } catch (IllegalArgumentException e) {
+                    // Handle invalid UUID format
+                    e.printStackTrace();
+                }
             }
         }
     }
 
     public static void loadStatsManager(String fileName) {
         File playerFile = new File("plugins/PandoDungeons/PlayerData", fileName + ".yml");
-        if (!playerFile.exists()) {
+        if (!playerFile.exists() && !playerFile.getName().contains("Toro")) {
             throw new IllegalArgumentException("The file " + fileName + ".yml does not exist.");
         }
 
@@ -208,7 +213,7 @@ public class PlayerStatsManager {
 
     public static PlayerStatsManager loadStatsManagerReturn(String fileName) {
         File playerFile = new File("plugins/PandoDungeons/PlayerData", fileName + ".yml");
-        if (!playerFile.exists()) {
+        if (!playerFile.exists() && !playerFile.getName().contains("Toro")) {
             throw new IllegalArgumentException("The file " + fileName + ".yml does not exist.");
         }
 

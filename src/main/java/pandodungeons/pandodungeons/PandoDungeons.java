@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
@@ -100,6 +101,19 @@ public final class PandoDungeons extends JavaPlugin {
             }
         });
         PlayerStatsManager.loadAllPlayerStats();
+
+        getServer().getOnlinePlayers().forEach(player -> {
+            try {
+                File playerFile = new File(playerDataFolder, player.getUniqueId() + "_Toro" + ".yml");
+                if (!playerFile.exists()) {
+                    playerFile.createNewFile();
+                }
+                ToroStatManager.getToroStatsManager(player);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        ToroStatManager.loadAllToroPlayerStats();
     }
 
     @Override

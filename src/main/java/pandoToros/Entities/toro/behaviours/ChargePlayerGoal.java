@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.joml.Math;
 import pandoToros.Entities.toro.Toro;
+import pandoToros.game.ToroStatManager;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.EnumSet;
@@ -167,6 +168,7 @@ public class ChargePlayerGoal extends Goal {
 
     private void dodgeMessage(Player player){
         org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) player.getBukkitEntity();
+        ToroStatManager.getToroStatsManager(bukkitPlayer).addDodges();
         bukkitPlayer.playSound(bukkitPlayer, Sound.BLOCK_NOTE_BLOCK_BELL,1,1.2f);
     }
 

@@ -8,9 +8,14 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pandoToros.Commands.PlayRedondelCommand;
+import pandoToros.Commands.ToroStatsCommand;
+import pandodungeons.pandodungeons.Game.Stats;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import javax.swing.*;
 import java.util.List;
+
+import static pandoToros.Commands.ToroStatsCommand.ToroCommandStats;
 
 public class RedondelCommand implements CommandExecutor, TabCompleter {
 
@@ -25,12 +30,19 @@ public class RedondelCommand implements CommandExecutor, TabCompleter {
         if (command.getName().equalsIgnoreCase("redondel")) {
 
             if(strings.length < 1){
-                return false;
+                return true;
             }
 
             if (strings[0].equalsIgnoreCase("play")) {
                 if (commandSender instanceof Player player) {
                     PlayRedondelCommand.playRedondel(player, plugin);
+                    return true;
+                }
+            }
+            else if(strings[0].equalsIgnoreCase("stats")){
+                if (commandSender instanceof Player player) {
+                    ToroCommandStats(player, strings);
+                    return true;
                 }
             }
         }
@@ -41,6 +53,7 @@ public class RedondelCommand implements CommandExecutor, TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         List<String> completions = new java.util.ArrayList<>(List.of());
         completions.add("play");
+        completions.add("stats");
         return completions;
     }
 }
