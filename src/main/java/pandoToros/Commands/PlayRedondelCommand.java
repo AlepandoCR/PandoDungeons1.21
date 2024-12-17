@@ -18,7 +18,7 @@ import static pandoToros.game.RedondelGame.hasActiveRedondel;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.hasActiveDungeon;
 
 public class PlayRedondelCommand {
-    public static void playRedondel(Player player, PandoDungeons plugin){
+    public static void playRedondel(Player player, PandoDungeons plugin, String[] args){
 
         PlayerPartyList partyList = plugin.playerPartyList;
 
@@ -30,16 +30,24 @@ public class PlayRedondelCommand {
             return;
         }
 
+        boolean classic = false;
+
+        if(args.length == 2){
+            if(args[1].equalsIgnoreCase("classic")){
+                classic = true;
+            }
+        }
+
         if(partyList.isMember(player)){
             if(partyList.isOwner(player)){
-                RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), partyList.getPartyByOwner(player).getMembers());
+                RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), partyList.getPartyByOwner(player).getMembers(), classic);
             } else {
                 player.sendMessage(ChatColor.AQUA + "No puedes iniciar la partida porque estas en un party y no eres el dueño");
             }
         }else{
             List<Player> list = new ArrayList<>();
             list.add(player);
-            RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), list);
+            RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), list, classic);
         }
     }
 }

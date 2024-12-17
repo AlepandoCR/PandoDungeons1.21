@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import static pandoToros.game.ArenaMaker.isRedondelWorld;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.soccerBall;
 
 public class BallEventHandler implements Listener {
@@ -166,7 +167,7 @@ public class BallEventHandler implements Listener {
 
     @EventHandler
     public void clickArmadillo(PlayerInteractEntityEvent event){
-        if(event.getRightClicked().getScoreboardTags().contains("bolaFut")){
+        if(event.getRightClicked().getScoreboardTags().contains("bolaFut") && !isRedondelWorld(event.getRightClicked().getWorld().getName())){
             event.getRightClicked().remove();
             event.getRightClicked().getWorld().dropItemNaturally(event.getRightClicked().getLocation(), soccerBall(1));
         }

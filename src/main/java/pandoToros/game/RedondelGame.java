@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import pandoToros.game.modes.cosmetic.base.effects.team.TeamPlayerEffect;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
@@ -15,6 +16,8 @@ import static pandoToros.Entities.toro.Toro.summonToro;
 import static pandoToros.game.ArenaMaker.createRedondelWorld;
 import static pandoToros.game.ArenaMaker.deleteRedondelWorld;
 import static pandoToros.game.RandomBox.createBox;
+import static pandoToros.game.modes.GameMode.TEAM1COLOR;
+import static pandoToros.game.modes.GameMode.TEAM2COLOR;
 import static pandoToros.utils.Anim.gateAnim;
 import static pandoToros.utils.Anim.gateAnimClose;
 import static pandoToros.utils.PlayerArmorChecker.hasArmor;
@@ -33,8 +36,9 @@ public class RedondelGame {
         }
     }
 
-    public static void StartRedondel(String creator, List<Player> players) {
+    public static void StartRedondel(String creator, List<Player> players, boolean classic) {
         World newWorld = createRedondelWorld(creator); // Método para crear el mundo
+        pandoToros.game.modes.GameMode gameMode = new pandoToros.game.modes.GameMode(players, newWorld);
         if (newWorld != null) {
             newWorld.setSpawnLocation(8, -3, 12);
             for (Player player : players) {
@@ -58,11 +62,17 @@ public class RedondelGame {
             int gameDuration = 300; // Duración en segundos (5 minutos)
             gateAnimClose(newWorld);
 
+
+            if(!classic){
+                gameMode.start();
+            }
+
             new BukkitRunnable() {
                 private int remainingTime = gameDuration;
                 private boolean allDeath;
                 final Location spawnLocation = new Location(newWorld, 8, -2, -12);
-
+                final TeamPlayerEffect team1PlayerEffect = new TeamPlayerEffect(TEAM1COLOR, 1, 10);
+                final TeamPlayerEffect team2PlayerEffect = new TeamPlayerEffect(TEAM2COLOR, 1, 10);
                 @Override
                 public void run() {
                     if (remainingTime <= 0 || allDeath) {
@@ -81,15 +91,34 @@ public class RedondelGame {
                             }
 
                         }
+                        if(!classic){
+                            if(gameMode.isTeamGamemode()){
+                                for(Player player : gameMode.getWiningTeam()){
+                                    player.sendMessage("Ganó tu equipo");
+                                }
+                            }else{
+                                gameMode.getWinningPlayer().sendMessage("Ganaste el juego!");
+                            }
+                        }
                         deleteRedondelWorld("redondel_" + creator.toLowerCase(Locale.ROOT));
                         cancel(); // Detiene el loop
                         return;
                     }
 
+                    if(!classic && gameMode.isTeamGamemode()){
+                        for (Player player : newWorld.getPlayers()) {
+                            if(gameMode.whichTeam(player) == 1){
+                                team1PlayerEffect.applyEffect(player);
+                            }else if(gameMode.whichTeam(player) == 2){
+                                team2PlayerEffect.applyEffect(player);
+                            }
+                        }
+                    }
+
                     // Envía un aviso a los jugadores cada minuto
                     allDeath = true;
                     for (Player player : players) {
-                        ToroStatManager.getToroStatsManager(player).addTime();
+                        if(player.getGameMode().equals(GameMode.SURVIVAL))ToroStatManager.getToroStatsManager(player).addTime();
                         player.sendActionBar(ChatColor.YELLOW + "Tiempo restante: " + ChatColor.RED + remainingTime + ChatColor.YELLOW + " segundos.");
                         if(!player.getGameMode().equals(GameMode.SPECTATOR)){
                             allDeath = false;

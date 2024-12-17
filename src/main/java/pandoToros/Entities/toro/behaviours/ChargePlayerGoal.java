@@ -1,11 +1,17 @@
 package pandoToros.Entities.toro.behaviours;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static pandoToros.game.RandomBox.isRedPlayer;
+import static pandoToros.game.RandomBox.unRedPlayer;
 import static pandoToros.utils.PlayerArmorChecker.hasArmor;
 
 public class ChargePlayerGoal extends Goal {
@@ -42,9 +50,25 @@ public class ChargePlayerGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        // Buscar jugadores en un rango de 70 bloques alrededor del toro
+        List<Player> nearbyPlayers = this.toro.level()
+                .getNearbyPlayers(TargetingConditions.forCombat(), this.toro, AABB.ofSize(this.toro.getPosition(1), 70, 70, 70));
+
+        // Filtrar jugadores rojos
+        for (Player player : nearbyPlayers) {
+            if (isRedPlayer(player)) {
+                this.target = player; // Priorizar jugadores rojos como objetivo
+                return true; // Si se encuentra un jugador rojo, se puede usar
+            }
+        }
+
+        // Si no hay jugadores rojos, buscar el jugador más cercano
         this.target = this.toro.level().getNearestPlayer(this.toro, 70.0);
+
+        // Retornar true si se encuentra un jugador válido
         return this.target != null;
     }
+
 
     @Override
     public void start() {
@@ -54,6 +78,42 @@ public class ChargePlayerGoal extends Goal {
         this.cooldownTicks = 0;
         this.anger = 0;
     }
+
+    public void generateDustEffect(ServerLevel serverLevel, BlockPos blockPos) {
+        // Obtener el mundo de Bukkit desde el ServerLevel
+        org.bukkit.World bukkitWorld = serverLevel.getWorld();
+
+        if (bukkitWorld == null) {
+            throw new IllegalArgumentException("El ServerLevel no tiene un mundo de Bukkit asociado.");
+        }
+
+        // Convertir BlockPos a Location de Bukkit
+        Location location = new Location(
+                bukkitWorld,
+                blockPos.getX() + 0.5, // Centrar en el bloque
+                blockPos.getY() + 0.5,
+                blockPos.getZ() + 0.5
+        );
+
+        // Generar partículas de polvo usando BLOCK
+        for (int i = 0; i < 100; i++) { // Ajustar cantidad según sea necesario
+            double offsetX = (Math.random() - 0.5) * 2.0; // Aleatorio en X
+            double offsetY = Math.random() * 0.5;         // Aleatorio en Y
+            double offsetZ = (Math.random() - 0.5) * 2.0; // Aleatorio en Z
+
+            Location particleLocation = location.clone().add(offsetX, offsetY, offsetZ);
+
+            // Generar partículas de bloque
+            bukkitWorld.spawnParticle(
+                    Particle.BLOCK,
+                    particleLocation,
+                    1, // Cantidad
+                    0, 0, 0, // Velocidades
+                    location.getBlock().getBlockData() // Datos del bloque base
+            );
+        }
+    }
+
 
     @Override
     public boolean canContinueToUse() {
@@ -98,7 +158,24 @@ public class ChargePlayerGoal extends Goal {
         } else if (!charging) {
             // Start charging after staring
             this.charging = true;
-            this.target = this.toro.level().getNearestPlayer(this.toro, 70.0);
+
+            boolean targetRed = false;
+            // Buscar jugadores en un rango de 70 bloques alrededor del toro
+            List<Player> nearbyPlayers = this.toro.level()
+                    .getNearbyPlayers(TargetingConditions.forCombat(), this.toro, AABB.ofSize(this.toro.getPosition(1), 70, 70, 70));
+
+            // Filtrar jugadores rojos
+            for (Player player : nearbyPlayers) {
+                if (isRedPlayer(player)) {
+                    this.target = player; // Priorizar jugadores rojos como objetivo
+                    targetRed = true;
+                }
+            }
+
+            // Si no hay jugadores rojos, buscar el jugador más cercano
+            if(!targetRed){
+                this.target = this.toro.level().getNearestPlayer(this.toro, 70.0);
+            }
             if(this.target != null){
                 this.chargeDirection = this.target.position().subtract(this.toro.position()).normalize();
                 this.toro.getNavigation().moveTo(
@@ -149,9 +226,10 @@ public class ChargePlayerGoal extends Goal {
                 for (org.bukkit.entity.Player player : this.toro.getBukkitEntity().getLocation().getNearbyPlayers(20)) {
                     player.playSound(this.toro.getBukkitEntity(), Sound.ENTITY_HORSE_BREATHE, 10, 0.7f);
                 }
+                generateDustEffect((ServerLevel) this.toro.level(),this.toro.blockPosition());
                 Vec3 knockbackDirection = calculateKnockbackDirection(this.toro, this.target);
                 if(hasArmor((org.bukkit.entity.Player) this.target.getBukkitEntity(),false)){
-                    this.target.hurt(this.toro.damageSources().mobAttack(this.toro), 10.0F);
+                    this.target.hurt(this.toro.damageSources().mobAttack(this.toro), 100.0F);
                 } else {
                     this.target.hurt(this.toro.damageSources().mobAttack(this.toro), 7.0F);
                 }
@@ -159,6 +237,9 @@ public class ChargePlayerGoal extends Goal {
                 this.resetCharge();
                 anger++;
             } else if (this.toro.getNavigation().isDone()) {
+                if(isRedPlayer(this.target)){
+                    unRedPlayer(this.target);
+                }
                 this.resetCharge();
                 this.dodgeMessage(this.target);
                 anger++;
@@ -182,7 +263,23 @@ public class ChargePlayerGoal extends Goal {
     }
 
     private void resetCharge() {
-        this.target = this.toro.level().getNearestPlayer(this.toro, 70.0);
+        boolean targetRed = false;
+        // Buscar jugadores en un rango de 70 bloques alrededor del toro
+        List<Player> nearbyPlayers = this.toro.level()
+                .getNearbyPlayers(TargetingConditions.forCombat(), this.toro, AABB.ofSize(this.toro.getPosition(1), 70, 70, 70));
+
+        // Filtrar jugadores rojos
+        for (Player player : nearbyPlayers) {
+            if (isRedPlayer(player)) {
+                this.target = player; // Priorizar jugadores rojos como objetivo
+                targetRed = true;
+            }
+        }
+
+        // Si no hay jugadores rojos, buscar el jugador más cercano
+        if(!targetRed){
+            this.target = this.toro.level().getNearestPlayer(this.toro, 70.0);
+        }
         this.cooldownTicks = java.lang.Math.max((40 - (anger * 10)), 0);
        // 3 seconds cooldown (60 ticks)
         this.stareTicks = 40; // Restart staring phase
@@ -202,7 +299,7 @@ public class ChargePlayerGoal extends Goal {
                 .toList();
 
         if (!tooClosePlayers.isEmpty()) {
-            // Si hay jugadores demasiado cerca, encontrar una posición alejada
+            // Sí hay jugadores demasiado cerca, encontrar una posición alejada
             Vec3 toroPosition = this.toro.position();
             Vec3 escapeDirection = tooClosePlayers.stream()
                     .map(player -> toroPosition.subtract(player.position()).normalize())

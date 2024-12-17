@@ -32,7 +32,6 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     private final CompanionSelection companionSelection;
     private final CompanionUnlock companionUnlock;
     private final PrestigeWithdraw prestigeWithdraw;
-    private final PartyCommand partyCommand;
     private final PandoDungeons plugin;
     public CommandManager(PandoDungeons plugin) {
         this.playCommand = new DungeonsPlayCommand(plugin);
@@ -47,7 +46,6 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         this.companionUnlock = new CompanionUnlock(plugin);
         this.prestigeWithdraw = new PrestigeWithdraw(plugin);
         this.enchantment = new getEnchantment(plugin);
-        this.partyCommand = new PartyCommand(plugin);
         this.mountCommand = new MountCommand();
         this.plugin = plugin;
 
@@ -78,7 +76,6 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             case "retirarprestigio" -> prestigeWithdraw.onCommand(sender, command, label, args);
             case "enchantment" -> enchantment.onCommand(sender, command, label, args);
             case "montura" -> mountCommand.onCommand(sender, command, label, args);
-            case "party" -> partyCommand.onCommand(sender, command, label, args);
             default -> {
                 sender.sendMessage("Comando desconocido. Uso: /dungeons play, /dungeons leave, /dungeons stats, /dungeons top, /dungeons statsbook, /dungeons companionmenu, /dungeons retirarprestigio");
                 yield true;
@@ -113,19 +110,9 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 completions.add("companionmenu");
                 completions.add("retirarprestigio");
                 completions.add("montura");
-                completions.add("party");
             } else if (args.length == 2) { // Verifica si es el segundo argumento
                 if (args[0].equalsIgnoreCase("stats") || args[1].equalsIgnoreCase("resetstats")) {
                     completions.addAll(PlayerStatsManager.getAllPlayerNames());
-                }
-                if (args[0].equalsIgnoreCase("party")) {
-                    completions.add("invite");
-                    completions.add("create");
-                    completions.add("accept");
-                    completions.add("deny");
-                    completions.add("delete");
-                    completions.add("leave");
-                    completions.add("info");
                 }
             } else if (args.length == 3) {
                 if(args[1].equalsIgnoreCase("invite")){

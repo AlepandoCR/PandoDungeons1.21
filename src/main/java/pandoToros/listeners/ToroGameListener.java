@@ -20,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import pandoToros.Entities.toro.Toro;
 import pandoToros.game.ToroStatManager;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
@@ -29,8 +30,11 @@ import java.util.Locale;
 
 import static pandoToros.game.ArenaMaker.extractUsername;
 import static pandoToros.game.ArenaMaker.isRedondelWorld;
+import static pandoToros.game.RandomBox.isProtectedPlayer;
+import static pandoToros.game.RandomBox.unProtectPlayer;
 import static pandoToros.game.RedondelGame.activeRedondel;
 import static pandoToros.game.RedondelGame.hasActiveRedondel;
+import static pandoToros.game.modes.PlatformMode.platformPlayers;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 
 
@@ -58,10 +62,23 @@ public class ToroGameListener implements Listener {
     }
 
     @EventHandler
-    public void toroDmg(EntityDamageEvent event){
+    public void dmgManagement(EntityDamageEvent event){
         if(isRedondelWorld(event.getEntity().getWorld().getName())){
             if(event.getEntity() instanceof Ravager){
                 event.setCancelled(true);
+            }
+            if(event.getEntity() instanceof  Player player){
+                if(isProtectedPlayer(player)){
+                    event.setCancelled(true);
+
+                    new BukkitRunnable(){
+                        @Override
+                        public void run(){
+                            if(isProtectedPlayer(player)) unProtectPlayer(player);
+                            player.playSound(player, Sound.ITEM_MACE_SMASH_GROUND_HEAVY,1,1);
+                        }
+                    }.runTaskLater(plugin,60);
+                }
             }
         }
     }
@@ -248,11 +265,32 @@ public class ToroGameListener implements Listener {
     }
 
     @EventHandler
-    private void hitOnRedondel(PrePlayerAttackEntityEvent event){
-        if(isRedondelWorld(event.getPlayer().getWorld().getName())){
+    private void hitOnRedondel(PrePlayerAttackEntityEvent event) {
+        if (isRedondelWorld(event.getPlayer().getWorld().getName())) {
+            if (event.getAttacked() instanceof Player player) {
+                if (platformPlayers.contains(event.getPlayer()) && platformPlayers.contains(player)) {
+                    // Obtener la dirección del atacante al atacado
+                    Player attacker = event.getPlayer();
+                    Location attackerLoc = attacker.getLocation();
+                    Location attackedLoc = player.getLocation();
+
+                    // Calcular vector de dirección
+                    Vector direction = attackedLoc.toVector().subtract(attackerLoc.toVector()).normalize();
+
+                    // Añadir empuje horizontal (0.5 bloques)
+                    direction.multiply(0.4);
+
+                    // Añadir empuje vertical (0.2 bloques)
+                    direction.setY(0.2);
+
+                    // Aplicar la fuerza al jugador atacado
+                    player.setVelocity(direction);
+                }
+            }
             event.setCancelled(true);
         }
     }
+
 
     @EventHandler
     private void arrowHitCancel(EntityShootBowEvent event){

@@ -20,6 +20,7 @@ import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Utils.LocationUtils;
 import pandodungeons.pandodungeons.Utils.StructureUtils;
+import pandodungeons.pandodungeons.commands.game.PartyCommand;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +59,7 @@ public final class PandoDungeons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
         this.getCommand("redondel").setExecutor(new RedondelCommand(this));
+        this.getCommand("party").setExecutor(new PartyCommand(this));
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");

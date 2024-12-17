@@ -74,12 +74,12 @@ public class PlayerParty {
         // Crear los mensajes para aceptar o rechazar la invitación
         Component acceptMessage = Component.text(ChatColor.GREEN + "[Click para aceptar] ")
                 .color(NamedTextColor.GOLD)
-                .clickEvent(ClickEvent.runCommand("/dungeons party accept"))
+                .clickEvent(ClickEvent.runCommand("/party accept"))
                 .hoverEvent(HoverEvent.showText(Component.text("Haz clic para aceptar la invitación.")));
 
         Component rejectMessage = Component.text(ChatColor.RED +"[Click para rechazar] ")
                 .color(NamedTextColor.RED)
-                .clickEvent(ClickEvent.runCommand("/dungeons party deny"))
+                .clickEvent(ClickEvent.runCommand("/party deny"))
                 .hoverEvent(HoverEvent.showText(Component.text("Haz clic para rechazar la invitación.")));
 
         // Enviar los mensajes

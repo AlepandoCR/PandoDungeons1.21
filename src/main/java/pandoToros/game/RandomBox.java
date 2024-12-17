@@ -17,8 +17,7 @@ import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.Utils.LocationUtils;
 
 import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.createHead;
 
@@ -69,6 +68,9 @@ public class RandomBox {
                         triggerEffect(player);
                         this.cancel();
                         return;
+                    }else if(closeEntities.getFirst() instanceof ArmorStand){
+                        armorStand.remove();
+                        this.cancel();
                     }
                 }
 
@@ -115,10 +117,173 @@ public class RandomBox {
         }
     }
 
+    public static List<Player> RedPlayers = new ArrayList<>();
+
+    public static void RedPlayer(Player player) {
+        RedPlayers.add(player);
+
+        // Crear la BossBar para mostrar el tiempo restante
+        BossBar bossBar = Bukkit.createBossBar(
+                "Tiempo restante: " + RIDE_TIME + " segundos",
+                BarColor.RED,
+                BarStyle.SEGMENTED_10
+        );
+        bossBar.addPlayer(player);
+
+        // Crear un ArmorStand para la bandera
+        ArmorStand bannerStand = player.getWorld().spawn(player.getLocation(), ArmorStand.class);
+        bannerStand.setVisible(false); // No mostrar el ArmorStand
+        bannerStand.setMarker(true);  // No interactuable
+        bannerStand.setSmall(true);   // Tamaño pequeño
+        bannerStand.setGravity(false); // Sin gravedad
+        bannerStand.setCustomNameVisible(false);
+
+        // Asignar un banner rojo al ArmorStand
+        ItemStack redBanner = new ItemStack(Material.RED_BANNER);
+        bannerStand.getEquipment().setHelmet(redBanner);
+
+        // Tarea para manejar el tiempo restante y actualizar la BossBar
+        new BukkitRunnable() {
+            int timer = 0;
+            int sc = 10;
+
+            @Override
+            public void run() {
+                if (!player.isOnline() || sc <= 0) {
+                    unRedPlayer(player);
+                    bossBar.removeAll(); // Remover la BossBar
+                    bannerStand.remove(); // Eliminar el ArmorStand
+                    cancel(); // Detener la tarea
+                    return;
+                }
+
+                timer++;
+
+                double progress = sc / (double) RIDE_TIME;
+
+                // Actualizar la BossBar
+                bossBar.setTitle("Tiempo restante: " + sc + " segundos");
+                bossBar.setProgress(progress);
+
+                // Sincronizar la posición y dirección del ArmorStand con el jugador
+                Location playerLocation = player.getLocation();
+
+                // Calcular la posición frente al jugador
+                double distanceInFront = 0.7; // Ajusta esta distancia para mover el banner más adelante
+                double radYaw = Math.toRadians(playerLocation.getYaw());
+                double offsetX = -Math.sin(radYaw) * distanceInFront;
+                double offsetZ = Math.cos(radYaw) * distanceInFront;
+
+                Location bannerLocation = playerLocation.clone().add(offsetX, -0.9, offsetZ); // Ajustar altura con -0.9
+                bannerStand.teleport(bannerLocation);
+
+                // Orientar el ArmorStand hacia la dirección del jugador
+                bannerStand.setRotation(playerLocation.getYaw(), 0); // Solo rotación horizontal
+
+                // Generar una pequeña esfera de partículas sobre la cabeza del jugador
+                double radius = 0.2; // Radio de la esfera
+                int particleCount = 10; // Número de partículas por iteración
+                Particle.DustOptions dustOptions = new Particle.DustOptions(Color.RED, 1.0f); // Color rojo y tamaño de partícula
+
+                Location particleCenter = playerLocation.clone().add(0, 2.3, 0); // Ajustar altura sobre la cabeza
+                for (int i = 0; i < particleCount; i++) {
+                    double angle = Math.random() * 2 * Math.PI;
+                    double yOffset = (Math.random() * 2 - 1) * radius; // Altura aleatoria dentro del radio
+                    double xOffset = Math.cos(angle) * Math.sqrt(radius * radius - yOffset * yOffset);
+                    double zOffset = Math.sin(angle) * Math.sqrt(radius * radius - yOffset * yOffset);
+
+                    Location particleLocation = particleCenter.clone().add(xOffset, yOffset, zOffset);
+                    particleLocation.add(0,0.3,0);
+                    player.getWorld().spawnParticle(Particle.DUST, particleLocation, 1, dustOptions);
+                }
+
+                // Decrementar el tiempo restante cada segundo
+                if (timer % 20 == 0) {
+                    sc--;
+                }
+            }
+        }.runTaskTimer(plugin, 0, 1L); // Ejecutar cada tick (1/20 de segundo)
+
+    }
+
+    public static List<Player> protectedPlayers = new ArrayList<>();
+
+    public static void protectPlayer(Player player){
+        player.sendMessage(ChatColor.AQUA + "Haz recibido un escudo protector");
+     protectedPlayers.add(player);
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+                if(!isProtectedPlayer(player)){
+                    this.cancel();
+                    return;
+                }
+                createDustSphere(player, Color.AQUA,1,100);
+            }
+
+        }.runTaskTimer(plugin,0,1);
+    }
+
+    public static boolean isProtectedPlayer(Player player){
+        return protectedPlayers.contains(player);
+    }
+
+    public static void unProtectPlayer(Player player){
+        if(isProtectedPlayer(player)) protectedPlayers.remove(player);
+    }
+
+    public static void createDustSphere(Player player, Color color, double radius, int density) {
+        // Centro de la esfera (posición del jugador)
+        Location center = player.getLocation().add(0, 1, 0); // Añade altura para centrar en el torso/cabeza
+
+        // Opciones de la partícula DUST
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1.0f); // Color celeste y tamaño normal
+
+        // Generar partículas en la superficie de la esfera
+        for (int i = 0; i < density; i++) {
+            // Coordenadas aleatorias dentro de la esfera
+            double theta = Math.random() * 2 * Math.PI; // Ángulo azimutal (horizontal)
+            double phi = Math.acos(2 * Math.random() - 1); // Ángulo polar (vertical)
+
+            // Calcular las coordenadas en 3D
+            double x = radius * Math.sin(phi) * Math.cos(theta);
+            double y = radius * Math.sin(phi) * Math.sin(theta);
+            double z = radius * Math.cos(phi);
+
+            // Posición de la partícula
+            Location particleLocation = center.clone().add(x, y, z);
+
+            // Spawn de la partícula
+            player.getWorld().spawnParticle(Particle.DUST, particleLocation, 1, dustOptions);
+        }
+    }
+
+
+
+    public static void RedPlayer(net.minecraft.world.entity.player.Player player){
+        RedPlayers.add((Player) player.getBukkitEntity());
+    }
+
+    public static boolean isRedPlayer(Player player){
+        return RedPlayers.contains(player);
+    }
+
+    public static boolean isRedPlayer(net.minecraft.world.entity.player.Player player){
+        return RedPlayers.contains((Player) player.getBukkitEntity());
+    }
+
+    public static void unRedPlayer(Player player){
+        if(isRedPlayer(player)) RedPlayers.remove(player);
+    }
+
+    public static void unRedPlayer(net.minecraft.world.entity.player.Player player){
+        if(isRedPlayer(player)) RedPlayers.remove((Player) player.getBukkitEntity());
+    }
 
     private static void applyPositiveEffect(Player player) {
         // Ejemplo: Añadir salud y efectos positivos
-        int effect = RANDOM.nextInt(4);
+        int effect = RANDOM.nextInt(5);
         switch (effect){
             case 0:
                 player.setHealth(Math.min(player.getHealth() + 4.0, player.getMaxHealth())); // Restaurar salud
@@ -134,6 +299,9 @@ public class RandomBox {
             case 3:
                 giveFishingRodWithCustomModelData(player);
                 break;
+            case 4:
+                protectPlayer(player);
+                break;
             default:
                 break;
         }
@@ -144,12 +312,13 @@ public class RandomBox {
     private static void applyNegativeEffect(Player player) {
         // Obtener todos los jugadores en el mundo del jugador que activó el efecto
         List<Player> players = player.getWorld().getPlayers();
+        boolean RededPlayer = false;
         for (Player otherPlayer : players) {
             // Saltar al jugador que activó el efecto
             if (otherPlayer.equals(player)) continue;
 
             // Decidir aleatoriamente cuál efecto aplicar
-            int effectType = RANDOM.nextInt(3); // 0: lentitud, 1: ceguera, 2: minar 3x3
+            int effectType = RANDOM.nextInt(4); // 0: lentitud, 1: ceguera, 2: minar 3x3
             switch (effectType) {
                 case 0:
                     otherPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 200, 2)); // Lentitud por 10 segundos
@@ -164,6 +333,15 @@ public class RandomBox {
                 case 2:
                     mineAroundPlayer(otherPlayer); // Minar área 3x3
                     otherPlayer.sendMessage(ChatColor.RED + "¡Un efecto negativo ha destruido el área a tu alrededor!");
+                    break;
+                case 3:
+                    if(!RededPlayer){
+                        RedPlayer(otherPlayer);
+                        otherPlayer.sendMessage(ChatColor.RED + "¡Haz sido marcado!");
+                        RededPlayer = true;
+                    }
+                    break;
+                default:
                     break;
             }
         }

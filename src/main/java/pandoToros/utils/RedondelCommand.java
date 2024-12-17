@@ -35,7 +35,7 @@ public class RedondelCommand implements CommandExecutor, TabCompleter {
 
             if (strings[0].equalsIgnoreCase("play")) {
                 if (commandSender instanceof Player player) {
-                    PlayRedondelCommand.playRedondel(player, plugin);
+                    PlayRedondelCommand.playRedondel(player, plugin, strings);
                     return true;
                 }
             }
@@ -52,8 +52,17 @@ public class RedondelCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         List<String> completions = new java.util.ArrayList<>(List.of());
-        completions.add("play");
-        completions.add("stats");
+        if (strings.length == 1) {
+            completions.add("play");
+            completions.add("stats");
+        }else if (strings.length == 2) {
+            if (strings[0].equalsIgnoreCase("play")){
+                completions.add("classic");
+                completions.add("normal");
+            }
+
+        }
+
         return completions;
     }
 }

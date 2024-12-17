@@ -14,6 +14,10 @@ commands:
     description: Comando para redondel
     usage: /<command> play
 
+  party:
+    description: Comando para crear una party
+    usage: /<command> [create|invite|delete]
+
 permissions:
   pandodungeons.pandaMount:
     description: Permiso para montar y controlar un panda.

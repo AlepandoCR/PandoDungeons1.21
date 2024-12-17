@@ -16,7 +16,7 @@ import pandodungeons.pandodungeons.Game.Stats;
 import java.util.Comparator;
 import java.util.List;
 
-import static pandoToros.game.RandomBox.giveHorseRide;
+import static pandoToros.game.RandomBox.*;
 
 public class ToroStatsCommand {
 
