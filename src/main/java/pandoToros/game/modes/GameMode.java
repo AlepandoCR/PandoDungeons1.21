@@ -3,6 +3,7 @@ package pandoToros.game.modes;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import pandoToros.game.modes.teamScoreboard.TeamPoints;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.*;
@@ -19,9 +20,8 @@ public class GameMode {
     protected List<Player> team2 = new ArrayList<>();
     protected boolean won = false;
     protected boolean isTeam = false;
-    protected int team1Points = 0;
+    protected TeamPoints teamPoints = new TeamPoints(0,0);
     private final Random RANDOM = new Random();
-    protected int team2Points = 0;
     private final Map<Player, Integer> points = new HashMap<>();
     private final World world;
     public static org.bukkit.Color TEAM1COLOR = org.bukkit.Color.RED;
@@ -43,6 +43,7 @@ public class GameMode {
                 return 2;
             }
         }
+        plugin.getLogger().info("El jugador " + player.getName() + " no esta en ningun equipo");
         return 0;
    }
 
@@ -53,7 +54,7 @@ public class GameMode {
                 int cas = RANDOM.nextInt(1);
                 switch (cas) {
                     case 0:
-                        createSoccerGoals(world, players, team1Points, team2Points, team1, team2);
+                        createSoccerGoals(world, players, teamPoints, team1, team2);
                         break;
                     default:
                         break;
@@ -103,9 +104,9 @@ public class GameMode {
 
 
     public List<Player> getWiningTeam(){
-        if(team1Points > team2Points){
+        if(teamPoints.getTeam1Points() > teamPoints.getTeam2Points()){
             return team1;
-        }else if(team2Points > team1Points){
+        }else if(teamPoints.getTeam2Points() > teamPoints.getTeam1Points()){
             return team2;
         }else {
             return players;
@@ -113,7 +114,7 @@ public class GameMode {
     }
 
     public boolean isTeamGamemode(){
-        return !team1.isEmpty() && !team2.isEmpty() && isTeam;
+        return isTeam;
     }
 
     public boolean canTeam(){
@@ -122,8 +123,8 @@ public class GameMode {
 
     public void sortTeams() {
         // Verifica que haya más de un jugador para repartir
-        if (players.size() > 1) {
             // Limpia los equipos antes de asignar jugadores
+            isTeam = true;
             team1.clear();
             team2.clear();
 
@@ -139,11 +140,8 @@ public class GameMode {
             }
 
             // Imprimir los equipos para verificar
-            plugin.getLogger().info("Team 1: " + team1.size() + " players");
-            plugin.getLogger().info("Team 2: " + team2.size() + " players");
-        } else {
-            plugin.getLogger().info("Not enough players to sort into teams.");
-        }
+            plugin.getLogger().info("Team Red: " + team1.size() + " players");
+            plugin.getLogger().info("Team Green: " + team2.size() + " players");
     }
 
 

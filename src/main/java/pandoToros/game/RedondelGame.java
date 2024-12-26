@@ -115,10 +115,11 @@ public class RedondelGame {
                         }
                     }
 
-                    // Envía un aviso a los jugadores cada minuto
                     allDeath = true;
                     for (Player player : players) {
-                        if(player.getGameMode().equals(GameMode.SURVIVAL))ToroStatManager.getToroStatsManager(player).addTime();
+                        if(player.getGameMode() != GameMode.SPECTATOR){
+                            ToroStatManager.getToroStatsManager(player).addTime();
+                        }
                         player.sendActionBar(ChatColor.YELLOW + "Tiempo restante: " + ChatColor.RED + remainingTime + ChatColor.YELLOW + " segundos.");
                         if(!player.getGameMode().equals(GameMode.SPECTATOR)){
                             allDeath = false;

@@ -36,7 +36,7 @@ public class TeamPlayerEffect {
         Location playerLocation = player.getLocation();
 
         // Generar partículas en forma de esfera
-        Location particleCenter = playerLocation.clone().add(0, 2.3, 0);
+        Location particleCenter = playerLocation.clone().add(0, 0, 0);
         for (int i = 0; i < particleCount; i++) {
             double angle = Math.random() * 2 * Math.PI;
             double yOffset = (Math.random() * 2 - 1) * sphereRadius;

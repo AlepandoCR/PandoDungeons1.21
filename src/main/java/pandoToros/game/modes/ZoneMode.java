@@ -1,6 +1,7 @@
 package pandoToros.game.modes;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -58,8 +59,10 @@ public class ZoneMode {
                     seconds++;
                     List<Player> playersInCircle = getPlayersInCircle(currentCenter, currentDiameter, world);
                     for (Player player : playersInCircle) {
-                        int currentPoints = points.getOrDefault(player, 0);
-                        points.put(player, currentPoints + 1);
+                        if(player.getGameMode() != GameMode.SPECTATOR){
+                            int currentPoints = points.getOrDefault(player, 0);
+                            points.put(player, currentPoints + 1);
+                        }
                     }
                 }
 

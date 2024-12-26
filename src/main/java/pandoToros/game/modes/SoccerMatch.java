@@ -14,14 +14,18 @@ import org.checkerframework.checker.units.qual.C;
 import pandoToros.game.modes.cosmetic.CosmeticGoal;
 import pandoToros.game.modes.cosmetic.base.effects.CosmeticDefaults;
 import pandoToros.game.modes.teamScoreboard.Scoreboard;
+import pandoToros.game.modes.teamScoreboard.TeamPoints;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallArmadillo;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SoccerMatch {
 
     public static PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+
+    public static List<Player> playerWithBall = new ArrayList<>();
 
     public static void spawnArmadillo(World world){
         BallArmadillo ball = new BallArmadillo(EntityType.ARMADILLO, ((CraftWorld) world).getHandle());
@@ -33,7 +37,7 @@ public class SoccerMatch {
      *
      * @param world El mundo donde se construirán los marcos.
      */
-    public static void createSoccerGoals(World world, List<Player> players, int team1points, int team2points, List<Player> team1, List<Player> team2) {
+    public static void createSoccerGoals(World world, List<Player> players, TeamPoints teamPoints, List<Player> team1, List<Player> team2) {
         spawnArmadillo(world);
         // Centro del primer marco
         Location goal1Center = new Location(world, 24, -4, 10);
@@ -50,7 +54,7 @@ public class SoccerMatch {
 
         pandoToros.game.modes.teamScoreboard.Scoreboard scoreboard = new pandoToros.game.modes.teamScoreboard.Scoreboard(world, "Equipo Rojo", "Equipo Verde");
 
-        startMonitoring(world,width,height,plugin,players,team1points,team2points,team1,team2, scoreboard);
+        startMonitoring(world,width,height,plugin,players,teamPoints,team1,team2, scoreboard);
     }
 
     /**
@@ -99,7 +103,7 @@ public class SoccerMatch {
      *
      * @param world El mundo donde se encuentran los marcos.
      */
-    public static void monitorGoals(World world, int team1points, int team2points, Scoreboard scoreboard) {
+    public static void monitorGoals(World world, TeamPoints teamPoints, Scoreboard scoreboard) {
         // Coordenadas para el primer marco (equipo verde)
         int goal1X = -8;
         int goal1YStart = -3;
@@ -120,28 +124,62 @@ public class SoccerMatch {
         // Comprobar si alguna entidad está dentro de las áreas de los marcos
         for (Entity entity : nearbyEntities) {
             if (entity.getScoreboardTags().contains("bolaFut")) {
+                for (Entity entity1 : entity.getNearbyEntities(2, 2, 2)) {
+                    if (entity1 instanceof Player player) {
+                        playerWithBall.removeIf(player1 -> player1.getWorld().equals(world));
+                        playerWithBall.add(player);
+                    }
+                }
                 Location entityLocation = entity.getLocation();
                 CosmeticGoal cosmeticGoal = new CosmeticGoal(plugin);
                 // Verificar si la entidad está dentro del área del primer marco
                 if (isEntityInGoalArea(entityLocation, goal1X, goal1YStart, goal1YEnd, goal1ZStart, goal1ZEnd)) {
                     System.out.println("Entidad " + entity.getName() + " pasó por el primer marco.");
-                    team2points++;
+                    teamPoints.incrementTeam1Points();
+                    plugin.getLogger().info("Team Red points:" + teamPoints.getTeam1Points());
+                    plugin.getLogger().info("Team Green points:" + teamPoints.getTeam2Points());
+                    cosmeticGoal.addAction(CosmeticDefaults.getDefault("EXPLOSION_RED"));
+                    if (localPlayerGoal(world) != null) {
+                        plugin.getLogger().info("Disparando efecto para jugador: " + localPlayerGoal(world).getName());
+                        cosmeticGoal.trigger(localPlayerGoal(world), entity.getLocation());
+                    } else {
+                        plugin.getLogger().warning("No se detectó jugador para disparar el efecto.");
+                    }
+
                     entity.remove();
-                    cosmeticGoal.addAction(CosmeticDefaults.getDefault("EXPLOSION_GREEN"));
                     spawnArmadillo(world);
+                    scoreboard.updateScore(teamPoints);
                 }
 
                 // Verificar si la entidad está dentro del área del segundo marco
                 if (isEntityInGoalArea(entityLocation, goal2X, goal2YStart, goal2YEnd, goal2ZStart, goal2ZEnd)) {
                     System.out.println("Entidad " + entity.getName() + " pasó por el segundo marco.");
-                    team1points++;
+                    teamPoints.incrementTeam2Points();
+                    plugin.getLogger().info("Team Red points:" + teamPoints.getTeam1Points());
+                    plugin.getLogger().info("Team Green points:" + teamPoints.getTeam2Points());
+                    cosmeticGoal.addAction(CosmeticDefaults.getDefault("EXPLOSION_GREEN"));
+                    if (localPlayerGoal(world) != null) {
+                        plugin.getLogger().info("Disparando efecto para jugador: " + localPlayerGoal(world).getName());
+                        cosmeticGoal.trigger(localPlayerGoal(world), entity.getLocation());
+                    } else {
+                        plugin.getLogger().warning("No se detectó jugador para disparar el efecto.");
+                    }
+
                     entity.remove();
-                    cosmeticGoal.addAction(CosmeticDefaults.getDefault("EXPLOSION_RED"));
                     spawnArmadillo(world);
+                    scoreboard.updateScore(teamPoints);
                 }
-                scoreboard.updateScore(team1points,team2points);
             }
         }
+    }
+
+    private static Player localPlayerGoal(World world){
+        for(Player player : playerWithBall){
+            if(player.getWorld().equals(world)){
+                return player;
+            }
+        }
+        return null;
     }
 
     /**
@@ -170,11 +208,8 @@ public class SoccerMatch {
      * @param height     La altura de los marcos.
      * @param scoreboard
      */
-    public static void startMonitoring(World world, int width, int height, PandoDungeons plugin, List<Player> players, int team1ponts, int team2points, List<Player> team1, List<Player> team2, Scoreboard scoreboard) {
+    public static void startMonitoring(World world, int width, int height, PandoDungeons plugin, List<Player> players, TeamPoints teamPoints, List<Player> team1, List<Player> team2, Scoreboard scoreboard) {
         new BukkitRunnable() {
-            final Location goal1Center = new Location(world, 24, -4, 10);
-            // Centro del segundo marco
-            final Location goal2Center = new Location(world, -8, -4, 10);
             int timer = 0;
             int seconds = 0 ;
             @Override
@@ -191,7 +226,7 @@ public class SoccerMatch {
                     return;
                 }
                 // Ejecutar el monitoreo de los marcos en cada tick
-                monitorGoals(world, team1ponts, team2points, scoreboard);
+                monitorGoals(world, teamPoints, scoreboard);
             }
         }.runTaskTimer(plugin, 0L, 1L);
     }

@@ -1,6 +1,7 @@
 package pandoToros.game.modes;
 
 import org.bukkit.*;
+import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -62,28 +63,36 @@ public class PlatformMode {
 
                 if(timer % 20 == 0){
                     for (Player player : getPlayersOnPlatform(world)) {
-                        points.put(player, points.getOrDefault(player, 0) + 1);
+                        if(player.getGameMode() != GameMode.SPECTATOR){
+                            points.put(player, points.getOrDefault(player, 0) + 1);
+                        }
                     }
                 }
                 timer++;
             }
 
             private void movePlatform(World world) {
-                // Calcular nueva posición del centro
+                // Actualizar posición del centro
                 platformCenter.add(dx, 0, dz);
 
-                // Verificar si se exceden los límites y cambiar dirección si es necesario
+                // Redondear la posición del centro
+                platformCenter.setX(Math.round(platformCenter.getX() * 10.0) / 10.0);
+                platformCenter.setZ(Math.round(platformCenter.getZ() * 10.0) / 10.0);
+
+                // Verificar límites y cambiar dirección
                 if (platformCenter.getX() <= MIN_X || platformCenter.getX() >= MAX_X) {
-                    dx *= -1; // Cambiar dirección en X
+                    dx = -Math.signum(dx) * SPEED; // Cambiar dirección sin alterar magnitud
                 }
                 if (platformCenter.getZ() <= MIN_Z || platformCenter.getZ() >= MAX_Z) {
-                    dz *= -1; // Cambiar dirección en Z
+                    dz = -Math.signum(dz) * SPEED;
                 }
+
 
                 // Actualizar la plataforma
                 updatePlatform(world);
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+
+        }.runTaskTimer(plugin, 0L, 2L);
     }
 
     private static void createPlatform(World world, Location center) {
@@ -101,20 +110,21 @@ public class PlatformMode {
     }
 
     private static void updatePlatform(World world) {
-        // Eliminar bloques actuales
-        for (Location loc : platformBlocks) {
+        // Eliminar bloques anteriores
+        for (Location loc : new ArrayList<>(platformBlocks)) {
             world.getBlockAt(loc).setType(Material.AIR);
         }
 
-        // Crear nuevos bloques en la nueva posición
+        // Actualizar lista y crear bloques nuevos
         createPlatform(world, platformCenter);
     }
+
 
     private static List<Player> getPlayersOnPlatform(World world) {
         List<Player> playersOnPlatform = new ArrayList<>();
 
-        for (Player player : world.getPlayers()) {
-            Location playerLoc = player.getLocation();
+            for (Player player : world.getPlayers()) {
+                Location playerLoc = player.getLocation();
             for (Location blockLoc : platformBlocks) {
                 if (isPlayerOnBlock(playerLoc, blockLoc)) {
                     playersOnPlatform.add(player);

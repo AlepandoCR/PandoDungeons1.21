@@ -14,13 +14,13 @@ public class CosmeticDefaults {
 
     static {
         // Explosión roja
-        defaults.put("EXPLOSION_RED", new ParticleAction(Particle.DUST, 50, new Particle.DustOptions(Color.RED, 1)));
+        defaults.put("EXPLOSION_RED", new ParticleAction(Particle.DUST, 50, new Particle.DustOptions(Color.RED, 3)));
 
         // Explosión verde
-        defaults.put("EXPLOSION_GREEN", new ParticleAction(Particle.DUST, 50, new Particle.DustOptions(Color.GREEN, 1)));
+        defaults.put("EXPLOSION_GREEN", new ParticleAction(Particle.DUST, 50, new Particle.DustOptions(Color.GREEN, 3)));
 
         // Explosión azul
-        defaults.put("EXPLOSION_BLUE", new ParticleAction(Particle.DUST, 50, new Particle.DustOptions(Color.BLUE, 1)));
+        defaults.put("EXPLOSION_BLUE", new ParticleAction(Particle.DUST, 50, new Particle.DustOptions(Color.BLUE, 3)));
     }
 
     /**

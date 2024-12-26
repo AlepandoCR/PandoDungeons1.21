@@ -21,23 +21,17 @@ public class Scoreboard {
      */
     public Scoreboard(World world, String team1Name, String team2Name) {
         // Coordenadas para el marcador
-        Location team1Location = new Location(world, 6, 3, -8);
-        Location team2Location = new Location(world, 10, 3, -8);
+        Location team1Location = new Location(world, 10, 3, -8);
+        Location team2Location = new Location(world, 6, 3, -8);
 
         // Crear ArmorStands para los equipos
         this.team1Stand = createStand(team1Location, team1Name, ChatColor.RED);
         this.team2Stand = createStand(team2Location, team2Name, ChatColor.GREEN);
     }
 
-    /**
-     * Actualiza los puntos mostrados en el marcador.
-     *
-     * @param team1Points Puntos del equipo 1.
-     * @param team2Points Puntos del equipo 2.
-     */
-    public void updateScore(int team1Points, int team2Points) {
-        team1Stand.setCustomName(ChatColor.RED + "Equipo 1: " + ChatColor.WHITE + team1Points);
-        team2Stand.setCustomName(ChatColor.GREEN + "Equipo 2: " + ChatColor.WHITE + team2Points);
+    public void updateScore(TeamPoints teamPoints) {
+        team1Stand.setCustomName(ChatColor.RED + "Equipo Rojo: " + ChatColor.WHITE + teamPoints.getTeam1Points());
+        team2Stand.setCustomName(ChatColor.GREEN + "Equipo Verde: " + ChatColor.WHITE + teamPoints.getTeam2Points());
     }
 
     /**

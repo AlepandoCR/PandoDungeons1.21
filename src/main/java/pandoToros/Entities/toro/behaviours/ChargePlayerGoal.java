@@ -215,7 +215,7 @@ public class ChargePlayerGoal extends Goal {
                 for (int dy = 0; dy <= 2; dy++) {
                     for (int dz = -1; dz <= 1; dz++) {
                         BlockPos blockPos = centerPos.offset(dx, dy, dz);
-                        if (!this.toro.level().getBlockState(blockPos).isAir()) {
+                        if (!this.toro.level().getBlockState(blockPos).isAir() && !this.toro.level().getBlockState(blockPos).getBlock().equals(Blocks.GREEN_CONCRETE) && !this.toro.level().getBlockState(blockPos).getBlock().equals(Blocks.RED_CONCRETE)) {
                             this.toro.level().destroyBlock(blockPos, false);
                         }
                     }
