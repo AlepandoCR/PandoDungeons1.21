@@ -26,18 +26,18 @@ public class MinionVex {
     public void summonMinionVex() {
         minionVex = world.spawn(location, Vex.class, vex -> {
             // Ajustar los atributos
-            AttributeInstance flyingSpeedAttr = vex.getAttribute(Attribute.GENERIC_FLYING_SPEED);
+            AttributeInstance flyingSpeedAttr = vex.getAttribute(Attribute.FLYING_SPEED);
             if (flyingSpeedAttr != null) {
                 flyingSpeedAttr.setBaseValue(0.8); // Ajustar la velocidad de vuelo
             }
 
-            AttributeInstance followRangeAttr = vex.getAttribute(Attribute.GENERIC_FOLLOW_RANGE);
+            AttributeInstance followRangeAttr = vex.getAttribute(Attribute.FLYING_SPEED);
             if (followRangeAttr != null) {
                 followRangeAttr.setBaseValue(50.0); // Ajustar el rango de seguimiento
             }
 
             // Ajustar la velocidad de movimiento
-            AttributeInstance movementSpeedAttr = vex.getAttribute  (Attribute.GENERIC_MOVEMENT_SPEED);
+            AttributeInstance movementSpeedAttr = vex.getAttribute  (Attribute.FLYING_SPEED);
             if (movementSpeedAttr != null) {
                 movementSpeedAttr.setBaseValue(0.3); // Ajustar la velocidad de movimiento
             }

@@ -55,7 +55,7 @@ public class CompanionPufferfishBehavior extends Pufferfish {
     @Override
     public void playerTouch(@NotNull Player player) {
         int i = this.getPuffState();
-        if (player instanceof ServerPlayer && i > 0 && player.hurt(this.damageSources().mobAttack(this), (float)(1 + i))) {
+        if (player instanceof ServerPlayer && i > 0 && player.hurtOrSimulate(this.damageSources().mobAttack(this), (float)(1 + i))) {
             if (!this.isSilent()) {
                 ((ServerPlayer)player).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PUFFER_FISH_STING, 0.0F));
             }

@@ -101,7 +101,7 @@ public class RedondelGame {
                             }
                         }
                         deleteRedondelWorld("redondel_" + creator.toLowerCase(Locale.ROOT));
-                        cancel(); // Detiene el loop
+                        this.cancel(); // Detiene el loop
                         return;
                     }
 

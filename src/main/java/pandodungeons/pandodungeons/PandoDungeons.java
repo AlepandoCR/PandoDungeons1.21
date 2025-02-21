@@ -1,6 +1,5 @@
 package pandodungeons.pandodungeons;
 
-import net.minecraft.world.level.block.CarrotBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -9,11 +8,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import pandoClass.ClassRPG;
+import pandoClass.RPGListener;
+import pandoClass.RPGPlayer;
 import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
-import pandodungeons.pandodungeons.Utils.CompanionUtils;
 import pandodungeons.pandodungeons.Utils.PlayerPartyList;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
@@ -24,18 +25,22 @@ import pandodungeons.pandodungeons.commands.game.PartyCommand;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.*;
 
+import static pandoClass.files.RPGPlayerDataManager.getRPGPlayerMap;
+import static pandoClass.files.RPGPlayerDataManager.loadAllPlayers;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadAllCompanions;
-import static pandodungeons.pandodungeons.Utils.CompanionUtils.unlockCompanion;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
 public final class PandoDungeons extends JavaPlugin {
     private CommandManager commandManager;
     public PlayerPartyList playerPartyList = new PlayerPartyList();
+    public Map<RPGPlayer, ClassRPG> rpgPlayersList = new HashMap<>();
 
     @Override
     public void onEnable() {
+
+        rpgPlayersList = getRPGPlayerMap();
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
@@ -53,10 +58,18 @@ public final class PandoDungeons extends JavaPlugin {
             companions.mkdirs();
         }
 
+        File rpgPlayers = new File(getDataFolder(), "rpgPlayers");
+        if (!rpgPlayers.exists()) {
+            rpgPlayers.mkdirs();
+        }
+
+
         // Register events and commands
         getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
         getServer().getPluginManager().registerEvents(new ToroGameListener(), this);
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
+        getServer().getPluginManager().registerEvents(new RPGListener(this), this);
+
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
         this.getCommand("redondel").setExecutor(new RedondelCommand(this));
         this.getCommand("party").setExecutor(new PartyCommand(this));
@@ -71,6 +84,7 @@ public final class PandoDungeons extends JavaPlugin {
         if (!dungeonsDataFolder.exists()) {
             dungeonsDataFolder.mkdirs();
         }
+
         breezeCompanionCustomRecipe();
         armadilloCompanionCustomRecipe();
         allayCompanionCustomRecipe();

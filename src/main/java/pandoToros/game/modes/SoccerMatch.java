@@ -10,7 +10,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.C;
 import pandoToros.game.modes.cosmetic.CosmeticGoal;
 import pandoToros.game.modes.cosmetic.base.effects.CosmeticDefaults;
 import pandoToros.game.modes.teamScoreboard.Scoreboard;

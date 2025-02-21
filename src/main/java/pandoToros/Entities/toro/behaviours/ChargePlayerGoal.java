@@ -2,6 +2,7 @@ package pandoToros.Entities.toro.behaviours;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Ravager;
@@ -13,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.joml.Math;
@@ -20,10 +22,7 @@ import pandoToros.Entities.toro.Toro;
 import pandoToros.game.ToroStatManager;
 import pandodungeons.pandodungeons.PandoDungeons;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static pandoToros.game.RandomBox.isRedPlayer;
 import static pandoToros.game.RandomBox.unRedPlayer;
@@ -51,8 +50,12 @@ public class ChargePlayerGoal extends Goal {
     @Override
     public boolean canUse() {
         // Buscar jugadores en un rango de 70 bloques alrededor del toro
-        List<Player> nearbyPlayers = this.toro.level()
-                .getNearbyPlayers(TargetingConditions.forCombat(), this.toro, AABB.ofSize(this.toro.getPosition(1), 70, 70, 70));
+
+        List<Player> nearbyPlayers = new ArrayList<>();
+
+        for(org.bukkit.entity.Player player : this.toro.level().getWorld().getPlayers()){
+            nearbyPlayers.add(((CraftPlayer) player).getHandle());
+        }
 
         // Filtrar jugadores rojos
         for (Player player : nearbyPlayers) {
@@ -161,8 +164,11 @@ public class ChargePlayerGoal extends Goal {
 
             boolean targetRed = false;
             // Buscar jugadores en un rango de 70 bloques alrededor del toro
-            List<Player> nearbyPlayers = this.toro.level()
-                    .getNearbyPlayers(TargetingConditions.forCombat(), this.toro, AABB.ofSize(this.toro.getPosition(1), 70, 70, 70));
+            List<Player> nearbyPlayers = new ArrayList<>();
+
+            for(org.bukkit.entity.Player player : this.toro.level().getWorld().getPlayers()){
+                nearbyPlayers.add(((CraftPlayer) player).getHandle());
+            }
 
             // Filtrar jugadores rojos
             for (Player player : nearbyPlayers) {
@@ -265,8 +271,11 @@ public class ChargePlayerGoal extends Goal {
     private void resetCharge() {
         boolean targetRed = false;
         // Buscar jugadores en un rango de 70 bloques alrededor del toro
-        List<Player> nearbyPlayers = this.toro.level()
-                .getNearbyPlayers(TargetingConditions.forCombat(), this.toro, AABB.ofSize(this.toro.getPosition(1), 70, 70, 70));
+        List<Player> nearbyPlayers = new ArrayList<>();
+
+        for(org.bukkit.entity.Player player : this.toro.level().getWorld().getPlayers()){
+            nearbyPlayers.add(((CraftPlayer) player).getHandle());
+        }
 
         // Filtrar jugadores rojos
         for (Player player : nearbyPlayers) {

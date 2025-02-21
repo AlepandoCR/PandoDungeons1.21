@@ -1,5 +1,6 @@
 package pandodungeons.pandodungeons.CustomEntities.Companions.Armadillo;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.animal.armadillo.Armadillo;
@@ -50,7 +51,7 @@ public class AttackHostileMobsGoal extends MeleeAttackGoal {
                 } else {
                     this.armadillo.getNavigation().stop();
                     this.armadillo.swing(InteractionHand.MAIN_HAND);
-                    this.armadillo.doHurtTarget(target);
+                    this.armadillo.doHurtTarget((ServerLevel) armadillo.level(),target);
                 }
             }else{
                 if (this.armadillo.distanceTo(target) > 1.5F) {
@@ -58,7 +59,7 @@ public class AttackHostileMobsGoal extends MeleeAttackGoal {
                 } else {
                     this.armadillo.getNavigation().stop();
                     this.armadillo.swing(InteractionHand.MAIN_HAND);
-                    this.armadillo.doHurtTarget(target);
+                    this.armadillo.doHurtTarget((ServerLevel) armadillo.level(),target);
                 }
             }
 

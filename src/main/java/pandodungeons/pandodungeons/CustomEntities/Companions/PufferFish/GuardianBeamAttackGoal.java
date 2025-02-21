@@ -1,5 +1,6 @@
 package pandodungeons.pandodungeons.CustomEntities.Companions.PufferFish;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.Pufferfish;
@@ -10,6 +11,7 @@ import net.minecraft.core.BlockPos; // Reemplazo para BlockPos
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.Server;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityTargetEvent;
@@ -100,7 +102,7 @@ public class GuardianBeamAttackGoal extends Goal {
             long currentTime = System.currentTimeMillis();
             if (currentTime - lastBeamTime >= 1000 / beamRate) {
                 this.shootGuardianBeam();
-                this.pufferfish.doHurtTarget(target);
+                this.pufferfish.doHurtTarget((ServerLevel) pufferfish.level(),target);
                 lastBeamTime = currentTime;
             }
         } else {

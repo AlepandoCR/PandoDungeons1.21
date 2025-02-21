@@ -72,7 +72,7 @@ public class BallArmadillo extends Armadillo {
         if (nearestPlayerEntity != null) {
             Player nearestPlayer = (Player) nearestPlayerEntity.getBukkitEntity();
 
-            // Incrementa la carga si el jugador está manteniendo el click derecho
+            // Incrementa la carga si el jugador está manteniendo el shift
             if (chargeMap.containsKey(nearestPlayer.getUniqueId())) {
                 double currentCharge = chargeMap.get(nearestPlayer.getUniqueId());
                 if (currentCharge < MAX_CHARGE) {

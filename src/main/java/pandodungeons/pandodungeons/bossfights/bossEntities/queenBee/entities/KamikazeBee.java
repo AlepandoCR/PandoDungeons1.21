@@ -26,18 +26,18 @@ public class KamikazeBee {
     public void summonKamikazeBee() {
         kamikazeBee = world.spawn(location, Bee.class, bee -> {
             // Ajustar los atributos de velocidad de vuelo
-            AttributeInstance flyingSpeedAttr = bee.getAttribute(Attribute.GENERIC_FLYING_SPEED);
+            AttributeInstance flyingSpeedAttr = bee.getAttribute(Attribute.FLYING_SPEED);
             if (flyingSpeedAttr != null) {
                 flyingSpeedAttr.setBaseValue(0.9); // Aumentar la velocidad de vuelo
             }
 
-            AttributeInstance followRangeAttr = bee.getAttribute(Attribute.GENERIC_FOLLOW_RANGE);
+            AttributeInstance followRangeAttr = bee.getAttribute(Attribute.FLYING_SPEED);
             if (followRangeAttr != null) {
                 followRangeAttr.setBaseValue(100.0); // Aumentar el rango de seguimiento
             }
 
             // Ajustar la velocidad de movimiento (puede afectar el comportamiento de vuelo)
-            AttributeInstance movementSpeedAttr = bee.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            AttributeInstance movementSpeedAttr = bee.getAttribute(Attribute.FLYING_SPEED);
             if (movementSpeedAttr != null) {
                 movementSpeedAttr.setBaseValue(0); // Aumentar la velocidad de movimiento
             }

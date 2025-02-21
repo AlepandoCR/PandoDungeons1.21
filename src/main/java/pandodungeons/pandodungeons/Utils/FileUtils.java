@@ -11,6 +11,7 @@ public class FileUtils {
     private static final String DUNGEON_LAYOUT_FOLDER_NAME = "dungeons_struct";
     private static final String DUNGEONS_FILE_NAME = "dungeons.json";
     private static final String COMPANIONS_FILE = "companions";
+    private static final String RPG_PLAYERS_FILE = "rpgPlayers";
 
     public static File getPlayerLocationsFile() {
         JavaPlugin plugin = PandoDungeons.getPlugin(PandoDungeons.class);
@@ -37,6 +38,11 @@ public class FileUtils {
     public static File getCompanionsFile(){
         JavaPlugin plugin = PandoDungeons.getPlugin(PandoDungeons.class);
         return new File(plugin.getDataFolder(), COMPANIONS_FILE);
+    }
+
+    public static File getRpgPlayersFile(){
+        JavaPlugin plugin = PandoDungeons.getPlugin(PandoDungeons.class);
+        return new File(plugin.getDataFolder(), RPG_PLAYERS_FILE);
     }
 
 }
