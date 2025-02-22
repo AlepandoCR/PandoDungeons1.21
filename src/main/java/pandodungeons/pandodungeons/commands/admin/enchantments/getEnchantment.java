@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.InitMenu;
+import pandoClass.gambling.GamblingSession;
 
 import java.net.MalformedURLException;
 
@@ -99,7 +100,18 @@ public class getEnchantment implements CommandExecutor {
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
+        } else if(args[1].equalsIgnoreCase("gamble")){
+            Location start = new Location(player.getWorld(), 43.5,73,276.5);
+            Location end = new Location(player.getWorld(), 37.5,73,276.5);
+            try {
+                GamblingSession session = new GamblingSession(plugin,start,end);
+                session.addBet(player,1, 100);
+                session.startRace();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
+
 
         return false;
     }
