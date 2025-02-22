@@ -1,4 +1,4 @@
-package pandoClass.archer.skills;
+package pandoClass.classes.archer.skills;
 
 import org.bukkit.entity.Player;
 import pandoClass.Skill;
@@ -14,11 +14,18 @@ public class ArrowExplotionSkill extends Skill {
 
     public ArrowExplotionSkill(int lvl, Player player) {
         super(lvl, player);
+        description = "Las flechas normales explotan";
+        displayValue = "9b20ff173bd17b2c4f2eb21f3c4b43841a14b31dfbfd354a3bec8263af562b";
+    }
+
+    @Override
+    public String getName() {
+        return "Flecha Explosiva";
     }
 
     @Override
     protected boolean canActivate() {
-        return isPlayerOnPvP(getPlayer());
+        return !isPlayerOnPvP(getPlayer());
     }
 
     @Override

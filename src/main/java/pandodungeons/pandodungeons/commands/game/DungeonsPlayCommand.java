@@ -437,6 +437,10 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
 
+        if(!hasActiveDungeon(String.valueOf(player.getUniqueId()))){
+            return;
+        }
+
         if(player.getLastDeathLocation() != null){
             event.setRespawnLocation(Objects.requireNonNull(event.getPlayer().getLastDeathLocation()));
         }

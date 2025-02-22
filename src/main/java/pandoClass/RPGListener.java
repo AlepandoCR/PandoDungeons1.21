@@ -5,28 +5,29 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import pandoClass.classes.archer.Archer;
+import pandoClass.classes.assasin.Assasin;
 import pandoClass.files.RPGPlayerDataManager;
-import pandoClass.tank.Tank;
+import pandoClass.classes.tank.Tank;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.util.*;
 
+import static pandoClass.InitMenu.INNIT_MENU_NAME;
 import static pandoClass.InitMenu.createClassSelectionMenu;
-import static pandoClass.archer.skills.ArrowExplotionSkill.explosiveAmmo;
-import static pandoClass.archer.skills.SaveAmmoSkill.playersSavingAmmo;
-import static pandoClass.assasin.skills.LifeStealSkill.lifeStealingPlayers;
-import static pandoClass.assasin.skills.SilentStepSkill.silencedPlayers;
+import static pandoClass.classes.archer.skills.ArrowExplotionSkill.explosiveAmmo;
+import static pandoClass.classes.archer.skills.SaveAmmoSkill.playersSavingAmmo;
+import static pandoClass.classes.assasin.skills.LifeStealSkill.lifeStealingPlayers;
+import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
 import static pandoClass.files.RPGPlayerDataManager.load;
 import static pandoClass.files.RPGPlayerDataManager.save;
 
@@ -42,87 +43,80 @@ public class RPGListener implements Listener {
     public RPGListener(PandoDungeons plugin) {
         this.plugin = plugin;
         // Iniciar un task que se ejecuta cada segundo para decrementar el cooldown
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            Iterator<Map.Entry<UUID, Integer>> iterator = pvpCooldowns.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<UUID, Integer> entry = iterator.next();
-                int remaining = entry.getValue() - 1;
-                if (remaining <= 0) {
-                    iterator.remove();
-                } else {
-                    entry.setValue(remaining);
-                }
-            }
-        }, 20L, 20L); // 20 ticks = 1 segundo
+        Bukkit.getScheduler().runTaskTimer(plugin, this::decrementCooldowns, 1, 20); // 20 ticks = 1 segundo
     }
 
+    private void decrementCooldowns() {
+        pvpCooldowns.entrySet().removeIf(entry -> {
+            int remaining = entry.getValue() - 1;
+            if (remaining <= 0) {
+                return true; // Eliminar la entrada
+            } else {
+                entry.setValue(remaining);
+                return false; // No eliminar
+            }
+        });
+    }
 
     @EventHandler
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
         // Verificar que tanto la víctima como el atacante sean jugadores (PvP)
-        if (event.getEntity() instanceof Player victim && event.getDamager() instanceof Player attacker) {
-            if(magicShieldPlayers.contains(victim)){
-                reduceEffectDamage(victim,event.getDamageSource().getDamageType(), event);
+        if(event.getEntity() instanceof Player victim){
+            if (magicShieldPlayers.contains(victim)) {
+                reduceEffectDamage(victim, event);
             }
-            // Reiniciamos el cooldown del atacante al valor completo
-            pvpCooldowns.put(attacker.getUniqueId(), PVP_COOLDOWN);
+            if (event.getDamager() instanceof Player attacker) {
+                // Reiniciamos el cooldown del atacante al valor completo
+                pvpCooldowns.put(attacker.getUniqueId(), PVP_COOLDOWN);
+            }
         }
+
     }
 
-    public void reduceEffectDamage(Player player, DamageType damageType, EntityDamageByEntityEvent event) {
+    public void reduceEffectDamage(Player player, EntityDamageByEntityEvent event) {
         RPGPlayer rpgPlayer = load(player);
         if (rpgPlayer != null) {
             int thirdSkillLvl = rpgPlayer.getThirdSkillLvl();  // Obtener el nivel de la habilidad
-
             double reductionPercentage = 0.0;
+            EntityDamageEvent.DamageCause cause = event.getCause();
 
             // Lógica para calcular la reducción del daño
-            if (isEffectDamage(damageType)) {
-                // Para los efectos, aplicar mayor reducción (ejemplo: 7% por cada nivel)
-                reductionPercentage = 0.07 * thirdSkillLvl;  // Reducción mayor para efectos
-            } else if (isProjectileDamage(damageType)) {
-                // Para los proyectiles, aplicar menor reducción (ejemplo: 4% por cada nivel)
-                reductionPercentage = 0.04 * thirdSkillLvl;  // Reducción menor para proyectiles
+            if (isEffectDamage(cause)) {
+                // Para daños "efecto", aplicar mayor reducción (ejemplo: 20% por nivel)
+                reductionPercentage = 0.2 * thirdSkillLvl;
+            } else if (isProjectileDamage(cause) || event.getDamager() instanceof Projectile) {
+                // Para daños por proyectiles, aplicar una reducción menor (ejemplo: 10% por nivel)
+                reductionPercentage = 0.1 * thirdSkillLvl;
             }
 
-            // Limitar la reducción a un máximo de 50% (esto puede ajustarse)
+            // Limitar la reducción a un máximo de 50%
             reductionPercentage = Math.min(reductionPercentage, 0.5);
 
-            // Lógica para aplicar la reducción del daño
+            // Aplicar la reducción del daño
             double reducedDamage = calculateReducedDamage(event.getDamage(), reductionPercentage);
             event.setDamage(reducedDamage);
         }
     }
 
-    private boolean isEffectDamage(DamageType damageType) {
-        // Consideramos como "efectos" los tipos de daño relacionados con efectos como fuego, magia, etc.
-        return damageType == DamageType.IN_FIRE ||
-                damageType == DamageType.CAMPFIRE ||
-                damageType == DamageType.LIGHTNING_BOLT ||
-                damageType == DamageType.ON_FIRE ||
-                damageType == DamageType.LAVA ||
-                damageType == DamageType.HOT_FLOOR ||
-                damageType == DamageType.DROWN ||
-                damageType == DamageType.STARVE ||
-                damageType == DamageType.FREEZE ||
-                damageType == DamageType.MAGIC ||
-                damageType == DamageType.WITHER ||
-                damageType == DamageType.DRAGON_BREATH ||
-                damageType == DamageType.WITHER_SKULL ||
-                damageType == DamageType.EXPLOSION ||
-                damageType == DamageType.SONIC_BOOM;
+    private boolean isEffectDamage(EntityDamageEvent.DamageCause cause) {
+        // Se consideran "efecto" los daños por fuego, lava, magia, etc.
+        return cause == EntityDamageEvent.DamageCause.FIRE ||
+                cause == EntityDamageEvent.DamageCause.FIRE_TICK ||
+                cause == EntityDamageEvent.DamageCause.LAVA ||
+                cause == EntityDamageEvent.DamageCause.DROWNING ||
+                cause == EntityDamageEvent.DamageCause.STARVATION ||
+                cause == EntityDamageEvent.DamageCause.FREEZE ||
+                cause == EntityDamageEvent.DamageCause.MAGIC ||
+                cause == EntityDamageEvent.DamageCause.WITHER ||
+                cause == EntityDamageEvent.DamageCause.DRAGON_BREATH ||
+                cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION ||
+                cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION ||
+                cause == EntityDamageEvent.DamageCause.LIGHTNING;
     }
 
-    private boolean isProjectileDamage(DamageType damageType) {
-        // Consideramos como "proyectiles" los tipos de daño relacionados con proyectiles como flechas, tridentes, etc.
-        return damageType == DamageType.ARROW ||
-                damageType == DamageType.TRIDENT ||
-                damageType == DamageType.MOB_PROJECTILE ||
-                damageType == DamageType.FIREWORKS ||
-                damageType == DamageType.FIREBALL ||
-                damageType == DamageType.THROWN ||
-                damageType == DamageType.WIND_CHARGE ||
-                damageType == DamageType.MACE_SMASH;
+    private boolean isProjectileDamage(EntityDamageEvent.DamageCause cause) {
+        // Se consideran "proyectiles" los que tienen la causa PROJECTILE
+        return cause == EntityDamageEvent.DamageCause.PROJECTILE;
     }
 
     private double calculateReducedDamage(double originalDamage, double reductionPercentage) {
@@ -140,45 +134,106 @@ public class RPGListener implements Listener {
     }
 
     public static boolean isPlayerOnPvP(Player player) {
-        return pvpCooldowns.containsKey(player.getUniqueId()) || getPvPCooldown(player) == 0;
+        return pvpCooldowns.containsKey(player.getUniqueId());
     }
 
-    private static final String MENU_NAME = ChatColor.DARK_GRAY + "Elección de clase" + "  " + ChatColor.BOLD + ChatColor.RED + "Solo podrás elegirlo una vez";
+    public void upGradeSkill(Skill skill, int skillNum) throws MalformedURLException {
+        Player player = skill.getPlayer();
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        Inventory clickedInventory = event.getInventory();
-        Player player = (Player) event.getWhoClicked();
         RPGPlayer rpgPlayer = new RPGPlayer(player);
 
-        // Verificar si el inventario es el menú "Elección de clase"
-        if (event.getView().getTitle().equals(MENU_NAME)) {
-            // Evitar que los jugadores saquen o pongan objetos en el inventario
+        if(4 <= rpgPlayer.getOrbs()){
+            switch (skillNum){
+                case 1:
+                    rpgPlayer.setFirstSkilLvl(skill.getLvl() + 1);
+                    break;
+                case 2:
+                    rpgPlayer.setSecondSkilLvl(skill.getLvl() + 1);
+                    break;
+                case 3:
+                    rpgPlayer.setThirdSkillLvl(skill.getLvl() + 1);
+                    break;
+            }
+
+            rpgPlayer.setOrbs(rpgPlayer.getOrbs() - 4);
+
+            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SKILL_MENU));
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) throws MalformedURLException {
+        Player player = (Player) event.getWhoClicked();
+        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        ClassRPG classRPG = rpgPlayer.getClassRpg();
+        String title = event.getView().getTitle();
+        ItemStack clickedItem = event.getCurrentItem();
+
+        if (clickedItem == null) {
+            return;
+        }
+
+        if (title.contains("Menu Skills")) {
             event.setCancelled(true);
 
-            // Detectar el clic del jugador y manejarlo si es necesario
-            if (event.getCurrentItem() != null) {
-                ItemStack clickedItem = event.getCurrentItem();
-                if (clickedItem.getType() == Material.PLAYER_HEAD) {
-                    if(clickedItem.getItemMeta().hasCustomModelData()){
-                        int customModelData = clickedItem.getItemMeta().getCustomModelData();
-                        if(customModelData == 111){
-                            rpgPlayer.setClassKey("ArcherClass");
-                        }
-                        else if(customModelData == 222){
-                            rpgPlayer.setClassKey("TankClass");
-                        }
-                        else if(customModelData == 333){
-                            rpgPlayer.setClassKey("AssassinClass");
-                        }
-                        player.closeInventory();
-                        plugin.rpgPlayersList.get(rpgPlayer).toReset();
-                        plugin.rpgPlayersList.get(rpgPlayer).triggerSkills();
+            if (clickedItem.getType() == Material.PLAYER_HEAD) {
+                ItemMeta meta = clickedItem.getItemMeta();
+                if (meta != null && meta.hasCustomModelData() && meta.getCustomModelData() == 420) {
+                    String displayName = meta.getDisplayName();
+
+                    if (displayName.contains(classRPG.getFirstSkill().getName())) {
+                        upGradeSkill(classRPG.getFirstSkill(), 1);
+                    } else if (displayName.contains(classRPG.getSecondSkill().getName())) {
+                        upGradeSkill(classRPG.getSecondSkill(), 2);
+                    } else if (displayName.contains(classRPG.getThirdSkill().getName())) {
+                        upGradeSkill(classRPG.getThirdSkill(), 3);
                     }
+                }
+            }
+        } else if (title.equals(INNIT_MENU_NAME) || title.contains("Cambiar clase")) {
+            event.setCancelled(true);
+
+            if (clickedItem.getType() == Material.PLAYER_HEAD) {
+                ItemMeta meta = clickedItem.getItemMeta();
+                if (meta != null && meta.hasCustomModelData()) {
+                    int customModelData = meta.getCustomModelData();
+                    switch (customModelData) {
+                        case 111:
+                            handleClassChange(rpgPlayer, player, "ArcherClass");
+                            break;
+                        case 222:
+                            handleClassChange(rpgPlayer, player,"TankClass");
+                            break;
+                        case 333:
+                            handleClassChange(rpgPlayer, player,"AssassinClass");
+                            break;
+                        default:
+                            break;
+                    }
+                    player.setWalkSpeed(0.2f);
                 }
             }
         }
     }
+
+    private void handleClassChange(RPGPlayer rpgPlayer, Player player, String classKey) throws MalformedURLException {
+        String currentKey = rpgPlayer.getClassKey();
+        if (currentKey == null) {
+            rpgPlayer.setClassKey(classKey);
+            player.closeInventory();
+        } else if (!currentKey.equalsIgnoreCase(classKey)){
+            if (rpgPlayer.getCoins() >= 500) {
+                rpgPlayer.removeCoins(500);
+                rpgPlayer.setClassKey(classKey);
+                player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SHOP));
+            } else {
+                player.sendMessage("No tienes suficientes monedas para cambiar tu clase");
+            }
+        } else{
+            player.sendMessage("Ya haz seleccionado esa clase");
+        }
+    }
+
 
     private static final double BASE_LIFESTEAL_PERCENT = 0.015; // 1.5% de robo de vida por nivel
     @EventHandler
@@ -219,32 +274,32 @@ public class RPGListener implements Listener {
         // Obtén el RPGPlayer para saber su nivel
         RPGPlayer rpgPlayer = new RPGPlayer(player);
 
-        LivingEntity mob = (LivingEntity) event.getEntity();
+        if(event.getEntity() instanceof LivingEntity mob){
+            // Calcula la distancia entre el mob y el jugador
+            double distance = mob.getLocation().distance(player.getLocation());
 
-        // Calcula la distancia entre el mob y el jugador
-        double distance = mob.getLocation().distance(player.getLocation());
+            int level = rpgPlayer.getSecondSkilLvl(); // Se asume que este nivel determina la "efectividad del sigilo"
 
-        int level = rpgPlayer.getSecondSkilLvl(); // Se asume que este nivel determina la "efectividad del sigilo"
+            if(silencedPlayers.contains(player)){
 
-        if(silencedPlayers.contains(player)){
+                // Si el jugador se encuentra muy cerca, la acción "dispara" (p. ej. por haber golpeado a corta distancia)
+                if (distance <= 5) {
+                    return; // El mob debe targetearlo sin aplicar sigilo
+                }
 
-            // Si el jugador se encuentra muy cerca, la acción "dispara" (p. ej. por haber golpeado a corta distancia)
-            if (distance <= 5) {
-                return; // El mob debe targetearlo sin aplicar sigilo
-            }
+                // Si el jugador está sprintando y se encuentra a 8 bloques o menos, el mob también debe targetearlo
+                if (player.isSprinting() && distance <= 8) {
+                    return;
+                }
 
-            // Si el jugador está sprintando y se encuentra a 8 bloques o menos, el mob también debe targetearlo
-            if (player.isSprinting() && distance <= 8) {
-                return;
-            }
+                // Calcula la probabilidad de que el mob ignore al jugador
+                double chanceToIgnore = Math.min(10 + (level * 3), 100); // Por ejemplo: nivel 10 -> 20%, nivel 50 -> 100%
 
-            // Calcula la probabilidad de que el mob ignore al jugador
-            double chanceToIgnore = Math.min(level * 2, 100); // Por ejemplo: nivel 10 -> 20%, nivel 50 -> 100%
-
-            // Realiza un "roll" aleatorio y, si cae dentro de la probabilidad, cancela el targeting
-            double roll = random.nextDouble() * 100;
-            if (roll < chanceToIgnore) {
-                event.setCancelled(true);
+                // Realiza un "roll" aleatorio y, si cae dentro de la probabilidad, cancela el targeting
+                double roll = random.nextDouble() * 100;
+                if (roll < chanceToIgnore) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -255,15 +310,16 @@ public class RPGListener implements Listener {
         Inventory closedInventory = event.getInventory();
         Player player = (Player) event.getPlayer();
         RPGPlayer rpgPlayer = new RPGPlayer(player);
+        String title = event.getView().getTitle();
 
         // Verificar si el inventario es el menú "Elección de clase"
-        if (event.getView().getTitle().equals(MENU_NAME)) {
+        if (title.equals(INNIT_MENU_NAME) || title.contains("Cambiar clase")) {
             if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
                 new BukkitRunnable(){
                     @Override
                     public void run() {
                         try {
-                            player.openInventory(createClassSelectionMenu(player));
+                            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.INNIT));
                         } catch (MalformedURLException e) {
                             throw new RuntimeException(e);
                         }
@@ -277,15 +333,26 @@ public class RPGListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) throws MalformedURLException {
         Player player = event.getPlayer();
         player.setMaxHealth(20.0);
+        player.setWalkSpeed(0.2f);
 
         RPGPlayer rpgPlayer = new RPGPlayer(player);
 
-        if(rpgPlayer.getClassKey() == null || Objects.equals(rpgPlayer.getClassKey(), "")){
-           player.openInventory(createClassSelectionMenu(player));
+        if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
+           player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.INNIT));
+           return;
         }
 
-        plugin.rpgPlayersList.get(rpgPlayer).toReset();
-        plugin.rpgPlayersList.get(rpgPlayer).triggerSkills();
+        if(!plugin.rpgPlayersList.containsKey(rpgPlayer)){
+            String classKey = rpgPlayer.getClassKey();
+            ClassRPG classRPG = new Assasin(rpgPlayer);
+            classRPG = switch (classKey) {
+                case "ArcherClass" -> new Archer(rpgPlayer);
+                case "TankClass" -> new Tank(rpgPlayer);
+                default -> classRPG;
+            };
+            plugin.rpgPlayersList.put(rpgPlayer.getPlayer(),classRPG);
+        }
+
         save(rpgPlayer);
     }
 
@@ -302,8 +369,8 @@ public class RPGListener implements Listener {
         int level = rpgPlayer.getFirstSkilLvl();
 
         if(playersSavingAmmo.contains(player)){
-            // Por ejemplo, cada nivel aporta 3% de probabilidad, hasta un máximo del 100%.
-            double chance = 5 * (level * 0.03);
+            // Por ejemplo, cada nivel aporta 2% de probabilidad, hasta un máximo del 100%.
+            double chance = 100 * (level * 0.02);
 
             // Realizar el roll aleatorio.
             if (random.nextDouble() < chance) {
@@ -358,17 +425,13 @@ public class RPGListener implements Listener {
 
             // Calcular el radio de la explosión según el nivel.
             // Ejemplo: radio base de 2 bloques + 0.1 por cada nivel
-            float explosionRadius = 2.0f + level * 0.1f;
-
-            // Calcular el daño de la explosión (puedes ajustar la fórmula según convenga)
-            double explosionDamage = 4.0 + level * 0.2;
+            float explosionRadius = 1.0f + level * 0.1f;
 
             // Obtener la ubicación de impacto de la flecha
             Location explosionLocation = arrow.getLocation();
             World world = explosionLocation.getWorld();
 
             // Crear efecto de explosión sin daño automático a entidades ni destrucción de bloques.
-            // Se usa poder 0 para evitar el daño integrado, y luego se aplica manualmente.
             world.createExplosion(explosionLocation, explosionRadius, false, false, player);
 
             // Reproducir efectos visuales y de sonido de explosión

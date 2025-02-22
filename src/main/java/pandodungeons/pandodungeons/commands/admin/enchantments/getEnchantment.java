@@ -1,15 +1,21 @@
 package pandodungeons.pandodungeons.commands.admin.enchantments;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import pandoClass.InitMenu;
 
+import java.net.MalformedURLException;
+
+import static pandoClass.InitMenu.createClassSelectionMenu;
 import static pandoQuests.npc.human.variations.explorer.ExplorerSpawner.spawnExplorerNearPlayer;
 import static pandoToros.Entities.toro.Toro.summonToro;
 import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
@@ -81,8 +87,50 @@ public class getEnchantment implements CommandExecutor {
             spawnTable(player.getLocation());
         } else if(args[1].equalsIgnoreCase("explorer")){
             spawnExplorerNearPlayer(player);
+        } else if(args[1].equalsIgnoreCase("upgrade")){
+            try {
+                createArmorStand(player.getLocation(), InitMenu.Reason.SKILL_MENU);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        } else if(args[1].equalsIgnoreCase("change")){
+            try {
+                createArmorStand(player.getLocation(), InitMenu.Reason.SHOP);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return false;
     }
+
+    private void createArmorStand(Location location, InitMenu.Reason reason) throws MalformedURLException {
+        // Se crea el item para la cabeza
+        ItemStack skillMenu = createHead("rune", "31ea5a315bc5cf1a6c16ebce57b34100e6d2e7acba3cc99ac6368f71c8598cc8");
+        ItemStack shopMenu = createHead("shop", "4c48044e937c044920ec0d537cfb31d89d07a51724f38db19f8bf7cc7293d65d");
+
+        // Se instancia el ArmorStand en la ubicación indicada
+        ArmorStand armorStand = location.getWorld().spawn(location, ArmorStand.class);
+
+        // Configuraciones del ArmorStand
+        armorStand.setGravity(false);               // Sin gravedad
+        armorStand.setVisible(false);               // Invisible
+        armorStand.setInvulnerable(true);           // Invulnerable
+        armorStand.setRemoveWhenFarAway(false);     // Persistente (no se elimina al estar lejos)
+
+        if(reason.equals(InitMenu.Reason.SHOP)){
+            armorStand.getEquipment().setHelmet(shopMenu);
+            armorStand.addScoreboardTag("RPGshop");
+
+        }
+
+        if(reason.equals(InitMenu.Reason.SKILL_MENU)){
+            // Se asigna el item a la cabeza del ArmorStand
+            armorStand.getEquipment().setHelmet(skillMenu);
+            armorStand.addScoreboardTag("RPGSkillMenu");
+        }
+
+
+    }
+
 }

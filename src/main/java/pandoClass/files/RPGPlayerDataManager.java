@@ -6,9 +6,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
-import pandoClass.archer.Archer;
-import pandoClass.assasin.Assasin;
-import pandoClass.tank.Tank;
+import pandoClass.classes.archer.Archer;
+import pandoClass.classes.assasin.Assasin;
+import pandoClass.classes.tank.Tank;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.io.File;
@@ -49,7 +49,7 @@ public class RPGPlayerDataManager {
         }
         try (FileReader reader = new FileReader(file)) {
             RPGPlayer returned = GSON.fromJson(reader, RPGPlayer.class);
-            plugin.rpgPlayersList.put(returned, getClass(returned));
+            plugin.rpgPlayersList.put(returned.getPlayer(), getClass(returned));
             return returned;
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,8 +75,8 @@ public class RPGPlayerDataManager {
         return players;
     }
 
-    public static Map<RPGPlayer, ClassRPG> getRPGPlayerMap(){
-        Map<RPGPlayer, ClassRPG> aux = new HashMap<>();
+    public static Map<Player, ClassRPG> getRPGPlayerMap(){
+        Map<Player, ClassRPG> aux = new HashMap<>();
         for(RPGPlayer player : loadAllPlayers()){
             ClassRPG classRPG = null;
             String classKey = player.getClassKey();
@@ -88,7 +88,7 @@ public class RPGPlayerDataManager {
                 classRPG = new Assasin(player);
             }
 
-            aux.put(player,classRPG);
+            aux.put(player.getPlayer(),classRPG);
 
         }
         return aux;

@@ -9,29 +9,65 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerTextures;
+import org.jetbrains.annotations.NotNull;
+import pandoClass.classes.archer.Archer;
+import pandoClass.classes.assasin.Assasin;
+import pandoClass.classes.tank.Tank;
 
+import javax.annotation.Nullable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static pandoClass.files.RPGPlayerDataManager.load;
-
 public class InitMenu {
+    public static final String INNIT_MENU_NAME = ChatColor.RED.toString() + ChatColor.BOLD + " Elección única" + ChatColor.DARK_GRAY + " de clase" ;
 
-    private static final String MENU_NAME = ChatColor.DARK_GRAY + "Elección de clase" + "  " + ChatColor.BOLD + ChatColor.RED + "Solo podrás elegirlo una vez";
+    public enum Reason {
+        INNIT,
+        SKILL_MENU,
+        SHOP
+    }
 
     // Método que crea el menú
-    public static Inventory createClassSelectionMenu(Player player) throws MalformedURLException {
-        Inventory menu = Bukkit.createInventory(null, 9,  MENU_NAME);
-
+    public static Inventory createClassSelectionMenu(Player player, Reason reason) throws MalformedURLException {
         RPGPlayer rpgPlayer = new RPGPlayer(player);
+        String menuTitle;
+        menuTitle = switch (reason){
+            case INNIT -> INNIT_MENU_NAME;
+            case SKILL_MENU -> "Menu Skills           " + "\uD83D\uDC80" + " " + rpgPlayer.getOrbs() ;
+            case SHOP -> ChatColor.DARK_GRAY +  "Cambiar clase          " + ChatColor.WHITE + "☃ " + ChatColor.RESET +  rpgPlayer.getCoins();
+        };
 
-        // Crear las cabezas y signarles sus posiciones
-        ItemStack head1 = createArcherHead(rpgPlayer);
-        ItemStack head2 = createTankHead(rpgPlayer);
-        ItemStack head3 = createAssassinHead(rpgPlayer);
+        Inventory menu = Bukkit.createInventory(null, 9, menuTitle);
+
+        ItemStack head1 = null;
+        ItemStack head2 = null;
+        ItemStack head3 = null;
+
+        switch (reason){
+            case SHOP:
+            case INNIT:
+                head1 = createArcherHead(rpgPlayer);
+                head2 = createTankHead(rpgPlayer);
+                head3 = createAssassinHead(rpgPlayer);
+                break;
+            case SKILL_MENU:
+
+                ClassRPG classRPG = rpgPlayer.getClassRpg();
+                if(classRPG != null){
+                    Skill first = classRPG.firstSkill;
+                    Skill second = classRPG.secondSkill;
+                    Skill third = classRPG.thirdSkill;
+
+                    head1 = createHeadForSkill(first.getName(), first, rpgPlayer);
+                    head2 = createHeadForSkill(second.getName(), second, rpgPlayer);
+                    head3 = createHeadForSkill(third.getName(), third, rpgPlayer);
+                }
+                break;
+        }
+
 
         // Asignar las cabezas a las posiciones 2, 4 y 6
         menu.setItem(2, head1);
@@ -41,9 +77,10 @@ public class InitMenu {
         return menu;
     }
 
-    private static ItemStack createHead(String displayName, String textureUrl) throws MalformedURLException {
+    private static ItemStack createHeadForSkill(String displayName, Skill skill, RPGPlayer player) throws MalformedURLException {
+        String textureUrl = skill.getDisplayValue();
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        SkullMeta meta = getSkullMetaForSkill(player, head, skill);
 
         // Crear perfil y texturas del jugador
         PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
@@ -53,7 +90,30 @@ public class InitMenu {
 
         meta.setPlayerProfile(profile);
         meta.setCustomModelData(420);
-        meta.setDisplayName(ChatColor.RESET.toString() + ChatColor.WHITE + ChatColor.BOLD + displayName); // Nombre del item
+        meta.setDisplayName(displayName); // Nombre del item
+        head.setItemMeta(meta);
+        return head;
+    }
+
+    private static ItemStack createHead(String displayName, String textureUrl, ClassRPG classRPG) throws MalformedURLException {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = getSkullMetaForInfo(classRPG,head);
+
+        // Crear perfil y texturas del jugador
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+        PlayerTextures textures = profile.getTextures();
+        textures.setSkin(new URL("https://textures.minecraft.net/texture/" + textureUrl)); // Establecer la textura de la piel del companion
+        profile.setTextures(textures);
+
+        meta.setPlayerProfile(profile);
+        int modelData = switch (classRPG.getKey()){
+            case "ArcherClass" -> 111;
+            case "TankClass" -> 222;
+            case "AssassinClass" -> 333;
+            default -> 0;
+        };
+        meta.setCustomModelData(modelData);
+        meta.setDisplayName(displayName); // Nombre del item
         head.setItemMeta(meta);
         return head;
     }
@@ -71,24 +131,42 @@ public class InitMenu {
             url = "2638583cf2c761fac3f83982589ac26ee5771a183863b47a2490e4cb506ad26";
         }
 
-        ItemStack head = createHead(ChatColor.RED.toString() + ChatColor.BOLD + "Asesíno", url);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        ItemStack head = createHead(ChatColor.RED.toString() + ChatColor.BOLD + "Asesíno", url, new Assasin(player));
 
-
-
-
-        // Agregar el lore personalizado
-        List<String> lore = new ArrayList<>();
-        if(player.getClassKey() == null){
-
-        }else{
-            lore.add(ChatColor.GREEN + "Nivel actual: " + ChatColor.GOLD + lvl);
-        }
-        meta.setLore(lore);
-        meta.setCustomModelData(333);
-        head.setItemMeta(meta);
         return head;
     }
+
+
+
+    private static @NotNull SkullMeta getSkullMetaForInfo(@Nullable ClassRPG classRPG, ItemStack head) {
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        List<String> lore = new ArrayList<>();
+        if(classRPG != null){
+            RPGPlayer rpgPlayer = new RPGPlayer(classRPG.rpgPlayer.getPlayer());
+            lore.add("§6§lHabilidades"); // Título en dorado y negrita
+            lore.add("§b§l1 - §f" + classRPG.firstSkill.getDescription());
+            lore.add("§b§l2 - §f" + classRPG.secondSkill.getDescription());
+            lore.add("§b§l3 - §f" + classRPG.thirdSkill.getDescription());
+
+            if(rpgPlayer.getClassKey() != null){
+                if(!rpgPlayer.getClassKey().equalsIgnoreCase(classRPG.key)){
+                    lore.add("§cCosto: §e500 monedas");
+                }
+            }
+        }
+        meta.setLore(lore);
+        return meta;
+    }
+
+    private static @NotNull SkullMeta getSkullMetaForSkill(RPGPlayer player, ItemStack head, Skill skill) {
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        List<String> lore = new ArrayList<>();
+        lore.add("§6§lDescripción: §f" + skill.getDescription());
+        lore.add("§6§lNivel Actual: §f" + skill.getLvl());
+        meta.setLore(lore);
+        return meta;
+    }
+
 
     private static ItemStack createArcherHead(RPGPlayer player) throws MalformedURLException {
         int lvl = player.getLevel();
@@ -104,16 +182,7 @@ public class InitMenu {
             url = "145eb4dcb633155fcb383006e2c626353cc680220074928e57bded2a1c955666";
         }
 
-        ItemStack head = createHead(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Arquero", url);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-
-
-        // Agregar el lore personalizado
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GREEN + "Nivel actual: " + ChatColor.GOLD + lvl);
-        meta.setLore(lore);
-        meta.setCustomModelData(111);
-        head.setItemMeta(meta);
+        ItemStack head = createHead(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Arquero", url, new Archer(player));
         return head;
     }
 
@@ -122,7 +191,7 @@ public class InitMenu {
 
         String url;
 
-        if(lvl < 25 || lvl == 0){
+        if(lvl < 25){
             url = "69848f6db5ed185630e044e478b81deadc63d6719c195b9a563f745446f61daf";
         }else if(lvl < 50){
             url = "25de4ff8be70eee4d103b1eedf454f0abb9f0568f5f326ecba7cab6a47f9ade4";
@@ -132,16 +201,7 @@ public class InitMenu {
          url = "6d402a1f9629b124c265273c1fd6aa2210fe204fb0d3416012c615aca4760b5d";
         }
 
-        ItemStack head = createHead(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Tanque", url);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-
-
-        // Agregar el lore personalizado
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GREEN + "Nivel actual: " + ChatColor.GOLD + lvl);
-        meta.setLore(lore);
-        meta.setCustomModelData(222);
-        head.setItemMeta(meta);
+        ItemStack head = createHead(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Tanque", url, new Tank(player));
         return head;
     }
 }

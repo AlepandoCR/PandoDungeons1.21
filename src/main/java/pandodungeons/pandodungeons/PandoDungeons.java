@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import pandoClass.ClassRPG;
 import pandoClass.RPGListener;
 import pandoClass.RPGPlayer;
+import pandoClass.campsListener.CampsListener;
 import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
@@ -35,7 +36,7 @@ import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 public final class PandoDungeons extends JavaPlugin {
     private CommandManager commandManager;
     public PlayerPartyList playerPartyList = new PlayerPartyList();
-    public Map<RPGPlayer, ClassRPG> rpgPlayersList = new HashMap<>();
+    public Map<Player, ClassRPG> rpgPlayersList = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -65,6 +66,7 @@ public final class PandoDungeons extends JavaPlugin {
 
 
         // Register events and commands
+        getServer().getPluginManager().registerEvents(new CampsListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
         getServer().getPluginManager().registerEvents(new ToroGameListener(), this);
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);

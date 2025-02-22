@@ -1,28 +1,48 @@
 package pandoClass;
 
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import pandoClass.archer.Archer;
-import pandoClass.assasin.Assasin;
+import org.bukkit.scheduler.BukkitRunnable;
+import pandoClass.classes.archer.Archer;
+import pandoClass.classes.assasin.Assasin;
 import pandoClass.files.RPGPlayerDataManager;
-import pandoClass.tank.Tank;
+import pandoClass.classes.tank.Tank;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+
+import static pandoClass.RPGListener.magicShieldPlayers;
+import static pandoClass.classes.archer.skills.ArrowExplotionSkill.explosiveAmmo;
+import static pandoClass.classes.archer.skills.DoubleJumSkill.doubleJumping;
+import static pandoClass.classes.archer.skills.SaveAmmoSkill.playersSavingAmmo;
+import static pandoClass.classes.assasin.skills.LifeStealSkill.lifeStealingPlayers;
+import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
+import static pandoClass.files.RPGPlayerDataManager.save;
 
 public class RPGPlayer {
     private int level;
     private int exp;
     private int campsDefeated;
     private int coins;
+    private int orbs;
     private UUID player;
     private int firstSkilLvl;
     private int secondSkilLvl;
     private int thirdSkillLvl;
     private String classKey = null;
+    private int orbProgress;
 
     private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+
+    public static Map<Player, BossBar> activeBossBars = new HashMap<>();
+
+    private static final Map<Player, BukkitRunnable> expBarTasks = new HashMap<>();
 
     public RPGPlayer(Player player) {
         this.player = player.getUniqueId();
@@ -33,6 +53,105 @@ public class RPGPlayer {
         else{
             defaults();
         }
+        update();
+    }
+
+    public void addCoins(int toAdd){
+        coins += toAdd;
+        save(this);
+        update();
+    }
+
+    public void addExp(int toAdd) {
+        exp += toAdd;
+
+        expBar();
+
+        while (exp >= calculateExpForNextLvl()) { // Usa while para permitir subir varios niveles si es necesario
+            exp -= calculateExpForNextLvl(); // Resta en lugar de resetear a 0, para conservar el exceso de exp
+            level++;
+            orbProgress++;
+        }
+
+        while (orbProgress >= 4){
+            orbProgress -= 4;
+            orbs++;
+        }
+
+        save(this);
+        update();
+    }
+
+    public void expBar() {
+        Player player = getPlayer();
+
+        // Cancela el Runnable anterior si existe
+        if (expBarTasks.containsKey(player)) {
+            expBarTasks.get(player).cancel();
+        }
+
+        // Elimina la barra de experiencia anterior
+        removeExpBossBar(player);
+
+        // Muestra la nueva barra de experiencia
+        showExpBossBar(player);
+
+        // Crea y programa un nuevo BukkitRunnable
+        BukkitRunnable task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                removeExpBossBar(player);
+                expBarTasks.remove(player); // Elimina la referencia después de ejecutarse
+            }
+        };
+
+        task.runTaskLater(plugin, 60L);
+        expBarTasks.put(player, task); // Almacena la tarea en el mapa
+    }
+
+    public int calculateExpForNextLvl() {
+        return (int) (500 + (50 * Math.pow(level, 1.2)));
+    }
+
+    public void showExpBossBar(Player player) {
+        if (activeBossBars.containsKey(player)) {
+            activeBossBars.get(player).removeAll();
+        }
+
+        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        int currentExp = rpgPlayer.getExp();
+        int requiredExp = rpgPlayer.calculateExpForNextLvl();
+
+        // Calcula el progreso entre 0 y 1, ajustado a los 20 segmentos
+        double progress = (double) currentExp / requiredExp;
+
+        // Crear la BossBar
+        BossBar bossBar = plugin.getServer().createBossBar("", BarColor.GREEN, BarStyle.SEGMENTED_20);
+
+        // Elimina BossBars previas para evitar acumulaciones
+        for (net.kyori.adventure.bossbar.BossBar bar : player.activeBossBars()) {
+            bar.removeViewer(player);
+        }
+
+        // Establecer el título con el formato "exp/expRequerida"
+        String title = currentExp + "/" + requiredExp;
+        bossBar.setTitle(title);
+
+        // Establecer el progreso en la barra
+        bossBar.setProgress(progress);
+
+        // Añadir al jugador
+        bossBar.addPlayer(player);
+
+        // Guardar la nueva bossbar en el mapa
+        activeBossBars.put(player, bossBar);
+    }
+
+    public void removeExpBossBar(Player player) {
+        if (activeBossBars.containsKey(player)) {
+            activeBossBars.get(player).removeAll();
+            activeBossBars.remove(player);
+        }
     }
 
     public RPGPlayer(UUID player) {
@@ -41,31 +160,72 @@ public class RPGPlayer {
         if (loaded != null) copyFrom(loaded);
     }
 
-    public void changeClass(String key){
-        ClassRPG classToSet = null;
+    public void changeClass(String key) {
+        getPlayer().setMaxHealth(20.0);
+        doubleJumping.remove(getPlayer());
+        explosiveAmmo.remove(getPlayer());
+        magicShieldPlayers.remove(getPlayer());
+        playersSavingAmmo.remove(getPlayer());
+        lifeStealingPlayers.remove(getPlayer());
+        silencedPlayers.remove(getPlayer());
+        getPlayer().setWalkSpeed(0.2f);
+        ClassRPG classToSet = getClassFromKey(key);
 
-        switch (key){
-            case "ArcherClass":
-                classToSet = new Archer(this);
-                break;
-            case "TankClass":
-                classToSet = new Tank(this);
-                break;
-            case "AssassinClass":
-                classToSet = new Assasin(this);
-                break;
-            default:
-                return;
-        }
+        if(classToSet == null) return;
 
-        if(plugin.rpgPlayersList.containsKey(this)){
-            plugin.rpgPlayersList.replace(this,classToSet);
-        }else {
-            plugin.rpgPlayersList.put(this,classToSet);
-        }
+        update();
     }
 
+    private ClassRPG getClassFromKey(String classKey){
+        return switch (classKey) {
+            case "ArcherClass" -> new Archer(this);
+            case "TankClass" -> new Tank(this);
+            case "AssassinClass" -> new Assasin(this);
+            case null, default -> null;
+        };
+    }
+
+    public int getOrbProgress() {
+        return orbProgress;
+    }
+
+    public int getOrbs() {
+        return orbs;
+    }
+
+    public void setOrbs(int orbs) {
+        this.orbs = orbs;
+        save(this);
+        update();
+    }
+
+    private void update() {
+        Player player = getPlayer();
+
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+
+        // Si ya existe un objeto asociado, cancelar su runnable
+        if (plugin.rpgPlayersList.containsKey(player) && plugin.rpgPlayersList.get(player) != null) {
+            plugin.rpgPlayersList.get(player).cancel();
+            plugin.rpgPlayersList.remove(player);
+        }
+
+        // Crear la nueva instancia a partir del classKey
+        var updatedClass = getClassFromKey(classKey);
+
+        if(updatedClass == null) return;
+
+        // Actualizar el mapa y ejecutar triggerSkills
+        plugin.rpgPlayersList.put(player, updatedClass);
+        plugin.rpgPlayersList.get(player).triggerSkills();
+    }
+
+
     private void copyFrom(RPGPlayer other) {
+        this.orbProgress = other.orbProgress;
+        this.orbs = other.orbs;
         this.level = other.level;
         this.exp = other.exp;
         this.campsDefeated = other.campsDefeated;
@@ -77,6 +237,8 @@ public class RPGPlayer {
     }
 
     private void defaults() {
+        this.orbProgress = 0;
+        this.orbs = 0;
         this.level = 1;
         this.exp = 0;
         this.campsDefeated = 0;
@@ -93,10 +255,17 @@ public class RPGPlayer {
     }
 
     public void setClassKey(String classKey) {
-
         this.classKey = classKey;
         changeClass(classKey);
-        RPGPlayerDataManager.save(this);
+        save(this);
+    }
+
+    public void removeCoins(int toRemove){
+        coins -= toRemove;
+    }
+
+    public ClassRPG getClassRpg(){
+        return getClassFromKey(classKey);
     }
 
     public int getLevel() {
@@ -107,7 +276,7 @@ public class RPGPlayer {
     public void setLevel(int level) {
 
         this.level = level;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public int getExp() {
@@ -118,7 +287,7 @@ public class RPGPlayer {
     public void setExp(int exp) {
 
         this.exp = exp;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public int getCampsDefeated() {
@@ -129,7 +298,7 @@ public class RPGPlayer {
     public void setCampsDefeated(int campsDefeated) {
 
         this.campsDefeated = campsDefeated;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public int getCoins() {
@@ -140,7 +309,7 @@ public class RPGPlayer {
     public void setCoins(int coins) {
 
         this.coins = coins;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public UUID getPlayerUUID() {
@@ -150,13 +319,13 @@ public class RPGPlayer {
     public void setPlayerUUID(UUID player) {
 
         this.player = player;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public void setPlayer(Player player) {
 
         this.player = player.getUniqueId();
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public Player getPlayer() {
@@ -172,7 +341,7 @@ public class RPGPlayer {
     public void setFirstSkilLvl(int firstSkilLvl) {
 
         this.firstSkilLvl = firstSkilLvl;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public int getSecondSkilLvl() {
@@ -183,7 +352,7 @@ public class RPGPlayer {
     public void setSecondSkilLvl(int secondSkilLvl) {
 
         this.secondSkilLvl = secondSkilLvl;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public int getThirdSkillLvl() {
@@ -194,7 +363,7 @@ public class RPGPlayer {
     public void setThirdSkillLvl(int thirdSkillLvl) {
 
         this.thirdSkillLvl = thirdSkillLvl;
-        RPGPlayerDataManager.save(this);
+        save(this);
     }
 
     public void load(){

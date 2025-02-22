@@ -1,8 +1,14 @@
 package pandoClass;
 
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandodungeons.pandodungeons.PandoDungeons;
+
+import java.util.HashMap;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class ClassRPG {
     protected Skill firstSkill;
@@ -10,14 +16,20 @@ public abstract class ClassRPG {
     protected Skill thirdSkill;
     protected String key;
     int lvl;
-    protected RPGPlayer player;
+    protected RPGPlayer rpgPlayer;
+    protected Player player;
+    protected boolean canceled = false;
 
     private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
 
+    // Mapa para almacenar el runnable activo por jugador.
+    private static final Map<Player, BukkitRunnable> triggeredSkills = new HashMap<>();
+
     public ClassRPG(String key, RPGPlayer player) {
-        this.player = player;
+        this.rpgPlayer = player;
         this.lvl = player.getLevel();
         this.key = key;
+        this.player = rpgPlayer.getPlayer();
         setSkills();
     }
 
@@ -28,18 +40,32 @@ public abstract class ClassRPG {
     protected abstract void toReset();
 
     protected void triggerSkills(){
-        new BukkitRunnable(){
-
+        // Si ya existe un runnable para este jugador, se cancela y se elimina.
+        if(triggeredSkills.containsKey(player)) {
+            BukkitRunnable previousTask = triggeredSkills.get(player);
+            previousTask.cancel();
+            triggeredSkills.remove(player);
+        }
+        // Crear y almacenar el nuevo runnable.
+        BukkitRunnable task = new BukkitRunnable(){
             @Override
             public void run() {
-                if(player.getPlayer() == null || !player.getPlayer().isOnline()){
+                if(rpgPlayer.getPlayer() == null || !rpgPlayer.getPlayer().isOnline() || canceled){
                     plugin.getLogger().warning("ended loop");
-                    cancel();
+                    cancel(); // Cancela este runnable
+                    triggeredSkills.remove(player); // Remueve del mapa
                     return;
                 }
                 skillsToTrigger();
             }
-        }.runTaskTimer(plugin,0,1);
+        };
+        task.runTaskTimer(plugin, 0, 1);
+        triggeredSkills.put(player, task);
+    }
+
+    protected void cancel() {
+        toReset();
+        canceled = true;
     }
 
     public Skill getFirstSkill() {
