@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -134,6 +135,7 @@ public class GamblingSession {
                     // Comprueba si el caballo ha cruzado la meta (usando la proyección sobre la dirección de carrera)
                     if (hasCrossedFinishLine(horse.getLocation(), horseFinish)) {
                         Bukkit.broadcastMessage("¡El caballo " + id + " ha ganado la carrera!");
+                        removeHorses();
                         cancel(); // Detiene el runnable
                         payoutWinner(id);
                         break;
@@ -141,6 +143,13 @@ public class GamblingSession {
                 }
             }
         }.runTaskTimer(plugin, 0, 5);
+    }
+
+    private void  removeHorses(){
+        for (Map.Entry<Integer, ArmorStand> entry : horses.entrySet()) {
+            ArmorStand horse = entry.getValue();
+            horse.remove();
+        }
     }
 
     // Asigna velocidades aleatorias (únicas) para cada caballo

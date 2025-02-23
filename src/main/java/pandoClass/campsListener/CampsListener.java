@@ -3,12 +3,14 @@ package pandoClass.campsListener;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.PortalType;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -71,6 +73,22 @@ public class CampsListener implements Listener {
             if(event.getDamager() instanceof Player source){
                 updateEnemyExperience(enemy, event.getDamage(), source);
             }
+        }
+    }
+
+    @EventHandler
+    public void onProtalChange(EntityPortalEnterEvent event){
+        if(event.getEntity() instanceof Player player){
+            if(event.getPortalType().equals(PortalType.ENDER) && 50 > new RPGPlayer(player).getLevel()){
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onTp(PlayerTeleportEvent event){
+        if(event.getTo().getWorld().getName().equals("world_the_end") && 50 > new RPGPlayer(event.getPlayer()).getLevel()){
+            event.setCancelled(true);
         }
     }
 

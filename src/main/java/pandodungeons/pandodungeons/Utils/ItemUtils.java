@@ -23,7 +23,7 @@ import java.util.Random;
 
 public class ItemUtils {
 
-  private static final JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+  private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
 
   private static final NamespacedKey soulUses = new NamespacedKey(plugin, "soulUses");
   private static final NamespacedKey soulWritter = new NamespacedKey(plugin, "soulWritter");
@@ -40,7 +40,26 @@ public class ItemUtils {
     lore.add("");
     meta.setLore(lore);
     meta.getPersistentDataContainer().set(garabiThor, PersistentDataType.STRING, "garabiThor");
-    meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, 0D);
+    meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, 1000D);
+    meta.setCustomModelData(69);
+    meta.setRarity(ItemRarity.EPIC);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static ItemStack garabiThor(int amount, PandoDungeons plugin) {
+    ItemStack item = new ItemStack(Material.MACE, amount);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.AQUA.toString() + ChatColor.BOLD + "GarabiThor");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add(ChatColor.GOLD.toString() + "Desata los poderes miticos de Garabito " + ChatColor.BOLD + "⚡");
+    lore.add("");
+    meta.setLore(lore);
+    NamespacedKey garabiThor = new NamespacedKey(plugin, "garabiThor");
+    NamespacedKey bateria = new NamespacedKey(plugin, "bateria");
+    meta.getPersistentDataContainer().set(garabiThor, PersistentDataType.STRING, "garabiThor");
+    meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, 1000D);
     meta.setCustomModelData(69);
     meta.setRarity(ItemRarity.EPIC);
     item.setItemMeta(meta);
@@ -125,6 +144,27 @@ public class ItemUtils {
     lore.add(ChatColor.DARK_AQUA.toString() + "Ancla el alma de los seres a este mundo");
     lore.add(ChatColor.YELLOW + "Usos: " + ChatColor.GOLD + "150");
     lore.add("");
+    meta.getPersistentDataContainer().set(soulWritter, PersistentDataType.STRING, "soulWritter");
+    meta.getPersistentDataContainer().set(soulUses, PersistentDataType.INTEGER, 150);
+    meta.setLore(lore);
+    meta.setCustomModelData(69);
+    meta.setRarity(ItemRarity.RARE);
+    item.setItemMeta(meta);
+    return item;
+  }
+
+  public static ItemStack soulWritter(int amount, PandoDungeons plugin) {
+    ItemStack item = new ItemStack(Material.FLOWER_BANNER_PATTERN, amount);
+    item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+    ItemMeta meta = item.getItemMeta();
+    meta.setItemName(ChatColor.GOLD.toString() + ChatColor.BOLD + "Escritos de Minor");
+    meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+    List<String> lore = new ArrayList<>();
+    lore.add(ChatColor.DARK_AQUA.toString() + "Ancla el alma de los seres a este mundo");
+    lore.add(ChatColor.YELLOW + "Usos: " + ChatColor.GOLD + "150");
+    lore.add("");
+    NamespacedKey soulUses = new NamespacedKey(plugin, "soulUses");
+    NamespacedKey soulWritter = new NamespacedKey(plugin, "soulWritter");
     meta.getPersistentDataContainer().set(soulWritter, PersistentDataType.STRING, "soulWritter");
     meta.getPersistentDataContainer().set(soulUses, PersistentDataType.INTEGER, 150);
     meta.setLore(lore);

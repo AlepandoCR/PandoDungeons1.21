@@ -37,6 +37,6 @@ public class ArrowExplotionSkill extends Skill {
 
     @Override
     public void reset() {
-        explosiveAmmo.remove(owner);
+
     }
 }

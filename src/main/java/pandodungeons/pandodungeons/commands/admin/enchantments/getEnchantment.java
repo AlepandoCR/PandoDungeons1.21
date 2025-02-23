@@ -12,7 +12,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.InitMenu;
+import pandoClass.gachaPon.Gachapon;
 import pandoClass.gambling.GamblingSession;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 
@@ -25,9 +27,9 @@ import static pandodungeons.pandodungeons.Utils.DisplayModels.spawnTable;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
 public class getEnchantment implements CommandExecutor {
-    private JavaPlugin plugin;
+    private PandoDungeons plugin;
 
-    public getEnchantment(JavaPlugin plugin){
+    public getEnchantment(PandoDungeons plugin){
         this.plugin = plugin;
     }
 
@@ -110,6 +112,8 @@ public class getEnchantment implements CommandExecutor {
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
+        } else if(args[1].equalsIgnoreCase("gachapon")){
+            player.getInventory().addItem( new Gachapon(plugin).trigger(player.getLocation().add(0,2,0)));
         }
 
 

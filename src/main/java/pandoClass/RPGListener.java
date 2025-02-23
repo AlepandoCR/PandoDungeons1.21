@@ -384,12 +384,6 @@ public class RPGListener implements Listener {
                     case SPECTRAL_ARROW:
                         ammoMaterial = Material.TIPPED_ARROW;
                         break;
-                    case SNOWBALL:
-                        ammoMaterial = Material.SNOWBALL;
-                        break;
-                    case FIREWORK_ROCKET:
-                        ammoMaterial = Material.FIREWORK_ROCKET;
-                        break;
                     default:
                         break;
                 }

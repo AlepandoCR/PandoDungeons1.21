@@ -12,10 +12,12 @@ import pandoClass.ClassRPG;
 import pandoClass.RPGListener;
 import pandoClass.RPGPlayer;
 import pandoClass.campsListener.CampsListener;
+import pandoClass.gachaPon.prizes.PrizeManager;
 import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
+import pandodungeons.pandodungeons.Utils.ItemUtils;
 import pandodungeons.pandodungeons.Utils.PlayerPartyList;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
@@ -37,6 +39,7 @@ public final class PandoDungeons extends JavaPlugin {
     private CommandManager commandManager;
     public PlayerPartyList playerPartyList = new PlayerPartyList();
     public Map<Player, ClassRPG> rpgPlayersList = new HashMap<>();
+    public PrizeManager prizeManager = new PrizeManager(this);
 
     @Override
     public void onEnable() {
