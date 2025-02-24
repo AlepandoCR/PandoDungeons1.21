@@ -2,6 +2,7 @@ package pandoClass.gachaPon;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -10,10 +11,12 @@ import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.*;
 
+
 public class Gachapon {
 
+    public static List<Player> owedTokenPlayers = new ArrayList<>();
 
-
+    public static Gachapon activeGachapon = null;
     // Mapas y listas para las listas de premios (ya definidos en tu clase)
     private final Map<Quality, List<ItemStack>> prizeLists = new EnumMap<>(Quality.class);
     private final Map<Quality, Double> qualityProbabilities = new EnumMap<>(Quality.class);
@@ -25,22 +28,27 @@ public class Gachapon {
 
     private final Random random = new Random();
     private final PandoDungeons plugin;
+    private final Player player;
 
-    public Gachapon(PandoDungeons plugin) {
+    public Gachapon(PandoDungeons plugin, Player player) {
         this.plugin = plugin;
+        this.player = player;
         // Inicializar listas de premios para cada calidad (se pueden cargar de un config)
         for (Quality q : Quality.values()) {
             prizeLists.put(q, new ArrayList<>());
         }
         // Ejemplo de probabilidades: la suma debe ser 100
-        qualityProbabilities.put(Quality.BASURA, 25.0);
+        qualityProbabilities.put(Quality.BASURA,30.0);
         qualityProbabilities.put(Quality.RARO, 40.0);
-        qualityProbabilities.put(Quality.EPICO, 30.0);
-        qualityProbabilities.put(Quality.LEGENDARIO, 4.0);
-        qualityProbabilities.put(Quality.MITICO, 1.0);
+        qualityProbabilities.put(Quality.EPICO, 20.0);
+        qualityProbabilities.put(Quality.LEGENDARIO, 8.0);
+        qualityProbabilities.put(Quality.MITICO, 2.0);
 
         // Setea todos los premios escogidos en esta instancia
         getServerPrices();
+        if(activeGachapon == null){
+            activeGachapon = this;
+        }
     }
 
     public void getServerPrices(){
@@ -57,7 +65,7 @@ public class Gachapon {
      * Método que triggerea el gachapon: inicia la animación, elige la calidad y el premio.
      * Aquí se espera que se llame startAnimation() pasando el centro de la animación.
      */
-    public ItemStack trigger(Location center) {
+    public void trigger(Location center) {
         startAnimation(center);
 
         // Seleccionamos la calidad basada en los porcentajes
@@ -73,11 +81,14 @@ public class Gachapon {
         new BukkitRunnable() {
             @Override
             public void run() {
-                finishAnimation(center, finalPrize);
+                if(finalPrize != null){
+                    finishAnimation(center, finalPrize);
+                    player.getInventory().addItem(finalPrize);
+                    activeGachapon = null;
+                }
+
             }
         }.runTaskLater(plugin, 100L);
-
-        return prize;
     }
 
     private Quality chooseQuality() {
@@ -151,7 +162,16 @@ public class Gachapon {
         animationTask = new BukkitRunnable() {
             @Override
             public void run() {
+                if(animationArmorStands.isEmpty() || !player.isOnline()){
+                    owedTokenPlayers.add(player);
+                    this.cancel();
+                    return;
+                }
                 for (ArmorStand stand : animationArmorStands) {
+                    if(!stand.isValid() || stand.isDead()){
+                        animationArmorStands.remove(stand);
+                        stand.remove();
+                    }
                     Vector velocity = animationVelocities.get(stand);
                     if (velocity == null) continue;
                     Location current = stand.getLocation();

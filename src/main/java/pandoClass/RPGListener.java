@@ -111,7 +111,8 @@ public class RPGListener implements Listener {
                 cause == EntityDamageEvent.DamageCause.DRAGON_BREATH ||
                 cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION ||
                 cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION ||
-                cause == EntityDamageEvent.DamageCause.LIGHTNING;
+                cause == EntityDamageEvent.DamageCause.LIGHTNING ||
+                cause == EntityDamageEvent.DamageCause.SONIC_BOOM;
     }
 
     private boolean isProjectileDamage(EntityDamageEvent.DamageCause cause) {

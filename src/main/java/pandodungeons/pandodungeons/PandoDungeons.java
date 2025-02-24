@@ -12,6 +12,8 @@ import pandoClass.ClassRPG;
 import pandoClass.RPGListener;
 import pandoClass.RPGPlayer;
 import pandoClass.campsListener.CampsListener;
+import pandoClass.gachaPon.GachaCommand;
+import pandoClass.gachaPon.prizes.PrizeListener;
 import pandoClass.gachaPon.prizes.PrizeManager;
 import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
@@ -25,6 +27,7 @@ import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Utils.LocationUtils;
 import pandodungeons.pandodungeons.Utils.StructureUtils;
 import pandodungeons.pandodungeons.commands.game.PartyCommand;
+import textures.TextureCommand;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,12 +72,15 @@ public final class PandoDungeons extends JavaPlugin {
 
 
         // Register events and commands
+        getServer().getPluginManager().registerEvents(new PrizeListener(this), this);
         getServer().getPluginManager().registerEvents(new CampsListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
         getServer().getPluginManager().registerEvents(new ToroGameListener(), this);
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
         getServer().getPluginManager().registerEvents(new RPGListener(this), this);
 
+        this.getCommand("gachatoken").setExecutor(new GachaCommand(this));
+        this.getCommand("texturas").setExecutor(new TextureCommand(this));
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
         this.getCommand("redondel").setExecutor(new RedondelCommand(this));
         this.getCommand("party").setExecutor(new PartyCommand(this));

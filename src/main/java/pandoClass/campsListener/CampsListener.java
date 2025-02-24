@@ -23,6 +23,7 @@ import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.InitMenu;
 import pandoClass.RPGPlayer;
+import pandoClass.gachaPon.Gachapon;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;

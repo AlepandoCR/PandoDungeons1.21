@@ -1,18 +1,18 @@
-package pandoClass.gachaPon.prizes.epic;
+package pandoClass.gachaPon.prizes.trash;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
 
-public class NetherStarPrize extends PrizeItem {
+public class TntPrize extends PrizeItem {
     @Override
     protected ItemStack createItem() {
-        return new ItemStack(Material.NETHER_STAR,1);
+        return new ItemStack(Material.TNT,15);
     }
 
     @Override
     protected Quality selectQuality() {
-        return Quality.EPICO;
+        return Quality.BASURA;
     }
 }

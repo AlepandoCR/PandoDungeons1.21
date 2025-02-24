@@ -70,7 +70,7 @@ public class RPGPlayer {
         while (exp >= calculateExpForNextLvl()) { // Usa while para permitir subir varios niveles si es necesario
             exp -= calculateExpForNextLvl(); // Resta en lugar de resetear a 0, para conservar el exceso de exp
             level++;
-            orbs++;
+            orbs++; // Aumenta un orbe cada nivel
         }
 
         save(this);

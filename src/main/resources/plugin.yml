@@ -18,6 +18,14 @@ commands:
     description: Comando para crear una party
     usage: /<command> [create|invite|delete]
 
+  texturas:
+    description: Aplica last texturas del servidor
+    usage: /<command>
+
+  gachatoken:
+    description: Para dar tokens de gacha
+    usage: /<command>
+
 permissions:
   pandodungeons.pandaMount:
     description: Permiso para montar y controlar un panda.

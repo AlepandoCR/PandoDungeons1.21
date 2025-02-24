@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.InitMenu;
 import pandoClass.gachaPon.Gachapon;
+import pandoClass.gachaPon.prizes.mithic.MapachoBladePrize;
 import pandoClass.gambling.GamblingSession;
 import pandodungeons.pandodungeons.PandoDungeons;
 
@@ -113,7 +114,13 @@ public class getEnchantment implements CommandExecutor {
                 throw new RuntimeException(e);
             }
         } else if(args[1].equalsIgnoreCase("gachapon")){
-            player.getInventory().addItem( new Gachapon(plugin).trigger(player.getLocation().add(0,2,0)));
+            try {
+                createGachaponArmorStand(player.getLocation());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        } else if(args[1].equalsIgnoreCase("mapachoblade")){
+            player.getInventory().addItem(new MapachoBladePrize(plugin).getItem());
         }
 
 
@@ -147,6 +154,23 @@ public class getEnchantment implements CommandExecutor {
         }
 
 
+    }
+
+    private void createGachaponArmorStand(Location location) throws MalformedURLException {
+        // Se crea el item para la cabeza
+        ItemStack head = createHead("black", "b6dd8919fe8f7507b4641bf3aa72b056e0857cc202a8e5eb66c9c21aa73c3876");
+
+        // Se instancia el ArmorStand en la ubicación indicada
+        ArmorStand armorStand = location.getWorld().spawn(location, ArmorStand.class);
+
+        // Configuraciones del ArmorStand
+        armorStand.setGravity(false);               // Sin gravedad
+        armorStand.setVisible(false);               // Invisible
+        armorStand.setInvulnerable(true);           // Invulnerable
+        armorStand.setRemoveWhenFarAway(false);     // Persistente (no se elimina al estar lejos)
+        // Se asigna el item a la cabeza del ArmorStand
+        armorStand.getEquipment().setHelmet(head);
+        armorStand.addScoreboardTag("Gachapon");
     }
 
 }
