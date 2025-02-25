@@ -1,12 +1,14 @@
 package pandoClass;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import pandoClass.classes.ClassCommand;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.files.RPGPlayerDataManager;
@@ -360,6 +362,35 @@ public class RPGPlayer {
         this.thirdSkillLvl = thirdSkillLvl;
         save(this);
     }
+
+    public String toDecoratedString() {
+        return "§l§aRPGPlayer Info§r\n" +
+                "§eLevel: §b" + level + "§r\n" +
+                "§eExp: §b" + exp + "§r\n" +
+                "§eCamps Defeated: §b" + campsDefeated + "§r\n" +
+                "§eCoins: §b" + coins + "§r\n" +
+                "§eOrbs: §b" + orbs + "§r\n" +
+                "§ePlayer UUID: §b" + player + "§r\n" +
+                "§eFirst Skill Level: §b" + firstSkilLvl + "§r\n" +
+                "§eSecond Skill Level: §b" + secondSkilLvl + "§r\n" +
+                "§eThird Skill Level: §b" + thirdSkillLvl + "§r\n" +
+                "§eClass Key: §b" + classKey + "§r\n";
+    }
+
+    public String toDecoratedString(Player player) {
+        ClassRPG classRPG = getClassRpg();
+        return ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + player.getName() + ChatColor.DARK_PURPLE + " Info§r\n" +
+                "§eLevel: §b" + level + "§r\n" +
+                "§eExp: §b" + exp + "§r\n" +
+                //"§eCamps Defeated: §b" + campsDefeated + "§r\n" +
+                "☃: " + ChatColor.GOLD + coins + "§r\n" +
+                "§eOrbes de mejora: §b" + orbs + "§r\n" +
+                "§e" + classRPG.getFirstSkill().getName() + ": §b" + firstSkilLvl + "§r\n" +
+                "§e"  + classRPG.getSecondSkill().getName() +  ": §b" + secondSkilLvl + "§r\n" +
+                "§e"  + classRPG.getThirdSkill().getName() +  ": §b" + thirdSkillLvl + "§r\n" +
+                "§eClass Key: §b" + classRPG.getName() + "§r\n";
+    }
+
 
     public void load(){
         RPGPlayer loaded = RPGPlayerDataManager.load(getPlayer());

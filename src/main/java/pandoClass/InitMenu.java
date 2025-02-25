@@ -148,9 +148,12 @@ public class InitMenu {
             lore.add("§b§l2 - §f" + classRPG.secondSkill.getDescription());
             lore.add("§b§l3 - §f" + classRPG.thirdSkill.getDescription());
 
+
             if(rpgPlayer.getClassKey() != null){
-                if(!rpgPlayer.getClassKey().equalsIgnoreCase(classRPG.key)){
-                    lore.add("§cCosto: §e500 monedas");
+                if(!rpgPlayer.getClassKey().isEmpty()){
+                    if(!rpgPlayer.getClassKey().equalsIgnoreCase(classRPG.key)){
+                        lore.add("§cCosto: §e500 monedas");
+                    }
                 }
             }
         }

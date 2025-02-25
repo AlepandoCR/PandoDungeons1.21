@@ -13,7 +13,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.InitMenu;
 import pandoClass.gachaPon.Gachapon;
+import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
 import pandoClass.gachaPon.prizes.mithic.MapachoBladePrize;
+import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
 import pandoClass.gambling.GamblingSession;
 import pandodungeons.pandodungeons.PandoDungeons;
 
@@ -121,6 +123,12 @@ public class getEnchantment implements CommandExecutor {
             }
         } else if(args[1].equalsIgnoreCase("mapachoblade")){
             player.getInventory().addItem(new MapachoBladePrize(plugin).getItem());
+        }
+        else if(args[1].equalsIgnoreCase("teleshard")){
+            player.getInventory().addItem(new TeleShardPrize(plugin).getItem());
+        }
+        else if(args[1].equalsIgnoreCase("repairShard")){
+            player.getInventory().addItem(new ReparationShardPrize(plugin).getItem());
         }
 
 

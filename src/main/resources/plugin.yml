@@ -1,5 +1,5 @@
 name: PandoDungeons
-version: 1.1
+version: 3.4
 main: pandodungeons.pandodungeons.PandoDungeons
 api-version: 1.21
 authors: [Alepando]
@@ -26,7 +26,14 @@ commands:
     description: Para dar tokens de gacha
     usage: /<command>
 
+  stats:
+    description: Para ver las stats de clase
+    usage: /<command>
+
 permissions:
   pandodungeons.pandaMount:
     description: Permiso para montar y controlar un panda.
+    default: op
+  pandodungeons.end:
+    description: Permiso Staff para ir al end.
     default: op

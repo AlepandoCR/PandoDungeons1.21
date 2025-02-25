@@ -13,6 +13,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.geysermc.floodgate.api.FloodgateApi;
+import org.geysermc.geyser.api.GeyserApi;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.files.RPGPlayerDataManager;
@@ -219,19 +221,24 @@ public class RPGListener implements Listener {
 
     private void handleClassChange(RPGPlayer rpgPlayer, Player player, String classKey) throws MalformedURLException {
         String currentKey = rpgPlayer.getClassKey();
-        if (currentKey == null) {
+        if(currentKey == null){
             rpgPlayer.setClassKey(classKey);
             player.closeInventory();
-        } else if (!currentKey.equalsIgnoreCase(classKey)){
-            if (rpgPlayer.getCoins() >= 500) {
-                rpgPlayer.removeCoins(500);
+        }else{
+            if (currentKey.isEmpty()) {
                 rpgPlayer.setClassKey(classKey);
-                player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SHOP));
-            } else {
-                player.sendMessage("No tienes suficientes monedas para cambiar tu clase");
+                player.closeInventory();
+            } else if (!currentKey.equalsIgnoreCase(classKey)){
+                if (rpgPlayer.getCoins() >= 500) {
+                    rpgPlayer.removeCoins(500);
+                    rpgPlayer.setClassKey(classKey);
+                    player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SHOP));
+                } else {
+                    player.sendMessage("No tienes suficientes monedas para cambiar tu clase");
+                }
+            } else{
+                player.sendMessage("Ya haz seleccionado esa clase");
             }
-        } else{
-            player.sendMessage("Ya haz seleccionado esa clase");
         }
     }
 
@@ -313,6 +320,10 @@ public class RPGListener implements Listener {
         RPGPlayer rpgPlayer = new RPGPlayer(player);
         String title = event.getView().getTitle();
 
+        if(FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())){
+            return;
+        }
+
         // Verificar si el inventario es el menú "Elección de clase"
         if (title.equals(INNIT_MENU_NAME) || title.contains("Cambiar clase")) {
             if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
@@ -336,10 +347,18 @@ public class RPGListener implements Listener {
         player.setMaxHealth(20.0);
         player.setWalkSpeed(0.2f);
 
+        if(!player.hasPlayedBefore()){
+            player.getInventory().addItem(plugin.prizeManager.gachaToken());
+        }
+
+        if(FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())){
+            return;
+        }
+
         RPGPlayer rpgPlayer = new RPGPlayer(player);
 
         if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
-           player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.INNIT));
+            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.INNIT));
            return;
         }
 
@@ -356,43 +375,24 @@ public class RPGListener implements Listener {
 
         save(rpgPlayer);
     }
-
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
-        // Verificar que el lanzador del proyectil sea un jugador.
         if (!(event.getEntity().getShooter() instanceof Player player)) {
             return;
         }
 
-        // Obtener el RPGPlayer para conocer su nivel.
         RPGPlayer rpgPlayer = new RPGPlayer(player);
-
         int level = rpgPlayer.getFirstSkilLvl();
 
-        if(playersSavingAmmo.contains(player)){
-            // Por ejemplo, cada nivel aporta 2% de probabilidad, hasta un máximo del 100%.
-            double chance = 100 * (level * 0.02);
+        if (playersSavingAmmo.contains(player)) {
+            // La probabilidad de ahorro de flecha es 2% por nivel (máx. 100%).
+            double chance = Math.min(level * 0.02, 1.0); // Se asegura que no pase de 100%.
 
-            // Realizar el roll aleatorio.
+            // Si el azar está a favor, evitamos el consumo de la flecha.
             if (random.nextDouble() < chance) {
-                // Identificar el tipo de munición a reponer según el tipo de proyectil.
-                Projectile projectile = event.getEntity();
-                Material ammoMaterial = null;
-                switch (projectile.getType()) {
-                    case ARROW:
-                        ammoMaterial = Material.ARROW;
-                        break;
-                    case SPECTRAL_ARROW:
-                        ammoMaterial = Material.TIPPED_ARROW;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (ammoMaterial != null) {
-                    // Reponer la munición añadiendo el item correspondiente al inventario.
-                    player.getInventory().addItem(new ItemStack(ammoMaterial, 1));
-                }
+                // Evita que la flecha se consuma al disparar.
+                event.setCancelled(true);
+                player.updateInventory(); // Refresca el inventario para evitar desincronización visual.
             }
         }
     }

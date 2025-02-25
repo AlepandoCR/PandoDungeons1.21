@@ -1,5 +1,5 @@
 package pandoClass.gachaPon;
 
 public enum Quality {
-    BASURA, RARO, EPICO, LEGENDARIO, MITICO
+    INFERIOR, RARO, EPICO, LEGENDARIO, MITICO
 }

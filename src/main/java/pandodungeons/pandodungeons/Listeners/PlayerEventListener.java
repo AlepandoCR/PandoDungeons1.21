@@ -671,6 +671,9 @@ public class PlayerEventListener implements Listener {
                     }
                 }else{
                     if(!plugin.playerPartyList.isOwner(player)){
+                        if(plugin.playerPartyList.getPartyByMember(player) == null){
+                            return;
+                        }
                         if(!toWorld.getName().contains(plugin.playerPartyList.getPartyByMember(player).getOwner().getName().toLowerCase(Locale.ROOT))){
                             event.setCancelled(true);
                             player.sendMessage(ChatColor.RED + "No puedes salir de la dungeon, si deseas salir debes decirle al owner");

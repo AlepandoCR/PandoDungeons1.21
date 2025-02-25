@@ -12,6 +12,11 @@ public class Tank extends ClassRPG {
     }
 
     @Override
+    protected String getName() {
+        return "Tanque";
+    }
+
+    @Override
     public void setSkills(){
         setFirstSkill(new ExtraHeartsSkill(rpgPlayer.getFirstSkilLvl(), rpgPlayer.getPlayer()));
         setSecondSkill(new HealTeammatesSkill(rpgPlayer.getSecondSkilLvl(), rpgPlayer.getPlayer()));

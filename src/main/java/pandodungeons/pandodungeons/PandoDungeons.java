@@ -12,6 +12,7 @@ import pandoClass.ClassRPG;
 import pandoClass.RPGListener;
 import pandoClass.RPGPlayer;
 import pandoClass.campsListener.CampsListener;
+import pandoClass.classes.ClassCommand;
 import pandoClass.gachaPon.GachaCommand;
 import pandoClass.gachaPon.prizes.PrizeListener;
 import pandoClass.gachaPon.prizes.PrizeManager;
@@ -84,6 +85,7 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
         this.getCommand("redondel").setExecutor(new RedondelCommand(this));
         this.getCommand("party").setExecutor(new PartyCommand(this));
+        this.getCommand("stats").setExecutor(new ClassCommand(this));
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");

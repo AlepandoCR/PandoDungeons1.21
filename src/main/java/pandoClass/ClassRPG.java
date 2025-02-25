@@ -33,6 +33,8 @@ public abstract class ClassRPG {
         setSkills();
     }
 
+    protected abstract String getName();
+
     protected abstract void setSkills();
 
     protected abstract void skillsToTrigger();

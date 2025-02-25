@@ -8,11 +8,11 @@ import pandoClass.gachaPon.Quality;
 public class TntPrize extends PrizeItem {
     @Override
     protected ItemStack createItem() {
-        return new ItemStack(Material.TNT,15);
+        return new ItemStack(Material.TNT,25);
     }
 
     @Override
     protected Quality selectQuality() {
-        return Quality.BASURA;
+        return Quality.INFERIOR;
     }
 }

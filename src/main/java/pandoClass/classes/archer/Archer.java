@@ -12,6 +12,11 @@ public class Archer extends ClassRPG {
     }
 
     @Override
+    protected String getName() {
+        return "Arquero";
+    }
+
+    @Override
     protected void setSkills() {
         setFirstSkill(new SaveAmmoSkill(rpgPlayer.getFirstSkilLvl(), rpgPlayer.getPlayer()));
         setSecondSkill(new DoubleJumSkill(rpgPlayer.getSecondSkilLvl(), rpgPlayer.getPlayer()));

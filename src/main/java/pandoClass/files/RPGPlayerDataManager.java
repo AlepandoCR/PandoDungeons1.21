@@ -42,19 +42,22 @@ public class RPGPlayerDataManager {
     }
 
     public static RPGPlayer load(Player player) {
-        UUID uuid = player.getUniqueId();
-        File file = new File(DATA_FOLDER, uuid + ".json");
-        if (!file.exists()) {
-            return null;
+        if(player != null){
+            UUID uuid = player.getUniqueId();
+            File file = new File(DATA_FOLDER, uuid + ".json");
+            if (!file.exists()) {
+                return null;
+            }
+            try (FileReader reader = new FileReader(file)) {
+                RPGPlayer returned = GSON.fromJson(reader, RPGPlayer.class);
+                plugin.rpgPlayersList.put(returned.getPlayer(), getClass(returned));
+                return returned;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
-        try (FileReader reader = new FileReader(file)) {
-            RPGPlayer returned = GSON.fromJson(reader, RPGPlayer.class);
-            plugin.rpgPlayersList.put(returned.getPlayer(), getClass(returned));
-            return returned;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return null;
     }
 
     public static List<RPGPlayer> loadAllPlayers() {
@@ -80,16 +83,17 @@ public class RPGPlayerDataManager {
         for(RPGPlayer player : loadAllPlayers()){
             ClassRPG classRPG = null;
             String classKey = player.getClassKey();
-            if(classKey.equalsIgnoreCase("TankClass")){
-                classRPG = new Tank(player);
-            }else if(classKey.equalsIgnoreCase("ArcherClass")){
-                classRPG = new Archer(player);
-            }else if(classKey.equalsIgnoreCase("AssassinClass")){
-                classRPG = new Assasin(player);
+            if(classKey != null){
+                if(classKey.equalsIgnoreCase("TankClass")){
+                    classRPG = new Tank(player);
+                }else if(classKey.equalsIgnoreCase("ArcherClass")){
+                    classRPG = new Archer(player);
+                }else if(classKey.equalsIgnoreCase("AssassinClass")){
+                    classRPG = new Assasin(player);
+                }
+
+                aux.put(player.getPlayer(),classRPG);
             }
-
-            aux.put(player.getPlayer(),classRPG);
-
         }
         return aux;
     }

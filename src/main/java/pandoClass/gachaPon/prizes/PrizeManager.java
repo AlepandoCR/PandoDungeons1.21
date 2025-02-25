@@ -1,19 +1,19 @@
 package pandoClass.gachaPon.prizes;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import pandoClass.gachaPon.PrizeItem;
+import pandoClass.gachaPon.Quality;
 import pandoClass.gachaPon.prizes.epic.*;
 import pandoClass.gachaPon.prizes.legendary.*;
-import pandoClass.gachaPon.prizes.mithic.GarabiThorPrize;
-import pandoClass.gachaPon.prizes.mithic.GodDogArmorPrize;
-import pandoClass.gachaPon.prizes.mithic.JetPackPrize;
-import pandoClass.gachaPon.prizes.mithic.MapachoBladePrize;
+import pandoClass.gachaPon.prizes.mithic.*;
 import pandoClass.gachaPon.prizes.rare.*;
 import pandoClass.gachaPon.prizes.trash.*;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -25,6 +25,7 @@ public class PrizeManager {
 
     private final List<PrizeItem> prizeItems = new ArrayList<>();
     private final PandoDungeons plugin;
+
 
     public PrizeManager(PandoDungeons plugin){
         this.plugin = plugin;
@@ -61,6 +62,8 @@ public class PrizeManager {
         prizeItems.add(new TntPrize());
         prizeItems.add(new RandomSmithingTemplatePrize());
         prizeItems.add(new RandomBannerPatternPrize());
+        prizeItems.add(new ReparationShardPrize(plugin));
+        prizeItems.add(new TeleShardPrize(plugin));
     }
 
     public List<PrizeItem> getPrizeItems(){
@@ -92,5 +95,79 @@ public class PrizeManager {
         itemStack.setItemMeta(meta);
 
         return itemStack;
+    }
+
+    public Inventory createPrizeInventory() {
+
+        // Organizar los ítems por calidad
+        List<PrizeItem> basura = new ArrayList<>();
+        List<PrizeItem> raro = new ArrayList<>();
+        List<PrizeItem> epico = new ArrayList<>();
+        List<PrizeItem> legendario = new ArrayList<>();
+        List<PrizeItem> mitico = new ArrayList<>();
+
+        for (PrizeItem prize : prizeItems) {
+            switch (prize.getQuality()) {
+                case INFERIOR -> basura.add(prize);
+                case RARO -> raro.add(prize);
+                case EPICO -> epico.add(prize);
+                case LEGENDARIO -> legendario.add(prize);
+                case MITICO -> mitico.add(prize);
+            }
+        }
+
+        // Unir todas las listas en orden
+        List<PrizeItem> orderedPrizes = new ArrayList<>();
+        orderedPrizes.addAll(basura);
+        orderedPrizes.addAll(raro);
+        orderedPrizes.addAll(epico);
+        orderedPrizes.addAll(legendario);
+        orderedPrizes.addAll(mitico);
+
+        // Calcular el tamaño del inventario: el mínimo múltiplo de 9 que pueda contener todos los ítems
+        int itemCount = orderedPrizes.size();
+        int inventorySize = ((itemCount + 8) / 9) * 9;
+        Inventory inv = Bukkit.createInventory(null, inventorySize, ChatColor.LIGHT_PURPLE + "Premios Gachapon");
+
+        // Agregar los ítems en orden con lore indicando su calidad (sin modificar los originales)
+        for (PrizeItem prize : orderedPrizes) {
+            ItemStack item = new ItemStack(prize.getItem()); // Crear una copia del ítem
+            ItemMeta meta = item.getItemMeta();
+
+            if (meta != null) {
+                Quality quality = prize.getQuality();
+                List<PrizeItem> group = getGroup(quality,basura,raro,epico,legendario,mitico);
+                List<String> lore = (meta.getLore() != null) ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+                lore.add(ChatColor.LIGHT_PURPLE + quality.name()); // Añade la calidad en mayúsculas
+                lore.add(ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD +"%" + ChatColor.WHITE + getPercentageFromQuality(quality) / group.size());
+                meta.setLore(lore);
+                item.setItemMeta(meta);
+            }
+
+            inv.addItem(item);
+        }
+
+        return inv;
+    }
+
+    @SafeVarargs
+    public final List<PrizeItem> getGroup(Quality quality, List<PrizeItem>... lists){
+        return switch (quality){
+            case INFERIOR -> lists[0];
+            case RARO -> lists[1];
+            case EPICO -> lists[2];
+            case LEGENDARIO -> lists[3];
+            case MITICO -> lists[4];
+        };
+    }
+
+    public double getPercentageFromQuality(Quality quality){
+        return switch (quality){
+            case INFERIOR -> 30.0;
+            case RARO -> 40.0;
+            case EPICO -> 20.0;
+            case LEGENDARIO -> 8.0;
+            case MITICO -> 2.0;
+        };
     }
 }

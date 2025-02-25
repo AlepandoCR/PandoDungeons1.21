@@ -12,6 +12,11 @@ public class Assasin extends ClassRPG {
     }
 
     @Override
+    protected String getName() {
+        return "Asesino";
+    }
+
+    @Override
     protected void setSkills() {
         setFirstSkill(new LifeStealSkill(rpgPlayer.getFirstSkilLvl(), rpgPlayer.getPlayer()));
         setSecondSkill(new SilentStepSkill(rpgPlayer.getSecondSkilLvl(), rpgPlayer.getPlayer()));

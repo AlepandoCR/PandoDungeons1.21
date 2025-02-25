@@ -38,7 +38,7 @@ public class Gachapon {
             prizeLists.put(q, new ArrayList<>());
         }
         // Ejemplo de probabilidades: la suma debe ser 100
-        qualityProbabilities.put(Quality.BASURA,30.0);
+        qualityProbabilities.put(Quality.INFERIOR,30.0);
         qualityProbabilities.put(Quality.RARO, 40.0);
         qualityProbabilities.put(Quality.EPICO, 20.0);
         qualityProbabilities.put(Quality.LEGENDARIO, 8.0);
@@ -100,7 +100,7 @@ public class Gachapon {
                 return q;
             }
         }
-        return Quality.BASURA;
+        return Quality.INFERIOR;
     }
 
     /**

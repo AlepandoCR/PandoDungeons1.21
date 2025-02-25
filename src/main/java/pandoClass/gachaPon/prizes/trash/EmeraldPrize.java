@@ -13,6 +13,6 @@ public class EmeraldPrize extends PrizeItem {
 
     @Override
     protected Quality selectQuality() {
-        return Quality.BASURA;
+        return Quality.INFERIOR;
     }
 }

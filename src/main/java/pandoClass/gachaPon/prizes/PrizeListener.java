@@ -7,29 +7,33 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerInputEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import pandoClass.ClassRPG;
+import pandoClass.RPGPlayer;
 import pandoClass.gachaPon.Gachapon;
+import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
 import pandodungeons.pandodungeons.PandoDungeons;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.net.MalformedURLException;
+import java.util.*;
 
 import static pandoClass.gachaPon.Gachapon.activeGachapon;
 import static pandoClass.gachaPon.Gachapon.owedTokenPlayers;
+import static pandoClass.gachaPon.prizes.epic.ReparationShardPrize.isReparationShardItem;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
+import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
 
 public class PrizeListener implements Listener {
     private final PandoDungeons plugin;
@@ -46,12 +50,29 @@ public class PrizeListener implements Listener {
 
     @EventHandler
     public void onMapachoBlade(PlayerInteractEvent event) {
+        ItemStack item = event.getItem();
+        Player player = event.getPlayer();
+        if (item == null) return;
+
         if (event.getAction().equals(Action.LEFT_CLICK_AIR)) {
-            ItemStack item = event.getItem();
-            if (item == null) return;
             if (isMapachoBlade(item, plugin)) {
-                Player player = event.getPlayer();
                 launchMapachoBlade(player);
+            }
+        }
+        if(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
+            if (isReparationShardItem(plugin, item)) {
+                healItems(player);
+                item.setAmount(item.getAmount() - 1);
+            }
+        }
+    }
+
+    private void healItems(Player player){
+        for(ItemStack stack : player.getInventory()){
+            if(stack != null){
+                if(stack.getItemMeta() instanceof Damageable damageable){
+                    damageable.resetDamage();
+                }
             }
         }
     }
@@ -62,6 +83,23 @@ public class PrizeListener implements Listener {
         if(owedTokenPlayers.contains(player)){
             owedTokenPlayers.remove(player);
             event.getPlayer().getInventory().addItem(plugin.prizeManager.gachaToken());
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) throws MalformedURLException {
+        Player player = (Player) event.getWhoClicked();
+        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        ClassRPG classRPG = rpgPlayer.getClassRpg();
+        String title = event.getView().getTitle();
+        ItemStack clickedItem = event.getCurrentItem();
+
+        if (clickedItem == null) {
+            return;
+        }
+
+        if(title.contains("Premios Gachapon")){
+            event.setCancelled(true);
         }
     }
 
@@ -89,13 +127,36 @@ public class PrizeListener implements Listener {
                     return;
                 }
 
-                gachapon.trigger(new Location(player.getWorld(),290,82,437));
+                gachapon.trigger(new Location(player.getWorld(),290.5,81,437.5));
                 player.getInventory().getItem(event.getHand()).setAmount(amount - 1);
             }
             else{
                 player.sendMessage(ChatColor.RED + "No tienes Gacha Tokens");
+                player.openInventory(plugin.prizeManager.createPrizeInventory());
             }
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerAnimation(PlayerAnimationEvent event) {
+        Player player = event.getPlayer();
+        // Verificamos que la animación sea el swing (left click)
+        if (event.getAnimationType() != PlayerAnimationType.ARM_SWING) {
+            return;
+        }
+
+        // Realizamos un ray trace desde la vista del jugador
+        Location eyeLocation = player.getEyeLocation();
+        Vector direction = eyeLocation.getDirection();
+        // Definimos un rango (por ejemplo, 5 bloques)
+        RayTraceResult result = player.getWorld().rayTraceEntities(eyeLocation, direction, 5, entity ->
+                entity instanceof ArmorStand && entity.getScoreboardTags().contains("Gachapon")
+        );
+
+        if (result != null && result.getHitEntity() instanceof ArmorStand) {
+            // Se encontró un ArmorStand con la etiqueta "Gachapon": se abre el inventario de premios
+            player.openInventory(plugin.prizeManager.createPrizeInventory());
         }
     }
 
@@ -204,15 +265,22 @@ public class PrizeListener implements Listener {
         if (activeJetPackRunnables.containsKey(player)) return;
 
         BukkitRunnable jetPackRunnable = new BukkitRunnable() {
+            int ticks = 0;
             @Override
             public void run() {
                 // Si el jugador ya no presiona salto o ya no tiene el jetpack, detenemos la tarea.
-                if (!player.getCurrentInput().isJump() || !isJetPack()) {
+                if (!player.getCurrentInput().isJump() || !isJetPack() || !hasCoal()) {
+                    if(!hasCoal() && player.getCurrentInput().isJump() && isJetPack()){
+                        player.sendMessage(ChatColor.RED + "No tienes carbón");
+                    }
                     activeJetPackRunnables.remove(player);
                     cancel();
                     return;
                 }
 
+                if(ticks % 20 == 0){
+                    removeCoal();
+                }
 
                 // Obtenemos la dirección hacia donde mira el jugador y la normalizamos.
                 Vector boostDirection = player.getLocation().getDirection().normalize();
@@ -220,6 +288,8 @@ public class PrizeListener implements Listener {
                 double boostPower = 0.1;
                 // Aplicamos el impulso sumándolo a la velocidad actual del jugador.
                 player.setVelocity(player.getVelocity().add(boostDirection.multiply(boostPower)));
+
+                ticks++;
             }
 
             // Verifica si el jugador tiene equipado el jetpack (por ejemplo, mediante un tag en el item del pecho)
@@ -228,6 +298,25 @@ public class PrizeListener implements Listener {
                 ItemStack chestplate = player.getInventory().getChestplate();
                 if (chestplate == null || !chestplate.hasItemMeta()) return false;
                 return chestplate.getItemMeta().getPersistentDataContainer().has(jetPackKey, PersistentDataType.BOOLEAN) && player.getPose().equals(Pose.FALL_FLYING);
+            }
+
+            public boolean hasCoal(){
+                for(ItemStack stack : player.getInventory()){
+                    if(stack != null){
+                        if(stack.getType().equals(Material.COAL)){
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            public void removeCoal(){
+                for(ItemStack stack : player.getInventory()){
+                    if(stack.getType().equals(Material.COAL)){
+                        stack.setAmount(stack.getAmount() - 1);
+                    }
+                }
             }
         };
 
@@ -286,5 +375,128 @@ public class PrizeListener implements Listener {
 
         activeBootRunnables.put(player, rocketRunnable);
         rocketRunnable.runTaskTimer(plugin, 0L, 1L); // Ejecuta cada tick
+    }
+
+    private final Map<UUID, Long> lastRightClickTime = new HashMap<>();
+    // Para cada jugador se guarda el runnable activo que mueve la entidad.
+    private final Map<UUID, BukkitRunnable> activeTeleShards = new HashMap<>();
+
+    // Tiempo límite (en milisegundos) sin actualizar el clic derecho para considerar que se soltó.
+    private static final long RELEASE_THRESHOLD = 200;
+    // Distancia máxima de raytrace (10 bloques)
+    private static final double MAX_DISTANCE = 10.0;
+
+    @EventHandler
+    public void onPlayerTeleShard(PlayerInteractEvent event) {
+        // Solo procesamos clic derecho (en aire o en bloque)
+        if (!(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        EquipmentSlot slot = event.getHand();
+        if (slot == null) return;
+
+        ItemStack stack = player.getInventory().getItem(slot);
+        if (!TeleShardPrize.isTeleShardItem(plugin, stack)) return;
+
+        // Actualizar el tiempo del último clic derecho
+        lastRightClickTime.put(uuid, System.currentTimeMillis());
+
+        // Realizar un ray trace para obtener la primera entidad "Enemy" a un máximo de 5 bloques
+        Location eyeLoc = player.getEyeLocation();
+        Vector dir = eyeLoc.getDirection().normalize();
+        World world = player.getWorld();
+        RayTraceResult result = world.rayTraceEntities(eyeLoc, dir, 5, entity -> entity instanceof Enemy);
+
+        if (result != null && result.getHitEntity() instanceof LivingEntity livingTarget) {
+            // Resaltar la entidad
+            livingTarget.setGlowing(true);
+            // Programar la eliminación del efecto en 2 segundos (40 ticks)
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    livingTarget.setGlowing(false);
+                }
+            }.runTaskLater(plugin, 40L);
+
+            // Si no hay ya un runnable activo para este jugador, lo creamos
+            if (!activeTeleShards.containsKey(uuid)) {
+                // Guardamos la distancia inicial entre la entidad y el ojo del jugador
+                double initialDistance = livingTarget.getLocation().distance(player.getEyeLocation());
+
+                BukkitRunnable moverRunnable = new BukkitRunnable() {
+                    int ticks = 0;
+                    ItemStack currentStack;
+
+                    @Override
+                    public void run() {
+                        currentStack = player.getInventory().getItem(slot);
+                        if (currentStack == null || currentStack.getType() == Material.AIR) {
+                            livingTarget.setGlowing(false);
+                            activeTeleShards.remove(uuid);
+                            cancel();
+                            return;
+                        }
+                        int battery = TeleShardPrize.getTeleShardBatery(plugin, currentStack);
+
+                        // Si han pasado más de RELEASE_THRESHOLD desde el último clic, se asume que se soltó el botón
+                        long lastClick = lastRightClickTime.getOrDefault(uuid, 0L);
+                        if (System.currentTimeMillis() - lastClick > RELEASE_THRESHOLD || isValid(battery)) {
+                            livingTarget.setGlowing(false);
+                            activeTeleShards.remove(uuid);
+                            cancel();
+                            return;
+                        }
+
+                        // Cancelamos si la entidad ya no es válida
+                        if (!livingTarget.isValid() || livingTarget.isDead()) {
+                            activeTeleShards.remove(uuid);
+                            cancel();
+                            return;
+                        }
+
+                        ticks++;
+                        // Cada 20 ticks (1 segundo) se reduce la batería en 1
+                        if (ticks % 20 == 0) {
+                            TeleShardPrize.setTeleShardBatery(plugin, currentStack, battery - 1);
+                        }
+
+                        // Calculamos la ubicación deseada: el jugador mantiene la distancia inicial en la dirección de su vista (sin tomar en cuenta la altura)
+                        Location playerEye = player.getEyeLocation();
+                        Vector desiredDirection = playerEye.getDirection().normalize();
+                        Location desiredLocation = playerEye.clone().add(desiredDirection.multiply(initialDistance));
+
+                        // Verificar si hay obstáculos entre el jugador y la posición deseada
+                        double distanceBetween = livingTarget.getLocation().distance(playerEye);
+                        if (world.rayTraceBlocks(playerEye, desiredDirection, distanceBetween) != null) {
+                            // Si hay obstáculo, no mover la entidad
+                            return;
+                        }
+
+                        // Calcular la diferencia entre la posición actual de la entidad y la posición deseada
+                        Location currentTargetLoc = livingTarget.getLocation();
+                        Vector toDesired = desiredLocation.toVector().subtract(currentTargetLoc.toVector());
+
+                        // Aplicar una velocidad proporcional a esa diferencia (ajusta el factor según sea necesario)
+                        double factor = 1.5;
+                        Vector velocity = toDesired.multiply(factor);
+
+                        livingTarget.setVelocity(velocity);
+                    }
+
+                    private boolean isValid(int battery){
+                        if(isTeleShardItem(plugin,currentStack)){
+                            return battery > 0;
+                        }
+                        return false;
+                    }
+                };
+
+                activeTeleShards.put(uuid, moverRunnable);
+                moverRunnable.runTaskTimer(plugin, 0L, 1L); // Ejecuta cada tick
+            }
+        }
     }
 }

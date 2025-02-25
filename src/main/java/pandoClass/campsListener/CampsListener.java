@@ -32,6 +32,8 @@ import java.util.*;
 import static pandoClass.InitMenu.createClassSelectionMenu;
 import static pandoClass.classes.archer.skills.DoubleJumSkill.doubleJumping;
 import static pandoClass.classes.archer.skills.SaveAmmoSkill.playersSavingAmmo;
+import static pandoToros.game.ArenaMaker.isRedondelWorld;
+import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 
 public class CampsListener implements Listener {
 
@@ -58,9 +60,10 @@ public class CampsListener implements Listener {
     @EventHandler
     public void onEnemySpawn(EntitySpawnEvent event){
         Entity entity = event.getEntity();
-
         if(entity instanceof Enemy enemy){
-            enemyTransformation(enemy);
+            String worldName = event.getLocation().getWorld().getName();
+            if(!isDungeonWorld(worldName) && !isRedondelWorld(worldName))
+                enemyTransformation(enemy);
         }
     }
 
@@ -81,6 +84,7 @@ public class CampsListener implements Listener {
     public void onProtalChange(EntityPortalEnterEvent event){
         if(event.getEntity() instanceof Player player){
             if(event.getPortalType().equals(PortalType.ENDER) && 50 > new RPGPlayer(player).getLevel()){
+                if (player.hasPermission("pandodungeons.end")) return;
                 event.setCancelled(true);
             }
         }
@@ -89,6 +93,7 @@ public class CampsListener implements Listener {
     @EventHandler
     public void onTp(PlayerTeleportEvent event){
         if(event.getTo().getWorld().getName().equals("world_the_end") && 50 > new RPGPlayer(event.getPlayer()).getLevel()){
+            if (event.getPlayer().hasPermission("pandodungeons.end")) return;
             event.setCancelled(true);
         }
     }

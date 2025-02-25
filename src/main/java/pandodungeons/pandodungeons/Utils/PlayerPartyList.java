@@ -102,6 +102,9 @@ public class PlayerPartyList {
      * @return La PlayerParty en la que el jugador es miembro, o null si no es miembro de ninguna.
      */
     public PlayerParty getPartyByMember(Player player) {
+        if(player == null){
+            return null;
+        }
         for (PlayerParty party : parties) {
             if (party.getMembers().contains(player)) {
                 return party;
