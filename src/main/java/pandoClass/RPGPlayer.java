@@ -39,6 +39,7 @@ public class RPGPlayer {
     private int thirdSkillLvl;
     private String classKey = null;
     private int orbProgress;
+    private String playerName = "";
 
     private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
 
@@ -157,6 +158,12 @@ public class RPGPlayer {
         if (loaded != null) copyFrom(loaded);
     }
 
+    public RPGPlayer(String player) {
+        this.player = UUID.fromString(player);
+        RPGPlayer loaded = RPGPlayerDataManager.load(getPlayer());
+        if (loaded != null) copyFrom(loaded);
+    }
+
     public void changeClass(String key) {
         getPlayer().setMaxHealth(20.0);
         doubleJumping.remove(getPlayer());
@@ -231,6 +238,7 @@ public class RPGPlayer {
         this.secondSkilLvl = other.secondSkilLvl;
         this.thirdSkillLvl = other.thirdSkillLvl;
         this.classKey = other.classKey;
+        this.playerName = other.playerName;
     }
 
     private void defaults() {
@@ -243,7 +251,8 @@ public class RPGPlayer {
         this.firstSkilLvl = 1;
         this.secondSkilLvl = 1;
         this.thirdSkillLvl = 1;
-        this.classKey = null;
+        this.classKey = "";
+        this.playerName = "";
     }
 
     public String getClassKey() {
@@ -362,20 +371,20 @@ public class RPGPlayer {
         this.thirdSkillLvl = thirdSkillLvl;
         save(this);
     }
-
-    public String toDecoratedString() {
-        return "§l§aRPGPlayer Info§r\n" +
+    public String toDecoratedString(String player) {
+        ClassRPG classRPG = getClassRpg();
+        return ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + player + ChatColor.DARK_PURPLE + " Info§r\n" +
                 "§eLevel: §b" + level + "§r\n" +
                 "§eExp: §b" + exp + "§r\n" +
-                "§eCamps Defeated: §b" + campsDefeated + "§r\n" +
-                "§eCoins: §b" + coins + "§r\n" +
-                "§eOrbs: §b" + orbs + "§r\n" +
-                "§ePlayer UUID: §b" + player + "§r\n" +
-                "§eFirst Skill Level: §b" + firstSkilLvl + "§r\n" +
-                "§eSecond Skill Level: §b" + secondSkilLvl + "§r\n" +
-                "§eThird Skill Level: §b" + thirdSkillLvl + "§r\n" +
-                "§eClass Key: §b" + classKey + "§r\n";
+                //"§eCamps Defeated: §b" + campsDefeated + "§r\n" +
+                "☃: " + ChatColor.GOLD + coins + "§r\n" +
+                "§eOrbes de mejora: §b" + orbs + "§r\n" +
+                "§e" + classRPG.getFirstSkill().getName() + ": §b" + firstSkilLvl + "§r\n" +
+                "§e"  + classRPG.getSecondSkill().getName() +  ": §b" + secondSkilLvl + "§r\n" +
+                "§e"  + classRPG.getThirdSkill().getName() +  ": §b" + thirdSkillLvl + "§r\n" +
+                "§eClass Key: §b" + classRPG.getName() + "§r\n";
     }
+
 
     public String toDecoratedString(Player player) {
         ClassRPG classRPG = getClassRpg();

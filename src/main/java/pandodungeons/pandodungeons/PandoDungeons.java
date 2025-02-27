@@ -1,13 +1,18 @@
 package pandodungeons.pandodungeons;
 
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
+import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.level.chunk.BulkSectionAccess;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.checker.units.qual.C;
+import pandoClass.Camp;
 import pandoClass.ClassRPG;
 import pandoClass.RPGListener;
 import pandoClass.RPGPlayer;
@@ -44,6 +49,8 @@ public final class PandoDungeons extends JavaPlugin {
     public PlayerPartyList playerPartyList = new PlayerPartyList();
     public Map<Player, ClassRPG> rpgPlayersList = new HashMap<>();
     public PrizeManager prizeManager = new PrizeManager(this);
+    public Camp camp = new Camp();
+    private BukkitRunnable runnable;
 
     @Override
     public void onEnable() {
@@ -98,6 +105,8 @@ public final class PandoDungeons extends JavaPlugin {
             dungeonsDataFolder.mkdirs();
         }
 
+        startHordeLookout(this);
+
         breezeCompanionCustomRecipe();
         armadilloCompanionCustomRecipe();
         allayCompanionCustomRecipe();
@@ -147,6 +156,7 @@ public final class PandoDungeons extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        runnable.cancel();
         for(String world : LocationUtils.getAllDungeonWorlds()){
             if(world == null){
                 break;
@@ -181,6 +191,93 @@ public final class PandoDungeons extends JavaPlugin {
             }
         }, this);
     }
+
+    private void startHordeLookout(PandoDungeons plugin) {
+        runnable = new BukkitRunnable() {
+            private int ticks = 0;
+
+            @Override
+            public void run() {
+
+                if(!plugin.isEnabled()){
+                    cancel();
+                    return;
+                }
+
+                if (ticks % 36000 == 0) { // Cada media hora
+                    List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
+                    if (!onlinePlayers.isEmpty()) {
+                        Random random = new Random();
+                        Player randomPlayer = onlinePlayers.get(random.nextInt(onlinePlayers.size()));
+                        String worldName = randomPlayer.getWorld().getName();
+
+                        if (worldName.equalsIgnoreCase("world") || worldName.equalsIgnoreCase("recursos")) {
+                            randomPlayer.sendMessage(ChatColor.RED + "¡Ha aparecido una horda a tus alrededores, ten cuidado!");
+
+                            Location spawnLoc = getValidHordeSpawnLocation(randomPlayer);
+                            if (spawnLoc != null) {
+                                camp = new Camp();
+                                camp.startHorde(spawnLoc, plugin);
+                            } else {
+                                randomPlayer.sendMessage(ChatColor.YELLOW + "No se encontró una ubicación válida para la horda, te salvaste...");
+                            }
+                        }else{
+                            randomPlayer.sendMessage("No estas en un mundo valido para la horda, te salvaste...");
+                        }
+                    }else{
+                        Bukkit.getLogger().info("No hay jugadores online");
+                    }
+                }
+                ticks++;
+            }
+        };
+
+        runnable.runTaskTimer(this, 0L, 1L); // Ejecuta cada tick
+    }
+
+
+    // Método auxiliar para obtener una ubicación válida para iniciar la horda
+    private Location getValidHordeSpawnLocation(Player player) {
+        Location base = player.getLocation();
+        World world = player.getWorld();
+        Random random = new Random();
+        int attempts = 0;
+
+        // Intentamos hasta 100 veces encontrar una ubicación que cumpla con las condiciones
+        while (attempts < 100) {
+            // Generar un ángulo aleatorio y una distancia aleatoria entre 20 y 50 bloques
+            double angle = random.nextDouble() * 2 * Math.PI;
+            double distance = 40 + random.nextDouble() * 30;
+            double offsetX = Math.cos(angle) * distance;
+            double offsetZ = Math.sin(angle) * distance;
+            Location candidate = base.clone().add(offsetX, 0, offsetZ);
+
+            // Ajustar la altura al bloque más alto en esa posición y añadir 1 para que no esté dentro del bloque
+            candidate.setY(world.getHighestBlockYAt(candidate) + 1);
+
+            // Verificar que el chunk esté cargado
+            if (!candidate.getChunk().isLoaded()) {
+                attempts++;
+                continue;
+            }
+
+            // Comprobar que no haya ningún aldeano cerca (dentro de 20 bloques)
+            boolean nearVillager = world.getNearbyEntities(candidate, 20, 20, 20)
+                    .stream()
+                    .anyMatch(e -> e instanceof Villager);
+            if (nearVillager) {
+                attempts++;
+                continue;
+            }
+
+            // Si se cumplen todas las condiciones, devolvemos la ubicación candidata
+            return candidate;
+        }
+        // Si no se encontró ninguna ubicación válida tras 100 intentos, devolvemos null
+        return null;
+    }
+
+
 
     public CommandManager getCommandManager() {
         return commandManager;

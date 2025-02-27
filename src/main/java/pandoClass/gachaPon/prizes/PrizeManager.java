@@ -64,6 +64,8 @@ public class PrizeManager {
         prizeItems.add(new RandomBannerPatternPrize());
         prizeItems.add(new ReparationShardPrize(plugin));
         prizeItems.add(new TeleShardPrize(plugin));
+        prizeItems.add(new TeleVillagerShardPrize(plugin));
+        prizeItems.add(new TeleportationHeartPrize(plugin));
     }
 
     public List<PrizeItem> getPrizeItems(){

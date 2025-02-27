@@ -4,9 +4,11 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
@@ -24,14 +26,17 @@ import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
 import pandoClass.gachaPon.Gachapon;
 import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
+import pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import javax.swing.plaf.SpinnerUI;
 import java.net.MalformedURLException;
 import java.util.*;
 
 import static pandoClass.gachaPon.Gachapon.activeGachapon;
 import static pandoClass.gachaPon.Gachapon.owedTokenPlayers;
 import static pandoClass.gachaPon.prizes.epic.ReparationShardPrize.isReparationShardItem;
+import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
 import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
 
@@ -59,6 +64,14 @@ public class PrizeListener implements Listener {
                 launchMapachoBlade(player);
             }
         }
+    }
+
+    @EventHandler
+    public void onHealShard(PlayerInteractEvent event){
+        ItemStack item = event.getItem();
+        Player player = event.getPlayer();
+        if (item == null) return;
+
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
             if (isReparationShardItem(plugin, item)) {
                 healItems(player);
@@ -67,11 +80,13 @@ public class PrizeListener implements Listener {
         }
     }
 
-    private void healItems(Player player){
-        for(ItemStack stack : player.getInventory()){
-            if(stack != null){
-                if(stack.getItemMeta() instanceof Damageable damageable){
+    private void healItems(Player player) {
+        for (ItemStack stack : player.getInventory()) {
+            if (stack != null && stack.hasItemMeta()) {
+                ItemMeta meta = stack.getItemMeta();
+                if (meta instanceof Damageable damageable) {
                     damageable.resetDamage();
+                    stack.setItemMeta(meta);
                 }
             }
         }
@@ -238,6 +253,29 @@ public class PrizeListener implements Listener {
         loc.getWorld().playSound(loc, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.0f, 1.0f);
     }
 
+    @EventHandler
+    public void onTeleporter(PlayerInteractEvent event){
+        Player player = event.getPlayer();
+        EquipmentSlot hand = event.getHand();
+        if(hand != null){
+            ItemStack stack = player.getInventory().getItem(event.getHand());
+            if(isTeleporterItem(plugin,stack)){
+                switch (event.getAction()){
+                    case LEFT_CLICK_AIR:
+                    case LEFT_CLICK_BLOCK:
+                        teleportWithAnimation(plugin,player,stack);
+                        break;
+                    case RIGHT_CLICK_AIR:
+                    case RIGHT_CLICK_BLOCK:
+                        setStoredLocation(plugin,stack,player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Se ha guardado la localización correctamente");
+                        break;
+                }
+            }
+        }
+
+    }
+
 
     @EventHandler
     public void onShieldHit(EntityDamageByEntityEvent event){
@@ -278,7 +316,11 @@ public class PrizeListener implements Listener {
                     return;
                 }
 
-                if(ticks % 20 == 0){
+                if(ticks == 0){
+                    playSound(player);
+                }
+
+                if(ticks % 40 == 0){
                     removeCoal();
                 }
 
@@ -288,6 +330,8 @@ public class PrizeListener implements Listener {
                 double boostPower = 0.1;
                 // Aplicamos el impulso sumándolo a la velocidad actual del jugador.
                 player.setVelocity(player.getVelocity().add(boostDirection.multiply(boostPower)));
+
+                spawnJetpackParticles(player);
 
                 ticks++;
             }
@@ -313,8 +357,11 @@ public class PrizeListener implements Listener {
 
             public void removeCoal(){
                 for(ItemStack stack : player.getInventory()){
-                    if(stack.getType().equals(Material.COAL)){
-                        stack.setAmount(stack.getAmount() - 1);
+                    if(stack != null){
+                        if(stack.getType().equals(Material.COAL)){
+                            stack.setAmount(stack.getAmount() - 1);
+                            return;
+                        }
                     }
                 }
             }
@@ -324,6 +371,31 @@ public class PrizeListener implements Listener {
         activeJetPackRunnables.put(player, jetPackRunnable);
         jetPackRunnable.runTaskTimer(plugin, 0L, 1L); // Ejecuta cada tick
     }
+
+    public void playSound(Player player){
+        player.getWorld().playSound(player.getLocation(),Sound.ENTITY_BLAZE_SHOOT,0.4f,1);
+    }
+
+    private void spawnJetpackParticles(Player player) {
+        // Usamos la ubicación del ojo para aproximar la posición de las elytras.
+        Location eyeLoc = player.getEyeLocation();
+        Vector direction = eyeLoc.getDirection().normalize();
+        // Calculamos el vector derecho (cross product con el vector up)
+        Vector right = direction.clone().crossProduct(new Vector(0, 1, 0)).normalize();
+
+        // Ajustamos las posiciones: 0.5 bloques a cada lado y bajamos un poco para que queden en el área de las alas
+        Location rightWing = eyeLoc.clone().add(right.multiply(1)).subtract(0, 0.3, 0);
+        Location leftWing = eyeLoc.clone().subtract(right.multiply(1)).subtract(0, 0.3, 0);
+
+        // Lanza partículas tipo FLAME (puedes usar otro tipo) con ligeros offsets para efecto
+        player.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, rightWing, 1, 0.1, 0.1, 0.1, 0.01);
+        player.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, leftWing, 1, 0.1, 0.1, 0.1, 0.01);
+        player.getWorld().spawnParticle(Particle.FLAME, leftWing, 3, 0.1, 0.1, 0.1, 0.01);
+        player.getWorld().spawnParticle(Particle.FLAME, rightWing, 3, 0.1, 0.1, 0.1, 0.01);
+        player.getWorld().spawnParticle(Particle.CLOUD, leftWing, 1, 0.01, 0.01, 0.01, 0.001);
+        player.getWorld().spawnParticle(Particle.CLOUD, rightWing, 1, 0.01, 0.01, 0.01, 0.001);
+    }
+
 
     @EventHandler
     public void rocketBoots(PlayerInputEvent event) {
@@ -399,27 +471,29 @@ public class PrizeListener implements Listener {
         if (slot == null) return;
 
         ItemStack stack = player.getInventory().getItem(slot);
-        if (!TeleShardPrize.isTeleShardItem(plugin, stack)) return;
+        // Si el item NO es ni TeleShard ni TeleVillagerShard, salimos
+        if (!TeleShardPrize.isTeleShardItem(plugin, stack) && !TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, stack)) {
+            return;
+        }
 
-        // Actualizar el tiempo del último clic derecho
+        // Actualizamos el tiempo del último clic derecho
         lastRightClickTime.put(uuid, System.currentTimeMillis());
 
-        // Realizar un ray trace para obtener la primera entidad "Enemy" a un máximo de 5 bloques
         Location eyeLoc = player.getEyeLocation();
         Vector dir = eyeLoc.getDirection().normalize();
         World world = player.getWorld();
-        RayTraceResult result = world.rayTraceEntities(eyeLoc, dir, 5, entity -> entity instanceof Enemy);
+        RayTraceResult result = null;
+
+        // Dependiendo del tipo de shard, raytrace de Enemy o Villager
+        if (TeleShardPrize.isTeleShardItem(plugin, stack)) {
+            result = world.rayTraceEntities(eyeLoc, dir, 5, entity -> entity instanceof Enemy);
+        } else if (TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, stack)) {
+            result = world.rayTraceEntities(eyeLoc, dir, 5, entity -> entity instanceof Villager);
+        }
 
         if (result != null && result.getHitEntity() instanceof LivingEntity livingTarget) {
-            // Resaltar la entidad
+            // Resaltamos la entidad
             livingTarget.setGlowing(true);
-            // Programar la eliminación del efecto en 2 segundos (40 ticks)
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    livingTarget.setGlowing(false);
-                }
-            }.runTaskLater(plugin, 40L);
 
             // Si no hay ya un runnable activo para este jugador, lo creamos
             if (!activeTeleShards.containsKey(uuid)) {
@@ -439,11 +513,16 @@ public class PrizeListener implements Listener {
                             cancel();
                             return;
                         }
-                        int battery = TeleShardPrize.getTeleShardBatery(plugin, currentStack);
+                        int battery = 0;
+                        if (livingTarget instanceof Enemy) {
+                            battery = TeleShardPrize.getTeleShardBatery(plugin, currentStack);
+                        } else if (livingTarget instanceof Villager) {
+                            battery = TeleVillagerShardPrize.getTeleVillagerShardBatery(plugin, currentStack);
+                        }
 
-                        // Si han pasado más de RELEASE_THRESHOLD desde el último clic, se asume que se soltó el botón
+                        // Si ha pasado demasiado tiempo desde el último clic derecho o la batería se agotó, cancelar
                         long lastClick = lastRightClickTime.getOrDefault(uuid, 0L);
-                        if (System.currentTimeMillis() - lastClick > RELEASE_THRESHOLD || isValid(battery)) {
+                        if (System.currentTimeMillis() - lastClick > RELEASE_THRESHOLD || !isValid(battery)) {
                             livingTarget.setGlowing(false);
                             activeTeleShards.remove(uuid);
                             cancel();
@@ -460,7 +539,11 @@ public class PrizeListener implements Listener {
                         ticks++;
                         // Cada 20 ticks (1 segundo) se reduce la batería en 1
                         if (ticks % 20 == 0) {
-                            TeleShardPrize.setTeleShardBatery(plugin, currentStack, battery - 1);
+                            if (TeleShardPrize.isTeleShardItem(plugin, currentStack)) {
+                                TeleShardPrize.setTeleShardBatery(plugin, currentStack, battery - 1);
+                            } else if (TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, currentStack)) {
+                                TeleVillagerShardPrize.setTeleVillagerShardBatery(plugin, currentStack, battery - 1);
+                            }
                         }
 
                         // Calculamos la ubicación deseada: el jugador mantiene la distancia inicial en la dirección de su vista (sin tomar en cuenta la altura)
@@ -479,24 +562,36 @@ public class PrizeListener implements Listener {
                         Location currentTargetLoc = livingTarget.getLocation();
                         Vector toDesired = desiredLocation.toVector().subtract(currentTargetLoc.toVector());
 
-                        // Aplicar una velocidad proporcional a esa diferencia (ajusta el factor según sea necesario)
+                        // Aplicar una velocidad proporcional a esa diferencia (factor ajustable)
                         double factor = 1.5;
                         Vector velocity = toDesired.multiply(factor);
 
                         livingTarget.setVelocity(velocity);
                     }
 
-                    private boolean isValid(int battery){
-                        if(isTeleShardItem(plugin,currentStack)){
-                            return battery > 0;
-                        }
-                        return false;
+                    private boolean isValid(int battery) {
+                        return (TeleShardPrize.isTeleShardItem(plugin, currentStack) || TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, currentStack))
+                                && battery > 0;
                     }
                 };
 
                 activeTeleShards.put(uuid, moverRunnable);
                 moverRunnable.runTaskTimer(plugin, 0L, 1L); // Ejecuta cada tick
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onVillagerClick(PlayerInteractEntityEvent event) {
+        if (!(event.getRightClicked() instanceof Villager)) return;
+        Player player = event.getPlayer();
+        ItemStack stack = player.getInventory().getItem(event.getHand());
+        if (stack == null) return;
+
+        if (TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, stack)) {
+            event.setCancelled(true);
+            // Si se abre alguna interfaz del villager, forzamos su cierre:
+            player.closeInventory();
         }
     }
 }

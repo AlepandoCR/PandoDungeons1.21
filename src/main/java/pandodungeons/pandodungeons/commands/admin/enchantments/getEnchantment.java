@@ -11,11 +11,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import pandoClass.Camp;
 import pandoClass.InitMenu;
 import pandoClass.gachaPon.Gachapon;
 import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
+import pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize;
+import pandoClass.gachaPon.prizes.mithic.JetPackPrize;
 import pandoClass.gachaPon.prizes.mithic.MapachoBladePrize;
 import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
+import pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize;
 import pandoClass.gambling.GamblingSession;
 import pandodungeons.pandodungeons.PandoDungeons;
 
@@ -127,8 +131,20 @@ public class getEnchantment implements CommandExecutor {
         else if(args[1].equalsIgnoreCase("teleshard")){
             player.getInventory().addItem(new TeleShardPrize(plugin).getItem());
         }
+        else if(args[1].equalsIgnoreCase("teleVshard")){
+            player.getInventory().addItem(new TeleVillagerShardPrize(plugin).getItem());
+        }
         else if(args[1].equalsIgnoreCase("repairShard")){
             player.getInventory().addItem(new ReparationShardPrize(plugin).getItem());
+        }
+        else if(args[1].equalsIgnoreCase("jetpack")){
+            player.getInventory().addItem(new JetPackPrize(plugin).getItem());
+        }
+        else if(args[1].equalsIgnoreCase("horde")){
+            new Camp().startHorde(player.getLocation(), plugin);
+        }
+        else if(args[1].equalsIgnoreCase("teleport")){
+            player.getInventory().addItem(new TeleportationHeartPrize(plugin).getItem());
         }
 
 

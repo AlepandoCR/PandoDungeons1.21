@@ -49,9 +49,7 @@ public class RPGPlayerDataManager {
                 return null;
             }
             try (FileReader reader = new FileReader(file)) {
-                RPGPlayer returned = GSON.fromJson(reader, RPGPlayer.class);
-                plugin.rpgPlayersList.put(returned.getPlayer(), getClass(returned));
-                return returned;
+                return GSON.fromJson(reader, RPGPlayer.class);
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
@@ -101,6 +99,9 @@ public class RPGPlayerDataManager {
     public static ClassRPG getClass(RPGPlayer player){
         ClassRPG classRPG = null;
         String classKey = player.getClassKey();
+        if(classKey == null || classKey.isEmpty()){
+            return null;
+        }
         if(classKey.equalsIgnoreCase("TankClass")){
             classRPG = new Tank(player);
         }else if(classKey.equalsIgnoreCase("ArcherClass")){

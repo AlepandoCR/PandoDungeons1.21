@@ -7,8 +7,6 @@ import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public abstract class ClassRPG {
     protected Skill firstSkill;

@@ -1,10 +1,11 @@
 package pandoClass.gachaPon;
 
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -82,7 +83,7 @@ public class Gachapon {
             @Override
             public void run() {
                 if(finalPrize != null){
-                    finishAnimation(center, finalPrize);
+                    finishAnimation(center, finalPrize, selectedQuality);
                     player.getInventory().addItem(finalPrize);
                     activeGachapon = null;
                 }
@@ -193,25 +194,69 @@ public class Gachapon {
         animationTask.runTaskTimer(plugin, 0L, 1L);
     }
 
-    /**
-     * Finaliza la animación: se cancela la tarea, se eliminan los ArmorStands y se muestra el premio final.
-     *
-     * @param center La ubicación central de la animación.
-     * @param prize  El ItemStack premiado (puede ser null).
-     */
-    private void finishAnimation(Location center, ItemStack prize) {
+    private void finishAnimation(Location center, ItemStack prize, Quality quality) {
+        // Cancelar la animación y eliminar ArmorStands
         if (animationTask != null) {
             animationTask.cancel();
             animationTask = null;
         }
-        // Elimina todos los ArmorStands de la animación
         for (ArmorStand stand : animationArmorStands) {
             stand.remove();
         }
         animationArmorStands.clear();
         animationVelocities.clear();
 
-        // Muestra el premio final en el centro (por ejemplo, con un ArmorStand brillante)
+        Sound explosionSound;
+        float soundVolume;
+        float soundPitch;
+        Color explosionColor;
+
+        switch (quality) {
+            case INFERIOR:
+                explosionSound = Sound.BLOCK_ANVIL_PLACE;
+                soundVolume = 0.5f;
+                soundPitch = 0.8f;
+                explosionColor = Color.MAROON;
+                break;
+            case RARO:
+                explosionSound = Sound.BLOCK_NOTE_BLOCK_PLING;
+                soundVolume = 0.6f;
+                soundPitch = 1.0f;
+                explosionColor = Color.LIME;
+                break;
+            case EPICO:
+                explosionSound = Sound.BLOCK_NOTE_BLOCK_BELL;
+                soundVolume = 0.8f;
+                soundPitch = 1.1f;
+                explosionColor = Color.AQUA;
+                break;
+            case LEGENDARIO:
+                explosionSound = Sound.BLOCK_NOTE_BLOCK_CHIME;
+                soundVolume = 1.0f;
+                soundPitch = 1.2f;
+                explosionColor = Color.FUCHSIA;
+                break;
+            case MITICO:
+                explosionSound = Sound.ENTITY_ENDER_DRAGON_GROWL;
+                soundVolume = 1.2f;
+                soundPitch = 1.0f;
+                explosionColor = Color.fromRGB(255, 215, 0); // Dorado
+                break;
+            default:
+                explosionSound = Sound.ENTITY_GENERIC_EXPLODE;
+                soundVolume = 0.5f;
+                soundPitch = 1.0f;
+                explosionColor = Color.ORANGE;
+                break;
+        }
+
+        // En lugar de crear una explosión normal, generamos una explosión de fireworks con color.
+        spawnFireworkExplosion(center, explosionColor);
+
+        // Reproducir el sonido configurado en la ubicación central.
+        center.getWorld().playSound(center, explosionSound, soundVolume, soundPitch);
+
+        // Mostrar el premio final con un ArmorStand brillante.
         if (prize != null) {
             ArmorStand finalStand = center.getWorld().spawn(center, ArmorStand.class, a -> {
                 a.setGravity(false);
@@ -220,7 +265,7 @@ public class Gachapon {
                 a.getEquipment().setHelmet(prize);
                 a.setGlowing(true);
             });
-            // Después de 2 segundos se elimina el stand final
+            // Eliminar el ArmorStand final después de 2 segundos.
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -229,4 +274,32 @@ public class Gachapon {
             }.runTaskLater(plugin, 40L);
         }
     }
+
+    /**
+     * Crea y detona un Firework con efecto personalizado en la ubicación dada.
+     * Esta explosión de fireworks sirve como efecto visual sin causar daños.
+     *
+     * @param center         La ubicación donde se crea la explosión.
+     * @param explosionColor El color principal de la explosión.
+     */
+    private void spawnFireworkExplosion(Location center, Color explosionColor) {
+        World world = center.getWorld();
+        // Spawnea un Firework en la ubicación dada
+        Firework firework = world.spawn(center, Firework.class);
+        FireworkMeta meta = firework.getFireworkMeta();
+        // Crea un efecto de Firework con el color deseado, con fade igual, trail y flicker activados.
+        FireworkEffect effect = FireworkEffect.builder()
+                .withColor(explosionColor)
+                .withFade(explosionColor)
+                .trail(true)
+                .flicker(true)
+                .build();
+        meta.addEffect(effect);
+        meta.setPower(0); // Poder 0 para que se detone rápidamente
+        firework.setFireworkMeta(meta);
+        // Detonar inmediatamente el Firework para simular la explosión.
+        firework.detonate();
+    }
+
+
 }

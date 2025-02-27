@@ -1,5 +1,5 @@
 name: PandoDungeons
-version: 3.4
+version: 3.7
 main: pandodungeons.pandodungeons.PandoDungeons
 api-version: 1.21
 authors: [Alepando]
