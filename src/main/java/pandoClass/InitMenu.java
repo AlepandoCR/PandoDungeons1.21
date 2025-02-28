@@ -1,6 +1,7 @@
 package pandoClass;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import net.minecraft.network.chat.ChatDecorator;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -36,7 +37,7 @@ public class InitMenu {
         String menuTitle;
         menuTitle = switch (reason){
             case INNIT -> INNIT_MENU_NAME;
-            case SKILL_MENU -> "Menu Skills           " + "\uD83D\uDC80" + " " + rpgPlayer.getOrbs() ;
+            case SKILL_MENU -> "Menu Skills                 " + ChatColor.DARK_GRAY + " " + ChatColor.BOLD + rpgPlayer.getOrbs() + ChatColor.WHITE +  "\uD83D\uDC80" ;
             case SHOP -> ChatColor.DARK_GRAY +  "Cambiar clase          " + ChatColor.WHITE + "☃ " + ChatColor.RESET +  rpgPlayer.getCoins();
         };
 
@@ -166,6 +167,7 @@ public class InitMenu {
         List<String> lore = new ArrayList<>();
         lore.add("§6§lDescripción: §f" + skill.getDescription());
         lore.add("§6§lNivel Actual: §f" + skill.getLvl());
+        lore.add(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "Costo de mejora:" + ChatColor.WHITE + "4" + " 💀 ");
         meta.setLore(lore);
         return meta;
     }

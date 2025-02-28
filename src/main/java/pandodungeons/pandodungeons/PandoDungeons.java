@@ -243,8 +243,7 @@ public final class PandoDungeons extends JavaPlugin {
         Random random = new Random();
         int attempts = 0;
 
-        // Intentamos hasta 100 veces encontrar una ubicación que cumpla con las condiciones
-        while (attempts < 100) {
+        while (attempts < 10) {
             // Generar un ángulo aleatorio y una distancia aleatoria entre 20 y 50 bloques
             double angle = random.nextDouble() * 2 * Math.PI;
             double distance = 40 + random.nextDouble() * 30;

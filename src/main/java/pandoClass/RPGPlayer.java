@@ -8,6 +8,8 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import pandoClass.classes.ClassCommand;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
@@ -203,6 +205,31 @@ public class RPGPlayer {
         update();
     }
 
+    public String getEmojiForLevel() {
+        return switch (level / 25) { // Divide el nivel entre 20 para agrupar en rangos
+            case 0 -> "🔰 " + ChatColor.GREEN + ChatColor.BOLD + level;
+            case 1 -> "💩 " + ChatColor.YELLOW + ChatColor.BOLD + level;
+            case 2 -> "🔥 " + ChatColor.RED + ChatColor.BOLD + level;
+            default -> "⚡ " + ChatColor.AQUA + ChatColor.BOLD + level;
+        };
+    }
+
+
+    public void setPlayerTag(Player player) {
+        Scoreboard scoreboard = player.getScoreboard();
+        Team team = scoreboard.getTeam(player.getName());
+
+        if (team == null) {
+            team = scoreboard.registerNewTeam(player.getName());
+        }
+
+        // Configura el prefijo con el emoji
+        team.setPrefix(getEmojiForLevel() + " ");
+
+        // Añade al jugador al equipo
+        team.addEntry(player.getName());
+    }
+
     private void update() {
         Player player = getPlayer();
 
@@ -222,6 +249,7 @@ public class RPGPlayer {
         if(updatedClass == null) return;
 
         // Actualizar el mapa y ejecutar triggerSkills
+        setPlayerTag(player);
         plugin.rpgPlayersList.put(player, updatedClass);
         plugin.rpgPlayersList.get(player).triggerSkills();
     }

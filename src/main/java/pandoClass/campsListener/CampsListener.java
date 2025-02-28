@@ -1,9 +1,6 @@
 package pandoClass.campsListener;
 
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Particle;
-import org.bukkit.PortalType;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -138,6 +135,16 @@ public class CampsListener implements Listener {
         }
     }
 
+    public String getEmojiForLevel(int level) {
+        return switch (level / 25) { // Divide el nivel entre 20 para agrupar en rangos
+            case 0 -> "🔰 " + ChatColor.GREEN + ChatColor.BOLD + level;
+            case 1 -> "💩 " + ChatColor.YELLOW + ChatColor.BOLD + level;
+            case 2 -> "🔥 " + ChatColor.RED + ChatColor.BOLD + level;
+            default -> "⚡ " + ChatColor.AQUA + ChatColor.BOLD + level;
+        };
+    }
+
+
     private void enemyTransformation(LivingEntity entity){
         List<Entity> near = entity.getNearbyEntities(60,60,60);
         int avrgLvl = getAvrgLevel(near);
@@ -146,7 +153,7 @@ public class CampsListener implements Listener {
         addKey(expKey, PersistentDataType.INTEGER, entity, exp);
         addKey(lvlKey,PersistentDataType.INTEGER,entity,avrgLvl);
         addKey(coinsKey, PersistentDataType.INTEGER, entity, Math.max(1, (int) (avrgLvl/2.5)));
-        entity.setCustomName(String.valueOf(avrgLvl));
+        entity.setCustomName(getEmojiForLevel(avrgLvl) + ChatColor.WHITE + ChatColor.BOLD + " " + entity.getType());
     }
 
     private int calculateExpFromLvl(int lvl, LivingEntity entity){

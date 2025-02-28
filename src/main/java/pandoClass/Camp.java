@@ -55,17 +55,10 @@ public class Camp {
      */
     private void applyLevelScaling() {
         for (LivingEntity entity : entities) {
-            double healthMultiplier = 1.0 + (lvl * 0.1); // Vida aumenta un 10% por nivel
-            double damageMultiplier = 1.0 + (lvl * 0.05); // Daño aumenta un 5% por nivel
-
-            // Aumentamos la vida del mob
-            if (entity.getAttribute(Attribute.MAX_HEALTH) != null) {
-                double baseHealth = entity.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
-                entity.getAttribute(Attribute.MAX_HEALTH).setBaseValue(baseHealth * healthMultiplier);
-                entity.setHealth(baseHealth * healthMultiplier);
-            }
-
-            // Aumentamos el daño del mob
+            double healthMultiplier = 1.0 + (lvl * 0.005);
+            double damageMultiplier = 1.0 + (lvl * 0.001);
+            double baseHealth = entity.getHealth();
+            entity.setMaxHealth(baseHealth * healthMultiplier);
             if (entity.getAttribute(Attribute.ATTACK_DAMAGE) != null) {
                 double baseDamage = entity.getAttribute(Attribute.ATTACK_DAMAGE).getBaseValue();
                 entity.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(baseDamage * damageMultiplier);
