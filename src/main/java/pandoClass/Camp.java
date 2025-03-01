@@ -119,6 +119,7 @@ public class Camp {
 
         for(Player player : players){
             player.sendMessage("¡Haz derrotado la horda!");
+            new RPGPlayer(player).addCamp(1);
         }
         rewardsSent = true;
     }

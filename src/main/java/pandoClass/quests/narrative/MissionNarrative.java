@@ -1,4 +1,4 @@
-package pandoQuests.narrative;
+package pandoClass.quests.narrative;
 
 import java.util.Random;
 

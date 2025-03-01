@@ -12,6 +12,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.units.qual.C;
+import org.jetbrains.annotations.NotNull;
 import pandoClass.Camp;
 import pandoClass.ClassRPG;
 import pandoClass.RPGListener;
@@ -21,6 +22,10 @@ import pandoClass.classes.ClassCommand;
 import pandoClass.gachaPon.GachaCommand;
 import pandoClass.gachaPon.prizes.PrizeListener;
 import pandoClass.gachaPon.prizes.PrizeManager;
+import pandoClass.gambling.GambleCommand;
+import pandoClass.gambling.GamblingSession;
+import pandoClass.quests.MissionListener;
+import pandoClass.quests.MissionManager;
 import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
@@ -37,6 +42,7 @@ import textures.TextureCommand;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 import static pandoClass.files.RPGPlayerDataManager.getRPGPlayerMap;
@@ -51,9 +57,13 @@ public final class PandoDungeons extends JavaPlugin {
     public PrizeManager prizeManager = new PrizeManager(this);
     public Camp camp = new Camp();
     private BukkitRunnable runnable;
+    public MissionManager missionManager = new MissionManager();
+
+    public GamblingSession gamblingSession;
 
     @Override
     public void onEnable() {
+        startGamble(this);
 
         rpgPlayersList = getRPGPlayerMap();
         // Create data folder if it doesn't exist
@@ -86,6 +96,7 @@ public final class PandoDungeons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ToroGameListener(), this);
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
         getServer().getPluginManager().registerEvents(new RPGListener(this), this);
+        getServer().getPluginManager().registerEvents(new MissionListener(this),this);
 
         this.getCommand("gachatoken").setExecutor(new GachaCommand(this));
         this.getCommand("texturas").setExecutor(new TextureCommand(this));
@@ -93,6 +104,7 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("redondel").setExecutor(new RedondelCommand(this));
         this.getCommand("party").setExecutor(new PartyCommand(this));
         this.getCommand("stats").setExecutor(new ClassCommand(this));
+        this.getCommand("bet").setExecutor(new GambleCommand(this));
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");
@@ -154,9 +166,31 @@ public final class PandoDungeons extends JavaPlugin {
         ToroStatManager.loadAllToroPlayerStats();
     }
 
+
+    private void startGamble(PandoDungeons plugin) {
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                World spawnWorld = Bukkit.getWorld("spawn");
+                if (spawnWorld == null) {
+                    getLogger().severe("El mundo 'spawn' no existe. No se puede iniciar la sesión de apuestas.");
+                    return;
+                }
+                Location start = new Location(spawnWorld, 43.5,73,276.5);
+                Location end = new Location(spawnWorld, 37.5,73,276.5);
+                try {
+                    gamblingSession = new GamblingSession(plugin, start,  end);
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.runTaskLater(this,200);
+    }
+
     @Override
     public void onDisable() {
         runnable.cancel();
+        gamblingSession.removeHorses();
         for(String world : LocationUtils.getAllDungeonWorlds()){
             if(world == null){
                 break;

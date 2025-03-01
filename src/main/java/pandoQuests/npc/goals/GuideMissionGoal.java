@@ -2,11 +2,10 @@ package pandoQuests.npc.goals;
 
 import net.citizensnpcs.api.ai.Goal;
 import net.citizensnpcs.api.ai.GoalSelector;
-import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import pandoQuests.npc.human.BasicNPC;
-import pandoQuests.quests.Mission;
+import pandoClass.quests.Mission;
 
 public class GuideMissionGoal implements Goal {
 
@@ -57,16 +56,16 @@ public class GuideMissionGoal implements Goal {
             npc.getNpc().getNavigator().setTarget(playerLocation);
         } else {
             // Guía hacia el destino
-            Location target = mission.getTargetLocation();
-            double distanceToTarget = npc.getNpc().getEntity().getLocation().distance(target);
-
-            if (distanceToTarget < 2) {
-                player.sendMessage("¡Has llegado al destino de la misión!");
-                isComplete = true;
-                selector.finish();
-            } else {
-                npc.getNpc().getNavigator().setTarget(target);
-            }
+//            Location target = mission.getTargetLocation();
+//            double distanceToTarget = npc.getNpc().getEntity().getLocation().distance(target);
+//
+//            if (distanceToTarget < 2) {
+//                player.sendMessage("¡Has llegado al destino de la misión!");
+//                isComplete = true;
+//                selector.finish();
+//            } else {
+//                npc.getNpc().getNavigator().setTarget(target);
+//            }
         }
     }
 

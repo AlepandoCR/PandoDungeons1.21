@@ -296,6 +296,8 @@ public class RPGPlayer {
 
     public void removeCoins(int toRemove){
         coins -= toRemove;
+        save(this);
+        update();
     }
 
     public ClassRPG getClassRpg(){
@@ -392,6 +394,12 @@ public class RPGPlayer {
     public int getThirdSkillLvl() {
 
         return thirdSkillLvl;
+    }
+
+    public void addCamp(int toAdd){
+        campsDefeated += toAdd;
+        save(this);
+        update();
     }
 
     public void setThirdSkillLvl(int thirdSkillLvl) {

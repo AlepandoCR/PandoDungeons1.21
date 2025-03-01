@@ -1,5 +1,5 @@
 name: PandoDungeons
-version: 3.7
+version: 4.7
 main: pandodungeons.pandodungeons.PandoDungeons
 api-version: 1.21
 authors: [Alepando]
@@ -28,6 +28,10 @@ commands:
 
   stats:
     description: Para ver las stats de clase
+    usage: /<command>
+
+  bet:
+    description: Comando para apostar
     usage: /<command>
 
 permissions:

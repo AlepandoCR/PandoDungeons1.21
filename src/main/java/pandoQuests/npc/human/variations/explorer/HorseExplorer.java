@@ -1,19 +1,13 @@
 package pandoQuests.npc.human.variations.explorer;
 
-import net.citizensnpcs.api.event.NPCRightClickEvent;
-import net.citizensnpcs.api.npc.NPC;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import pandoQuests.npc.goals.ConstantlyCheckPlayerDistanceGoal;
 import pandoQuests.npc.goals.GuideMissionGoal;
-import pandoQuests.npc.goals.OrbitPlayerGoal;
 import pandoQuests.npc.human.variations.HorseHuman;
-import pandoQuests.quests.Mission;
+import pandoClass.quests.Mission;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.HashMap;
@@ -45,11 +39,11 @@ public class HorseExplorer extends HorseHuman implements Listener {
         );
         missionTarget.setY(missionTarget.getWorld().getHighestBlockYAt(missionTarget));
 
-        Mission mission = new Mission("Explorar las tierras desconocidas", missionTarget);
+       //Mision AQUI
 
         // Agregar objetivo personalizado al NPC
-        GuideMissionGoal goal = new GuideMissionGoal(this, player, mission, MAX_DISTANCE);
-        getNpc().getDefaultGoalController().addGoal(goal, 1);
+//        GuideMissionGoal goal = new GuideMissionGoal(this, player, mission, MAX_DISTANCE);
+//        getNpc().getDefaultGoalController().addGoal(goal, 1);
 
         player.sendMessage("¡Una nueva misión te espera! Vamos a las coordenadas: " +
                 "X: " + missionTarget.getBlockX() + " Y: " + missionTarget.getBlockY() +
