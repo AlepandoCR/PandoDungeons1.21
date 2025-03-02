@@ -8,6 +8,7 @@ import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.classes.tank.Tank;
+import pandoClass.gachaPon.prizes.PrizeManager;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.*;
@@ -23,9 +24,11 @@ public class Camp {
     private List<LivingEntity> entities = new ArrayList<>();
 
     private boolean rewardsSent = false;
-    // Constructor
-    public Camp() {
 
+    private PandoDungeons plugin;
+    // Constructor
+    public Camp(PandoDungeons plugin) {
+        this.plugin = plugin;
     }
 
     /**
@@ -117,9 +120,15 @@ public class Camp {
 
         if(rewardsSent) return;
 
+        int i  = 0;
+
         for(Player player : players){
             player.sendMessage("¡Haz derrotado la horda!");
             new RPGPlayer(player).addCamp(1);
+            if(2 > i){
+                player.getInventory().addItem(plugin.prizeManager.gachaToken());
+            }
+            i++;
         }
         rewardsSent = true;
     }

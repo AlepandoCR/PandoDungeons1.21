@@ -55,7 +55,7 @@ public final class PandoDungeons extends JavaPlugin {
     public PlayerPartyList playerPartyList = new PlayerPartyList();
     public Map<Player, ClassRPG> rpgPlayersList = new HashMap<>();
     public PrizeManager prizeManager = new PrizeManager(this);
-    public Camp camp = new Camp();
+    public Camp camp = new Camp(this);
     private BukkitRunnable runnable;
     public MissionManager missionManager = new MissionManager();
 
@@ -250,7 +250,7 @@ public final class PandoDungeons extends JavaPlugin {
 
                             Location spawnLoc = getValidHordeSpawnLocation(randomPlayer);
                             if (spawnLoc != null) {
-                                camp = new Camp();
+                                camp = new Camp(plugin);
                                 camp.startHorde(spawnLoc, plugin);
                             } else {
                                 randomPlayer.sendMessage(ChatColor.YELLOW + "No se encontró una ubicación válida para la horda, te salvaste...");

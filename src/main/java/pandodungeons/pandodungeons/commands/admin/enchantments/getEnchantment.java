@@ -141,7 +141,7 @@ public class getEnchantment implements CommandExecutor {
             player.getInventory().addItem(new JetPackPrize(plugin).getItem());
         }
         else if(args[1].equalsIgnoreCase("horde")){
-            new Camp().startHorde(player.getLocation(), plugin);
+            new Camp(plugin).startHorde(player.getLocation(), plugin);
         }
         else if(args[1].equalsIgnoreCase("teleport")){
             player.getInventory().addItem(new TeleportationHeartPrize(plugin).getItem());

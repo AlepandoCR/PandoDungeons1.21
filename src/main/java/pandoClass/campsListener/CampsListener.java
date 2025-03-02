@@ -172,8 +172,7 @@ public class CampsListener implements Listener {
         }
         return (count > 0) ? totalLevel / count : 0;
     }
-
-
+    
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) throws MalformedURLException {
         Entity entity = event.getRightClicked();
@@ -207,6 +206,8 @@ public class CampsListener implements Listener {
         return player.isOnGround();
     }
 
+
+
     @EventHandler
     public void doubleJump(PlayerInputEvent event) {
         Player player = event.getPlayer();
@@ -239,6 +240,9 @@ public class CampsListener implements Listener {
 
         // Dar un impulso vertical al jugador (simulando el doble salto).
         player.setVelocity(player.getVelocity().setY(0.7));
+
+
+        player.getLocation().getWorld().playSound(player.getLocation().subtract(0,1,0), Sound.ENTITY_WIND_CHARGE_WIND_BURST,4,1);
 
         // Usar el nivel del jugador para determinar la fuerza del empuje a las entidades cercanas.
         int level = rpgPlayer.getSecondSkilLvl();
