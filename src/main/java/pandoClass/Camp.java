@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.classes.tank.Tank;
@@ -80,20 +81,20 @@ public class Camp {
         for (int i = 0; i < numArchers; i++) {
             Location loc = center.clone().add(randomOffset(3), 0, randomOffset(3));
             // Suponiendo que getRandomArcherType() devuelve un EntityType de un arqueros válido
-            LivingEntity archer = (LivingEntity) world.spawnEntity(loc, getRandomArcherType());
+            LivingEntity archer = (LivingEntity) world.spawnEntity(loc, getRandomArcherType(), CreatureSpawnEvent.SpawnReason.NATURAL);
             entities.add(archer);
         }
 
         // Spawnea enemigos melee
         for (int i = 0; i < numMelees; i++) {
             Location loc = center.clone().add(randomOffset(3), 0, randomOffset(3));
-            LivingEntity melee = (LivingEntity) world.spawnEntity(loc, getRandomMeleeType());
+            LivingEntity melee = (LivingEntity) world.spawnEntity(loc, getRandomMeleeType(), CreatureSpawnEvent.SpawnReason.NATURAL);
             entities.add(melee);
         }
 
         // Spawnea un jefe de la horda en el centro (o ligeramente desplazado)
         Location bossLoc = center.clone().add(0, 0, 0);
-        LivingEntity boss = (LivingEntity) world.spawnEntity(bossLoc, getBossType());
+        LivingEntity boss = (LivingEntity) world.spawnEntity(bossLoc, getBossType(), CreatureSpawnEvent.SpawnReason.NATURAL);
         entities.add(boss);
     }
 
@@ -255,7 +256,7 @@ public class Camp {
 
     private EntityType getBossType() {
         // Un tipo de mob grande como jefe; puede ser por ejemplo, un vindicator o un pillager
-        EntityType[] bosses = {EntityType.RAVAGER, EntityType.VINDICATOR, EntityType.ILLUSIONER, EntityType.CREAKING};
+        EntityType[] bosses = {EntityType.RAVAGER, EntityType.ILLUSIONER, EntityType.CREAKING};
         return bosses[random.nextInt(bosses.length)];
     }
 

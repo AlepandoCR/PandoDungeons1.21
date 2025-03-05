@@ -24,6 +24,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
+import pandoClass.gachaPon.GachaHolo;
 import pandoClass.gachaPon.Gachapon;
 import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
 import pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize;
@@ -95,6 +96,7 @@ public class PrizeListener implements Listener {
     @EventHandler
     public void whenPlayerOwed(PlayerJoinEvent event){
         Player player = event.getPlayer();
+        new GachaHolo(plugin).showHolo(player);
         if(owedTokenPlayers.contains(player)){
             owedTokenPlayers.remove(player);
             event.getPlayer().getInventory().addItem(plugin.prizeManager.gachaToken());

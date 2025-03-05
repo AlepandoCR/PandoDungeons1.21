@@ -42,6 +42,7 @@ public class RPGPlayer {
     private String classKey = null;
     private int orbProgress;
     private String playerName = "";
+    private int gachaopen;
 
     private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
 
@@ -80,6 +81,22 @@ public class RPGPlayer {
 
         save(this);
         update();
+    }
+
+    public void resetGachaOpens(){
+        gachaopen = 0;
+        save(this);
+        update();
+    }
+
+    public void addGachaOpen(){
+        gachaopen++;
+        save(this);
+        update();
+    }
+
+    public int getGachaopen(){
+        return gachaopen;
     }
 
     public void expBar() {
@@ -207,28 +224,56 @@ public class RPGPlayer {
 
     public String getEmojiForLevel() {
         return switch (level / 25) { // Divide el nivel entre 20 para agrupar en rangos
-            case 0 -> "🔰 " + ChatColor.GREEN + ChatColor.BOLD + level;
-            case 1 -> "💩 " + ChatColor.YELLOW + ChatColor.BOLD + level;
-            case 2 -> "🔥 " + ChatColor.RED + ChatColor.BOLD + level;
-            default -> "⚡ " + ChatColor.AQUA + ChatColor.BOLD + level;
+            case 0 -> "🔰 " + ChatColor.GREEN + ChatColor.BOLD + level + " ";
+            case 1 -> "💩 " + ChatColor.YELLOW + ChatColor.BOLD + level + " ";
+            case 2 -> "🔥 " + ChatColor.RED + ChatColor.BOLD + level + " ";
+            default -> "⚡ " + ChatColor.AQUA + ChatColor.BOLD + level + " ";
+        };
+    }
+
+    public String getEmojiForLevel(int lvl) {
+        return switch (lvl / 25) { // Divide el nivel entre 20 para agrupar en rangos
+            case 0 -> "🔰 " + ChatColor.GREEN + ChatColor.BOLD + lvl + " ";
+            case 1 -> "💩 " + ChatColor.YELLOW + ChatColor.BOLD + lvl + " ";
+            case 2 -> "🔥 " + ChatColor.RED + ChatColor.BOLD + lvl + " ";
+            default -> "⚡ " + ChatColor.AQUA + ChatColor.BOLD + lvl + " ";
         };
     }
 
 
-    public void setPlayerTag(Player player) {
-        Scoreboard scoreboard = player.getScoreboard();
-        Team team = scoreboard.getTeam(player.getName());
 
-        if (team == null) {
-            team = scoreboard.registerNewTeam(player.getName());
+    public void setPlayerTag(Player player) {
+        // Obtén el displayName actual
+        String currentName = player.getDisplayName();
+
+        // Elimina el prefijo si ya existe
+        currentName = currentName.replaceFirst(getEmojiForLevel(), "");
+
+        int currentLvl = level;
+
+        int checkBackwards = level;
+        while (50 + level >= checkBackwards){
+            currentName = currentName.replaceFirst(getEmojiForLevel(checkBackwards),"");
+            checkBackwards++;
         }
 
-        // Configura el prefijo con el emoji
-        team.setPrefix(getEmojiForLevel() + " ");
+        while (currentLvl >= 1){
+            currentName = currentName.replaceFirst(getEmojiForLevel(currentLvl),"");
+            currentLvl--;
+        }
 
-        // Añade al jugador al equipo
-        team.addEntry(player.getName());
+        // Construye el nuevo prefijo con la lógica actual (getEmojiForLevel() ya incluye el emoji, los códigos de color y el nivel)
+        String newPrefix = ChatColor.WHITE + getEmojiForLevel() + ChatColor.RESET;
+
+        // Nuevo nombre: nuevo prefijo + espacio + nombre base (sin prefijo anterior)
+        String newName = newPrefix + currentName;
+
+        // Aplica el nuevo nombre
+        player.setCustomName(newName);
+        player.setDisplayName(newName);
     }
+
+
 
     private void update() {
         Player player = getPlayer();
@@ -267,6 +312,7 @@ public class RPGPlayer {
         this.thirdSkillLvl = other.thirdSkillLvl;
         this.classKey = other.classKey;
         this.playerName = other.playerName;
+        this.gachaopen = other.gachaopen;
     }
 
     private void defaults() {
@@ -281,6 +327,7 @@ public class RPGPlayer {
         this.thirdSkillLvl = 1;
         this.classKey = "";
         this.playerName = "";
+        this.gachaopen = 0;
     }
 
     public String getClassKey() {

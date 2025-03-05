@@ -1,6 +1,5 @@
-package pandoClass.gachaPon.prizes.mithic;
+package pandoClass.gachaPon.prizes.legendary;
 
-import com.sk89q.worldedit.util.gson.BlockVectorAdapter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,7 +31,7 @@ public class GodDogArmorPrize extends PrizeItem {
 
     @Override
     protected Quality selectQuality() {
-        return Quality.MITICO;
+        return Quality.LEGENDARIO;
     }
 
     public ItemStack createDogArmor() {

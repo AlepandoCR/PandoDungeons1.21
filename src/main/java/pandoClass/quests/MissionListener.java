@@ -37,12 +37,14 @@ public class MissionListener implements Listener {
         Player player = event.getPlayer();
         // Verificamos si ya existe una misión para este jugador en la sesión.
         for (Mission<?> mission : plugin.missionManager.getMissions()){
-            if(mission.getPlayer().equals(player)){
+            Player missionPlayer = mission.getPlayer();
+            if(missionPlayer != null && missionPlayer.equals(player)){
                 // Envia el mensaje de misión y el progreso actual.
                 if(mission instanceof KillQuest) {
                     ((KillQuest) mission).sendMissionMessage();
                 }
                 return;
+
             }
         }
         // Si no hay una misión activa, se puede registrar una nueva.

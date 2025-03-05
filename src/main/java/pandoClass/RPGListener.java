@@ -283,6 +283,8 @@ public class RPGListener implements Listener {
         RPGPlayer rpgPlayer = new RPGPlayer(player);
 
         if(event.getEntity() instanceof LivingEntity mob){
+
+            if(!player.getWorld().equals(mob.getWorld()))return;
             // Calcula la distancia entre el mob y el jugador
             double distance = mob.getLocation().distance(player.getLocation());
 

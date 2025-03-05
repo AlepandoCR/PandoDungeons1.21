@@ -1,4 +1,4 @@
-package pandoClass.gachaPon.prizes.legendary;
+package pandoClass.gachaPon.prizes.epic;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -8,14 +8,12 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ArmorMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class TankDogArmorPrize extends PrizeItem {
 
@@ -33,7 +31,7 @@ public class TankDogArmorPrize extends PrizeItem {
 
     @Override
     protected Quality selectQuality() {
-        return Quality.LEGENDARIO;
+        return Quality.EPICO;
     }
 
     public ItemStack createDogArmor() {

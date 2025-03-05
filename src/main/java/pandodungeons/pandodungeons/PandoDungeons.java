@@ -47,6 +47,8 @@ import java.util.*;
 
 import static pandoClass.files.RPGPlayerDataManager.getRPGPlayerMap;
 import static pandoClass.files.RPGPlayerDataManager.loadAllPlayers;
+import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolos;
+import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolosOnStart;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadAllCompanions;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
@@ -64,7 +66,7 @@ public final class PandoDungeons extends JavaPlugin {
     @Override
     public void onEnable() {
         startGamble(this);
-
+        removeAllGachaHolosOnStart(this);
         rpgPlayersList = getRPGPlayerMap();
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists()) {
@@ -190,6 +192,7 @@ public final class PandoDungeons extends JavaPlugin {
     @Override
     public void onDisable() {
         runnable.cancel();
+        removeAllGachaHolos();
         gamblingSession.removeHorses();
         for(String world : LocationUtils.getAllDungeonWorlds()){
             if(world == null){

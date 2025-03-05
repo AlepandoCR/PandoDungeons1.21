@@ -1,4 +1,4 @@
-package pandoClass.gachaPon.prizes.epic;
+package pandoClass.gachaPon.prizes.rare;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -13,6 +13,6 @@ public class DogArmorPrize extends PrizeItem {
 
     @Override
     protected Quality selectQuality() {
-        return Quality.EPICO;
+        return Quality.RARO;
     }
 }

@@ -8,6 +8,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import pandoClass.RPGPlayer;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.*;
@@ -31,9 +32,11 @@ public class Gachapon {
     private final PandoDungeons plugin;
     private final Player player;
 
+    private final RPGPlayer rpgPlayer;
     public Gachapon(PandoDungeons plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
+        this.rpgPlayer = new RPGPlayer(player);
         // Inicializar listas de premios para cada calidad (se pueden cargar de un config)
         for (Quality q : Quality.values()) {
             prizeLists.put(q, new ArrayList<>());
@@ -85,6 +88,7 @@ public class Gachapon {
                 if(finalPrize != null){
                     finishAnimation(center, finalPrize, selectedQuality);
                     player.getInventory().addItem(finalPrize);
+                    rpgPlayer.addGachaOpen();
                     activeGachapon = null;
                 }
 
@@ -95,9 +99,16 @@ public class Gachapon {
     private Quality chooseQuality() {
         double roll = random.nextDouble() * 100;
         double cumulative = 0.0;
+        if(rpgPlayer.getGachaopen() % 50 == 0 && rpgPlayer.getGachaopen() != 0){
+            rpgPlayer.resetGachaOpens();
+            return Quality.MITICO;
+        }
         for (Quality q : Quality.values()) {
             cumulative += qualityProbabilities.get(q);
             if (roll <= cumulative) {
+                if(q.equals(Quality.MITICO)){
+                    rpgPlayer.resetGachaOpens();
+                }
                 return q;
             }
         }

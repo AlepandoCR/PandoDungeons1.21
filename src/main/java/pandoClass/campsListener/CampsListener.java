@@ -1,26 +1,19 @@
 package pandoClass.campsListener;
 
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPortalEnterEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
-import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.InitMenu;
 import pandoClass.RPGPlayer;
-import pandoClass.gachaPon.Gachapon;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
@@ -28,7 +21,6 @@ import java.util.*;
 
 import static pandoClass.InitMenu.createClassSelectionMenu;
 import static pandoClass.classes.archer.skills.DoubleJumSkill.doubleJumping;
-import static pandoClass.classes.archer.skills.SaveAmmoSkill.playersSavingAmmo;
 import static pandoToros.game.ArenaMaker.isRedondelWorld;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 
@@ -59,9 +51,31 @@ public class CampsListener implements Listener {
         Entity entity = event.getEntity();
         if(entity instanceof Enemy enemy){
             String worldName = event.getLocation().getWorld().getName();
-            if(!isDungeonWorld(worldName) && !isRedondelWorld(worldName))
-                enemyTransformation(enemy);
+            if(!isDungeonWorld(worldName) && !isRedondelWorld(worldName)){
+                switch (entity.getEntitySpawnReason()){
+                    case SPAWNER_EGG:
+                    case COMMAND:
+                    case CUSTOM:
+                        transformNoName(enemy);
+                        return;
+                    case SPAWNER:
+                        return;
+                    default:
+                        enemyTransformation(enemy);
+                        break;
+                }
+            }
         }
+    }
+
+    private void transformNoName(Enemy enemy) {
+        List<Entity> near = enemy.getNearbyEntities(60,60,60);
+        int avrgLvl = getAvrgLevel(near);
+        int exp = calculateExpFromLvl(avrgLvl, enemy);
+        double finalHp = (int) calculateHpFromLvlAndApply(avrgLvl, enemy);
+        addKey(expKey, PersistentDataType.INTEGER, enemy, exp);
+        addKey(lvlKey,PersistentDataType.INTEGER,enemy,avrgLvl);
+        addKey(coinsKey, PersistentDataType.INTEGER, enemy, Math.max(1, (int) (avrgLvl/2.5)));
     }
 
     @EventHandler
@@ -242,7 +256,6 @@ public class CampsListener implements Listener {
         player.setVelocity(player.getVelocity().setY(0.7));
 
 
-        player.getLocation().getWorld().playSound(player.getLocation().subtract(0,1,0), Sound.ENTITY_WIND_CHARGE_WIND_BURST,4,1);
 
         // Usar el nivel del jugador para determinar la fuerza del empuje a las entidades cercanas.
         int level = rpgPlayer.getSecondSkilLvl();
