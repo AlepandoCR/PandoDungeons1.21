@@ -3,17 +3,20 @@ package pandodungeons.pandodungeons.commands.admin.enchantments;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.Camp;
 import pandoClass.InitMenu;
-import pandoClass.gachaPon.Gachapon;
+import pandoClass.gachaPon.prizes.epic.InstaUpgradeShard;
 import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
 import pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize;
 import pandoClass.gachaPon.prizes.mithic.JetPackPrize;
@@ -25,7 +28,6 @@ import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 
-import static pandoClass.InitMenu.createClassSelectionMenu;
 import static pandoQuests.npc.human.variations.explorer.ExplorerSpawner.spawnExplorerNearPlayer;
 import static pandoToros.Entities.toro.Toro.summonToro;
 import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
@@ -146,9 +148,24 @@ public class getEnchantment implements CommandExecutor {
         else if(args[1].equalsIgnoreCase("teleport")){
             player.getInventory().addItem(new TeleportationHeartPrize(plugin).getItem());
         }
+        else if(args[1].equalsIgnoreCase("upgradeItem")){
+            spawnItemUpgradeVil(player.getLocation());
+        } else if(args[1].equalsIgnoreCase("upgradeShard")){
+            player.getInventory().addItem(new InstaUpgradeShard(plugin).getItem());
+        }
 
 
         return false;
+    }
+
+    public void spawnItemUpgradeVil(Location location) {
+        Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
+        villager.setAI(false);
+        villager.setVillagerType(Villager.Type.SNOW);
+        villager.setPersistent(true);
+        villager.setInvulnerable(true);
+        NamespacedKey key = new NamespacedKey(plugin, "ItemUpgrade");
+        villager.getPersistentDataContainer().set(key, PersistentDataType.BOOLEAN, true);
     }
 
     private void createArmorStand(Location location, InitMenu.Reason reason) throws MalformedURLException {

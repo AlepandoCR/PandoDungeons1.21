@@ -66,6 +66,7 @@ public class PrizeManager {
         prizeItems.add(new TeleShardPrize(plugin));
         prizeItems.add(new TeleVillagerShardPrize(plugin));
         prizeItems.add(new TeleportationHeartPrize(plugin));
+        prizeItems.add(new InstaUpgradeShard(plugin));
     }
 
     public List<PrizeItem> getPrizeItems(){

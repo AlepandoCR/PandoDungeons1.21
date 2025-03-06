@@ -8,10 +8,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.geyser.api.GeyserApi;
@@ -19,6 +23,8 @@ import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
+import pandoClass.upgrade.ItemUpgrade;
+import pandoClass.upgrade.UpgradeAnim;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
@@ -339,6 +345,25 @@ public class RPGListener implements Listener {
                         }
                     }
                 }.runTaskLater(plugin,2);
+            }
+        }
+    }
+
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        Entity entity = event.getRightClicked();
+        if (entity.getType() == EntityType.VILLAGER) {
+            Villager villager = (Villager) entity;
+            NamespacedKey key = new NamespacedKey(plugin, "ItemUpgrade");
+            PersistentDataContainer dataContainer = villager.getPersistentDataContainer();
+            if (dataContainer.has(key, PersistentDataType.BOOLEAN)) {
+                Boolean customTag = dataContainer.get(key, PersistentDataType.BOOLEAN);
+                if(Boolean.TRUE.equals(customTag)){
+                    Player player = event.getPlayer();
+                    new ItemUpgrade(plugin).upgradeItem(player.getInventory().getItem(EquipmentSlot.HAND),player,villager.getLocation(),villager);
+                }
+
             }
         }
     }

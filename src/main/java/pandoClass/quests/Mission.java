@@ -31,8 +31,8 @@ public abstract class Mission<T> {
 
         // Fórmula dinámica para calcular la cantidad a completar
         int baseAmount = 5; // Cantidad mínima base
-        int scalingFactor = 2; // Aumento por nivel
-        this.amountTo = baseAmount + (level * scalingFactor);
+        double scalingFactor = 0.5; // Aumento por nivel
+        this.amountTo = (int) (baseAmount + (level * scalingFactor));
     }
 
     public String getMissionName() {
