@@ -150,7 +150,7 @@ public class getEnchantment implements CommandExecutor {
         }
         else if(args[1].equalsIgnoreCase("upgradeItem")){
             spawnItemUpgradeVil(player.getLocation());
-        } else if(args[1].equalsIgnoreCase("upgradeShard")){
+        } else if(args[1].equalsIgnoreCase("upgradeShard    ")){
             player.getInventory().addItem(new InstaUpgradeShard(plugin).getItem());
         }
 
