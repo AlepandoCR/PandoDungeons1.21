@@ -54,7 +54,8 @@ public class BlockQuest extends Mission<BlockBreakEvent> {
     /**
      * Envía el mensaje de inicio de la misión.
      */
-    private void sendMissionMessage() {
+    @Override
+    public void sendMissionMessage() {
         getPlayer().sendMessage("§e⚒ ¡Nueva misión recibida! ⚒");
         getPlayer().sendMessage("§7El viejo minero te ha dado una tarea: romper §6" + amountTo + "§7 bloques de §b" + target.name() + "§7.");
         getPlayer().sendMessage("§7Empieza a picar y descubre qué esconden estos bloques.");

@@ -11,6 +11,7 @@ import pandoClass.quests.questTypes.KillQuest;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MissionListener implements Listener {
@@ -24,13 +25,16 @@ public class MissionListener implements Listener {
     // Este es el método que será llamado cuando se dispare el evento EntityDamageByEntityEvent
     @EventHandler
     public void onEntityDamage(EntityDeathEvent event) {
-        // Iteramos sobre todas las misiones
-        for (Mission<?> mission : plugin.missionManager.getMissions()) {
-            if (mission instanceof KillQuest) {
-                ((KillQuest) mission).listener(event);
+        // Iterar sobre una copia de la lista de misiones para evitar ConcurrentModificationException
+        for (Mission<?> mission : new ArrayList<>(plugin.missionManager.getMissions())) {
+            if (mission != null) {
+                if (mission instanceof KillQuest) {
+                    ((KillQuest) mission).listener(event);
+                }
             }
         }
     }
+
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){

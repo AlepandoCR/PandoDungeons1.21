@@ -1,5 +1,8 @@
 package pandoClass.quests;
 
+import org.bukkit.entity.Player;
+import pandoClass.quests.questTypes.KillQuest;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,16 @@ public class MissionManager {
 
     public void removeMission(Mission<?> mission){
         missions.remove(mission);
+    }
+
+    public Mission<?> getMission(Player player) {
+        for (Mission<?> mission : missions) {
+            Player missionPlayer = mission.getPlayer();
+            if (missionPlayer != null && missionPlayer.equals(player)) {
+                return mission;
+            }
+        }
+        return null;
     }
 
 }

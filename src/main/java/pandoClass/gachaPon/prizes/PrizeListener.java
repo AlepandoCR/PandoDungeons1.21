@@ -37,6 +37,7 @@ import java.util.*;
 import static pandoClass.gachaPon.Gachapon.activeGachapon;
 import static pandoClass.gachaPon.Gachapon.owedTokenPlayers;
 import static pandoClass.gachaPon.prizes.epic.ReparationShardPrize.isReparationShardItem;
+import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
 import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
 import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
@@ -88,6 +89,24 @@ public class PrizeListener implements Listener {
                 if (meta instanceof Damageable damageable) {
                     damageable.resetDamage();
                     stack.setItemMeta(meta);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onStorSwordHit(EntityDamageByEntityEvent event) {
+        // Verifica si el atacante es un jugador
+        if (event.getDamager() instanceof Player) {
+            Player player = (Player) event.getDamager();
+            ItemStack item = player.getInventory().getItemInMainHand();
+
+            // Verifica si el ítem del jugador es la "Espada de las Tormentas"
+            if (isStormSword(item, plugin) && event.getEntity() instanceof Enemy enemy) {
+                // Genera una probabilidad de 30% para invocar un rayo
+                if (new Random().nextDouble() < 0.3) { // 30% de probabilidad
+                    // Llama a un rayo en la ubicación de la entidad afectada
+                    enemy.getWorld().strikeLightning(enemy.getLocation());
                 }
             }
         }
@@ -406,6 +425,10 @@ public class PrizeListener implements Listener {
         if (activeBootRunnables.containsKey(player)) return;
 
         if(player.isOnGround()) return;
+
+        if(player.getLocation().subtract(0,2,0).getBlock().getType().equals(Material.AIR)){
+            return;
+        }
 
         BukkitRunnable rocketRunnable = new BukkitRunnable() {
             int ticksHeld = 0; // Cuenta los ticks durante los cuales se ha mantenido el boost

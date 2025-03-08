@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -38,6 +39,7 @@ import static pandoClass.classes.assasin.skills.LifeStealSkill.lifeStealingPlaye
 import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
 import static pandoClass.files.RPGPlayerDataManager.load;
 import static pandoClass.files.RPGPlayerDataManager.save;
+import static pandoClass.gachaPon.GachaHolo.activeHolograms;
 
 public class RPGListener implements Listener {
     public static final List<Player> magicShieldPlayers = new ArrayList<>();
@@ -462,6 +464,20 @@ public class RPGListener implements Listener {
 
             // Remover la flecha, si aún existe
             arrow.remove();
+        }
+    }
+
+    // Listener para eliminar el holograma inmediatamente cuando el jugador se desconecta
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        UUID playerId = player.getUniqueId();
+        if (activeHolograms.containsKey(playerId)) {
+            ArmorStand holograma = activeHolograms.get(playerId);
+            if (holograma != null && !holograma.isDead()) {
+                holograma.remove();
+            }
+            activeHolograms.remove(playerId);
         }
     }
 }

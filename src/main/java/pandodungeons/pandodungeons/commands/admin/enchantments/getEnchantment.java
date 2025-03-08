@@ -18,11 +18,10 @@ import pandoClass.Camp;
 import pandoClass.InitMenu;
 import pandoClass.gachaPon.prizes.epic.InstaUpgradeShard;
 import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
+import pandoClass.gachaPon.prizes.epic.RocketBootsPrize;
+import pandoClass.gachaPon.prizes.legendary.StormSwordPrize;
 import pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize;
-import pandoClass.gachaPon.prizes.mithic.JetPackPrize;
-import pandoClass.gachaPon.prizes.mithic.MapachoBladePrize;
-import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
-import pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize;
+import pandoClass.gachaPon.prizes.mithic.*;
 import pandoClass.gambling.GamblingSession;
 import pandodungeons.pandodungeons.PandoDungeons;
 
@@ -150,8 +149,15 @@ public class getEnchantment implements CommandExecutor {
         }
         else if(args[1].equalsIgnoreCase("upgradeItem")){
             spawnItemUpgradeVil(player.getLocation());
-        } else if(args[1].equalsIgnoreCase("upgradeShard    ")){
+        } else if(args[1].equalsIgnoreCase("upgradeShard")){
             player.getInventory().addItem(new InstaUpgradeShard(plugin).getItem());
+        }
+        else if(args[1].equalsIgnoreCase("boots")){
+            player.getInventory().addItem(new RocketBootsPrize(plugin).getItem());
+        } else if(args[1].equalsIgnoreCase("stormsword")){
+            player.getInventory().addItem(new StormSwordPrize(plugin).getItem());
+        } else if(args[1].equalsIgnoreCase("upgradeLingot")){
+            player.getInventory().addItem(new InstaMegaUpgradeShard(plugin).getItem());
         }
 
 

@@ -10,6 +10,9 @@ import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RocketBootsPrize extends PrizeItem {
 
 
@@ -37,6 +40,12 @@ public class RocketBootsPrize extends PrizeItem {
         ItemMeta meta = item.getItemMeta();
 
         meta.setDisplayName(ChatColor.AQUA + "Botas Cohete");
+
+        List<String> lore = new ArrayList<>();
+
+        lore.add(ChatColor.YELLOW + "Te impulsará hacia arriba");
+        lore.add(ChatColor.DARK_GRAY + "Muy util para construir");
+
         meta.getPersistentDataContainer().set(rocketBoot, PersistentDataType.BOOLEAN, true);
 
         item.setItemMeta(meta);

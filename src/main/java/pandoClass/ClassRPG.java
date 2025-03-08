@@ -56,6 +56,7 @@ public abstract class ClassRPG {
                     triggeredSkills.remove(player); // Remueve del mapa
                     return;
                 }
+                rpgPlayer.setPlayerTag(player);
                 skillsToTrigger();
             }
         };

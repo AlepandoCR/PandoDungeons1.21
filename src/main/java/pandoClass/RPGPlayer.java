@@ -15,6 +15,7 @@ import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
+import pandoClass.gachaPon.GachaHolo;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.HashMap;
@@ -92,6 +93,7 @@ public class RPGPlayer {
     public void addGachaOpen(){
         gachaopen++;
         save(this);
+        new GachaHolo(plugin).showHolo(getPlayer());
         update();
     }
 
@@ -139,8 +141,9 @@ public class RPGPlayer {
         int currentExp = rpgPlayer.getExp();
         int requiredExp = rpgPlayer.calculateExpForNextLvl();
 
-        // Calcula el progreso entre 0 y 1, ajustado a los 20 segmentos
+        // Calcula el progreso y lo limita a un máximo de 1.0
         double progress = (double) currentExp / requiredExp;
+        progress = Math.max(0.0, Math.min(progress, 1.0));
 
         // Crear la BossBar
         BossBar bossBar = plugin.getServer().createBossBar("", BarColor.GREEN, BarStyle.SEGMENTED_20);
@@ -154,15 +157,16 @@ public class RPGPlayer {
         String title = currentExp + "/" + requiredExp;
         bossBar.setTitle(title);
 
-        // Establecer el progreso en la barra
+        // Establecer el progreso en la barra (valor entre 0.0 y 1.0)
         bossBar.setProgress(progress);
 
         // Añadir al jugador
         bossBar.addPlayer(player);
 
-        // Guardar la nueva bossbar en el mapa
+        // Guardar la nueva BossBar en el mapa
         activeBossBars.put(player, bossBar);
     }
+
 
     public void removeExpBossBar(Player player) {
         if (activeBossBars.containsKey(player)) {

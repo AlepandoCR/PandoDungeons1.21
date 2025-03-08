@@ -34,10 +34,18 @@ commands:
     description: Comando para apostar
     usage: /<command>
 
+  encargo:
+    description: Comando para revisar tu mision actual
+    usage: /<command>
+
+
 permissions:
   pandodungeons.pandaMount:
     description: Permiso para montar y controlar un panda.
     default: op
   pandodungeons.end:
     description: Permiso Staff para ir al end.
+    default: op
+  pandodungeons.battlepass:
+    description: Permiso de pase de batalla premium.
     default: op

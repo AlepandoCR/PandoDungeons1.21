@@ -66,16 +66,24 @@ public class KillQuest extends Mission<EntityDeathEvent> {
     @Override
     public void rewardPlayer() {
         int coins = calculateReward();
-        int exp = (int) (coins * 1.5);
+        int exp = coins * 2;
         rpgPlayer.addCoins(coins);
         rpgPlayer.addExp(exp);
-        getPlayer().sendMessage("§6¡Has completado la misión!");
-        getPlayer().sendMessage(ChatColor.GOLD.toString() + ChatColor.BOLD + "Se ha agregado " + ChatColor.LIGHT_PURPLE + exp + ChatColor.GOLD + ChatColor.BOLD + " de experiencia y " + ChatColor.YELLOW + coins + ChatColor.GOLD + ChatColor.BOLD + "monedas");
+
+        if (isFirstMissionOfInstance(getPlayer())) {
+            getPlayer().sendMessage(ChatColor.GOLD + "§6¡Has completado tu primera misión del dia!");
+        } else {
+            getPlayer().sendMessage(ChatColor.GOLD + "§6¡Has completado la misión!");
+        }
+        getPlayer().sendMessage(ChatColor.DARK_GRAY + "Se ha agregado " + ChatColor.LIGHT_PURPLE + exp
+                + ChatColor.DARK_GRAY + " de experiencia y " + ChatColor.YELLOW + coins
+                + ChatColor.DARK_GRAY + " monedas");
     }
 
     /**
      * Envía el mensaje de inicio de la misión.
      */
+    @Override
     public void sendMissionMessage() {
         getPlayer().sendMessage("§c⚔ ¡Nueva misión recibida! ⚔");
         getPlayer().sendMessage("§7Un cazador te ha encomendado eliminar §6" + amountTo + "§7 criaturas de tipo §c" + target.name() + "§7.");
@@ -101,26 +109,24 @@ public class KillQuest extends Mission<EntityDeathEvent> {
                 // Overworld - Hostiles
                 EntityType.ZOMBIE, EntityType.HUSK, EntityType.DROWNED, EntityType.SKELETON, EntityType.STRAY,
                 EntityType.SPIDER, EntityType.CAVE_SPIDER, EntityType.CREEPER, EntityType.SLIME,
-                EntityType.WITCH, EntityType.PILLAGER, EntityType.VINDICATOR, EntityType.EVOKER,
-                EntityType.RAVAGER, EntityType.PHANTOM,
+                EntityType.WITCH, EntityType.PILLAGER, EntityType.VINDICATOR,
+                EntityType.PHANTOM,
 
                 // Nether - Hostiles
-                EntityType.BLAZE, EntityType.WITHER_SKELETON, EntityType.MAGMA_CUBE, EntityType.GHAST,
-                EntityType.PIGLIN_BRUTE, EntityType.ZOMBIFIED_PIGLIN, EntityType.HOGLIN,
+                EntityType.BLAZE, EntityType.WITHER_SKELETON, EntityType.MAGMA_CUBE,
+                EntityType.ZOMBIFIED_PIGLIN, EntityType.HOGLIN,
 
                 // End - Hostiles
                 EntityType.ENDERMAN,
 
                 // Overworld - Neutrales que pueden volverse hostiles
-                EntityType.ENDERMITE, EntityType.SILVERFISH, EntityType.POLAR_BEAR,
-                EntityType.LLAMA,
+                EntityType.SILVERFISH,
 
                 // Nether - Neutrales que pueden volverse hostiles
                 EntityType.PIGLIN,
 
                 // Otras criaturas desafiantes
-                EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN
-        );
+                EntityType.GUARDIAN);
         return enemies.get(new Random().nextInt(enemies.size()));
     }
 }

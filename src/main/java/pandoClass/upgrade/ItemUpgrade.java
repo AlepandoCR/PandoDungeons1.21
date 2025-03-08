@@ -19,6 +19,7 @@ import pandodungeons.pandodungeons.PandoDungeons;
 import java.util.*;
 
 import static pandoClass.gachaPon.prizes.epic.InstaUpgradeShard.isUpgradeShardItem;
+import static pandoClass.gachaPon.prizes.mithic.InstaMegaUpgradeShard.isMegaUpgradeShardItem;
 
 public class ItemUpgrade {
     private final PandoDungeons plugin;
@@ -42,10 +43,14 @@ public class ItemUpgrade {
             return;
         }
 
+        boolean megaUpgrade = removeMegaUpgradeShard(player, 1);
+
         // **Filtrar encantamientos que no pueden mejorar más**
         List<Enchantment> eligibleEnchantments = new ArrayList<>();
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
-            if (entry.getValue() < 8) { // Solo permitir mejoras si el nivel es menor a 8
+            if (entry.getValue() < 8 && !megaUpgrade) { // Solo permitir mejoras si el nivel es menor a 8
+                eligibleEnchantments.add(entry.getKey());
+            }else if(megaUpgrade){
                 eligibleEnchantments.add(entry.getKey());
             }
         }
@@ -63,16 +68,18 @@ public class ItemUpgrade {
         int coinCost = 10000 + (upgradeCount * 10000);
         RPGPlayer rpgPlayer = new RPGPlayer(player);
 
-        if (!removeUpgradeShard(player, 1)) {
-            if (rpgPlayer.getCoins() < coinCost) {
-                player.sendMessage(ChatColor.RED + "No tienes suficientes monedas. Se requieren " + coinCost + " monedas.");
-                return;
-            }
+        if(!megaUpgrade){
+            if (!removeUpgradeShard(player, 1)) {
+                if (rpgPlayer.getCoins() < coinCost) {
+                    player.sendMessage(ChatColor.RED + "No tienes suficientes monedas. Se requieren " + coinCost + " monedas.");
+                    return;
+                }
 
-            // **Verificar y eliminar 20 bloques de diamante**
-            if (!removeDiamonds(player, 20)) {
-                player.sendMessage(ChatColor.AQUA + "No tienes suficientes bloques de diamante. Se requieren 20 bloques de diamante.");
-                return;
+                // **Verificar y eliminar 20 bloques de diamante**
+                if (!removeDiamonds(player, 20)) {
+                    player.sendMessage(ChatColor.AQUA + "No tienes suficientes bloques de diamante. Se requieren 20 bloques de diamante.");
+                    return;
+                }
             }
         }
 
@@ -136,6 +143,31 @@ public class ItemUpgrade {
         for (int i = 0; i < contents.length; i++) {
             ItemStack item = contents[i];
             if (item != null && isUpgradeShardItem(plugin ,item)) {
+                int count = item.getAmount();
+
+                if (count > (amount - shardsRemoved)) {
+                    item.setAmount(count - (amount - shardsRemoved));
+                    shardsRemoved = amount;
+                } else {
+                    shardsRemoved += count;
+                    player.getInventory().setItem(i, null);
+                }
+
+                if (shardsRemoved >= amount) {
+                    return true;
+                }
+            }
+        }
+        return false; // No tenía suficientes diamantes
+    }
+
+    private boolean removeMegaUpgradeShard(Player player, int amount) {
+        ItemStack[] contents = player.getInventory().getContents();
+        int shardsRemoved = 0;
+
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack item = contents[i];
+            if (item != null && isMegaUpgradeShardItem(plugin ,item)) {
                 int count = item.getAmount();
 
                 if (count > (amount - shardsRemoved)) {

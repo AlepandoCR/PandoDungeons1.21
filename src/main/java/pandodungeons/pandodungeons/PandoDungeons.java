@@ -1,5 +1,9 @@
 package pandodungeons.pandodungeons;
 
+import battlePass.BattlePassEventHandler;
+import battlePass.premium.PremiumBattlePass;
+import battlePass.premium.PremiumRewardManager;
+import battlePass.regular.DefaultRewardManager;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.level.chunk.BulkSectionAccess;
 import org.bukkit.*;
@@ -26,6 +30,7 @@ import pandoClass.gambling.GambleCommand;
 import pandoClass.gambling.GamblingSession;
 import pandoClass.quests.MissionListener;
 import pandoClass.quests.MissionManager;
+import pandoClass.quests.QuestCommand;
 import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
@@ -60,11 +65,16 @@ public final class PandoDungeons extends JavaPlugin {
     public Camp camp = new Camp(this);
     private BukkitRunnable runnable;
     public MissionManager missionManager = new MissionManager();
+    public DefaultRewardManager defaultRewardManager;
+    public PremiumRewardManager premiumRewardManager;
 
     public GamblingSession gamblingSession;
 
     @Override
     public void onEnable() {
+        defaultRewardManager = new DefaultRewardManager(this);
+        premiumRewardManager = new PremiumRewardManager(this);
+        premiumRewardManager.InitRewards();
         startGamble(this);
         removeAllGachaHolosOnStart(this);
         rpgPlayersList = getRPGPlayerMap();
@@ -92,6 +102,8 @@ public final class PandoDungeons extends JavaPlugin {
 
 
         // Register events and commands
+        getServer().getPluginManager().registerEvents(new BattlePassEventHandler(this),this);
+
         getServer().getPluginManager().registerEvents(new PrizeListener(this), this);
         getServer().getPluginManager().registerEvents(new CampsListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
@@ -107,6 +119,7 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("party").setExecutor(new PartyCommand(this));
         this.getCommand("stats").setExecutor(new ClassCommand(this));
         this.getCommand("bet").setExecutor(new GambleCommand(this));
+        this.getCommand("encargo").setExecutor(new QuestCommand(this));
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");
