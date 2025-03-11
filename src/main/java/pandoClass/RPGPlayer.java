@@ -44,6 +44,7 @@ public class RPGPlayer {
     private int orbProgress;
     private String playerName = "";
     private int gachaopen;
+    private boolean texturePack = false;
 
     private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
 
@@ -65,6 +66,16 @@ public class RPGPlayer {
 
     public void addCoins(int toAdd){
         coins += toAdd;
+        save(this);
+        update();
+    }
+
+    public boolean isTexturePack() {
+        return texturePack;
+    }
+
+    public void setTexturePack(boolean texturePack) {
+        this.texturePack = texturePack;
         save(this);
         update();
     }
@@ -317,6 +328,7 @@ public class RPGPlayer {
         this.classKey = other.classKey;
         this.playerName = other.playerName;
         this.gachaopen = other.gachaopen;
+        this.texturePack = other.texturePack;
     }
 
     private void defaults() {
@@ -332,6 +344,7 @@ public class RPGPlayer {
         this.classKey = "";
         this.playerName = "";
         this.gachaopen = 0;
+        this.texturePack = false;
     }
 
     public String getClassKey() {

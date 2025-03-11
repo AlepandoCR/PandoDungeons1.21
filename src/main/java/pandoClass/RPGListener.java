@@ -1,10 +1,15 @@
 package pandoClass;
 
+import net.kyori.adventure.text.Component;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.entity.CraftMob;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -22,6 +27,9 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.geyser.api.GeyserApi;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
+import pandoClass.classes.farmer.ControlledEntityBehavior;
+import pandoClass.classes.farmer.skils.ExtraHarvestSkill;
+import pandoClass.classes.farmer.skils.TameSkill;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.upgrade.ItemUpgrade;
@@ -82,6 +90,101 @@ public class RPGListener implements Listener {
         }
 
     }
+
+
+    @EventHandler(ignoreCancelled = true)
+    public void onCropMultiplyBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        // Verifica que el jugador tenga activada la habilidad ExtraProducción
+        if (!ExtraHarvestSkill.isFarmingPlayer(player)) return;
+
+        Block block = event.getBlock();
+        Material type = block.getType();
+        // Lista de cultivos: ajusta según necesidades
+        if (type == Material.WHEAT || type == Material.CARROTS || type == Material.POTATOES || type == Material.BEETROOTS || type == Material.MELON || type == Material.PUMPKIN || type == Material.COCOA) {
+            // Evitar drops dobles por la acción normal
+
+            event.setDropItems(false);
+            Collection<ItemStack> drops = block.getDrops(player.getInventory().getItemInMainHand());
+            double multiplier = new RPGPlayer(player).getFirstSkilLvl() / 5.0;
+            for (ItemStack drop : drops) {
+                drop.setAmount(Math.max(1,(int)(drop.getAmount() * multiplier)));
+                block.getWorld().dropItemNaturally(block.getLocation(), drop);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onCropBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        if (!ExtraHarvestSkill.isFarmingPlayer(player)) return;
+
+        Block block = event.getBlock();
+        Material type = block.getType();
+        if (type == Material.WHEAT || type == Material.CARROTS || type == Material.POTATOES || type == Material.BEETROOTS) {
+            // Romper bloques adyacentes en un radio 1 (puedes ajustar)
+            int num = 0;
+            for (int x = -1; x <= 1; x++) {
+                if(15 <= num){
+                    break;
+                }
+                num++;
+                for (int z = -1; z <= 1; z++) {
+                    if (x == 0 && z == 0) continue;
+                    Block adjacent = block.getRelative(x, 0, z);
+                    if (adjacent.getType() == type) {
+                        adjacent.breakNaturally();
+                    }
+                }
+            }
+            player.sendMessage("¡Combo de cosecha activado!");
+        }
+    }
+
+
+    @EventHandler
+    public void onAnimalInteract(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        Entity entity = event.getRightClicked();
+
+        // Verifica si el jugador tiene la habilidad Animal Wrangler
+        if (!TameSkill.isTamingPlayer(player)) return;
+
+        // Considera animales neutrales o amistosos
+        if (entity instanceof Animals || entity instanceof Golem || entity instanceof Piglin) {
+            LivingEntity neutralEntity = (LivingEntity) entity;
+            // Busca la entidad hostil más cercana en un radio de 40 bloques
+            LivingEntity nearestHostile = findNearestHostile(neutralEntity, 40);
+            if (nearestHostile != null) {
+                new ControlledEntityBehavior(neutralEntity,nearestHostile).runTaskTimer(plugin,0,1);
+                player.sendMessage("¡" + neutralEntity.getType() + " ahora atacará a " + nearestHostile.getType() + "!");
+            } else {
+                player.sendMessage("No hay entidades hostiles cercanas.");
+            }
+        }
+    }
+
+
+    private LivingEntity findNearestHostile(LivingEntity entity, double radius) {
+        Location location = entity.getLocation();
+        double closestDistance = radius * radius;
+        LivingEntity closestEntity = null;
+        for (Entity nearbyEntity : entity.getNearbyEntities(radius, radius, radius)) {
+            if (nearbyEntity instanceof Monster) {
+                double distance = location.distanceSquared(nearbyEntity.getLocation());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestEntity = (LivingEntity) nearbyEntity;
+                }
+            }
+        }
+        return closestEntity;
+    }
+
+    // Mapa para rastrear las entidades afectadas y sus objetivos
+
+
+
 
     public void reduceEffectDamage(Player player, EntityDamageByEntityEvent event) {
         RPGPlayer rpgPlayer = load(player);
@@ -370,6 +473,15 @@ public class RPGListener implements Listener {
         }
     }
 
+    public void applyPack(Player player, String url){
+        // Opcional: crea un mensaje usando Component (si usas la API Adventure)
+        Component prompt = Component.text("Aplica el texturepack que indicaste con /texturas mantener");
+
+        // Solicita el texture pack al cliente, forzando su aplicación
+        player.setResourcePack(url, null, prompt, true);
+    }
+
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) throws MalformedURLException {
         Player player = event.getPlayer();
@@ -385,6 +497,11 @@ public class RPGListener implements Listener {
         }
 
         RPGPlayer rpgPlayer = new RPGPlayer(player);
+
+        if(rpgPlayer.isTexturePack()){
+            String texturePackUrl = "https://raw.githubusercontent.com/AlepandoCR/MapachoTextura/main/mapachos.zip";
+            applyPack(player,texturePackUrl);
+        }
 
         if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
             player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.INNIT));

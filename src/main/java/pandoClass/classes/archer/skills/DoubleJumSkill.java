@@ -19,7 +19,7 @@ public class DoubleJumSkill extends Skill {
 
     public DoubleJumSkill(int lvl, Player player) {
         super(lvl, player);
-        description = "Salto doble";
+        description = "Tienes un salto doble, además cada mejora empuja más a los entidades cercanas cuando lo usas";
         displayValue = "466b10bf6ee2cd7e3ac96d9749ea616aa9c73030bdcaeffaed249e55c84994ac";
     }
 

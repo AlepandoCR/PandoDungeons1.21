@@ -65,8 +65,9 @@ public class LootTableManager {
         addItemToLootTable(createEnchantedBook(Enchantment.EFFICIENCY, 2, 1, "Libro encantado"), 8);
         addItemToLootTable(createEnchantedBook(Enchantment.SHARPNESS, 2, 1, "Libro encantado"), 8);
         addItemToLootTable(soulWritter(1),6);
-        addItemToLootTable(createCustomRabbitFoot(3), 3);
+        addItemToLootTable(createCustomRabbitFoot(2), 2);
         addItemToLootTable(createCustomChickenEgg(3), 3);
+        addItemToLootTable(createCustomGacha(1), 1);
         addItemToLootTable(createItem(Material.TNT, "Tnt", 37), 10);
         addItemToLootTable(createItem(Material.WITHER_SKELETON_SKULL, "Cabeza de Wither", 2), 5);
         addItemToLootTable(createItem(Material.NAME_TAG, "NameTag", 1), 15);
@@ -109,6 +110,28 @@ public class LootTableManager {
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 
             meta.setDisplayName(ChatColor.GRAY.toString() + ChatColor.BOLD + "    Dungeon Rabinio");
+            meta.setLore(Arrays.asList(
+                    "",
+                    "§7Esta muy sucio por la tierra de la dungeon",
+                    "§7Quizá alguien me lo pueda cambiar"
+            ));
+            rabbitFoot.setItemMeta(meta);
+        }
+
+        return rabbitFoot;
+    }
+
+    // Método para crear el ítem personalizado "Rabinio" con una cantidad específica
+    public static @NotNull ItemStack createCustomGacha(int amount) {
+        ItemStack rabbitFoot = new ItemStack(Material.SUNFLOWER, amount);
+        ItemMeta meta = rabbitFoot.getItemMeta();
+
+        if (meta != null) {
+            meta.setCustomModelData(200);
+            meta.addEnchant(Enchantment.INFINITY, 1, true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+            meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.BOLD + "    Dungeon Gacha");
             meta.setLore(Arrays.asList(
                     "",
                     "§7Esta muy sucio por la tierra de la dungeon",

@@ -80,11 +80,10 @@ public class ItemUpgrade {
                     player.sendMessage(ChatColor.AQUA + "No tienes suficientes bloques de diamante. Se requieren 20 bloques de diamante.");
                     return;
                 }
+                // **Cobrar monedas**
+                rpgPlayer.removeCoins(coinCost);
             }
         }
-
-        // **Cobrar monedas**
-        rpgPlayer.removeCoins(coinCost);
 
         // **Elegir un encantamiento aleatorio de los elegibles y mejorar su nivel**
         Enchantment chosenEnchant = eligibleEnchantments.get(random.nextInt(eligibleEnchantments.size()));

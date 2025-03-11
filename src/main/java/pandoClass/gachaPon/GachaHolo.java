@@ -60,9 +60,6 @@ public class GachaHolo {
         // Guardar el holograma activo para este jugador
         activeHolograms.put(playerId, holograma);
 
-        // Configurar para que sea visible solo para el jugador correspondiente
-        sendOnlyToOwner(player, holograma);
-
         // Tarea que actualiza el holograma cada segundo
         new BukkitRunnable() {
             @Override
@@ -76,6 +73,8 @@ public class GachaHolo {
                     cancel();
                     return;
                 }
+                // Configurar para que sea visible solo para el jugador correspondiente
+                sendOnlyToOwner(player, holograma);
                 // Actualizar el dato personalizado (ej. contador de gacha)
                 int gachaOpens = new RPGPlayer(player).getGachaopen();
                 holograma.setCustomName(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD +

@@ -9,6 +9,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pandoClass.RPGPlayer;
 import pandoToros.Commands.PlayRedondelCommand;
 import pandoToros.Commands.ToroStatsCommand;
 import pandodungeons.pandodungeons.Game.Stats;
@@ -40,6 +41,13 @@ public class TextureCommand implements CommandExecutor, TabCompleter {
                     }else if(strings[0].equalsIgnoreCase("descargar")){
                         player.sendMessage(ChatColor.LIGHT_PURPLE + "Enlace de descarga: " + ChatColor.GOLD + texturePackUrl);
                     }
+                    if(strings[0].equalsIgnoreCase("mantener")){
+                        new RPGPlayer(player).setTexturePack(true);
+                        applyPack(player,texturePackUrl);
+                    }
+                    if(strings[0].equalsIgnoreCase("eliminar")){
+                        new RPGPlayer(player).setTexturePack(false);
+                    }
                 }
 
             }
@@ -63,6 +71,8 @@ public class TextureCommand implements CommandExecutor, TabCompleter {
         if(strings.length == 1){
             completions.add("aplicar");
             completions.add("descargar");
+            completions.add("mantener");
+            completions.add("eliminar");
         }
         return completions;
     }

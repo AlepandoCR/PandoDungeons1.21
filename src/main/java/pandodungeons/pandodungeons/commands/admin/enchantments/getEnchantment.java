@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 
 import static pandoQuests.npc.human.variations.explorer.ExplorerSpawner.spawnExplorerNearPlayer;
 import static pandoToros.Entities.toro.Toro.summonToro;
+import static pandodungeons.pandodungeons.Elements.LootTableManager.createCustomGacha;
 import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.*;
 import static pandodungeons.pandodungeons.Utils.DisplayModels.createMiniCrystal;
 import static pandodungeons.pandodungeons.Utils.DisplayModels.spawnTable;
@@ -158,6 +159,8 @@ public class getEnchantment implements CommandExecutor {
             player.getInventory().addItem(new StormSwordPrize(plugin).getItem());
         } else if(args[1].equalsIgnoreCase("upgradeLingot")){
             player.getInventory().addItem(new InstaMegaUpgradeShard(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("gachasucio")){
+            player.getInventory().addItem(createCustomGacha(1));
         }
 
 

@@ -69,7 +69,7 @@ public class CampsListener implements Listener {
     }
 
     private void transformNoName(Enemy enemy) {
-        List<Entity> near = enemy.getNearbyEntities(60,60,60);
+        List<Entity> near = enemy.getNearbyEntities(100,100,100);
         int avrgLvl = getAvrgLevel(near);
         int exp = calculateExpFromLvl(avrgLvl, enemy);
         double finalHp = (int) calculateHpFromLvlAndApply(avrgLvl, enemy);
