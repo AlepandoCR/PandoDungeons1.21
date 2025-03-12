@@ -15,7 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.Camp;
+import pandoClass.ExpandableClassMenu;
 import pandoClass.InitMenu;
+import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.gachaPon.prizes.epic.InstaUpgradeShard;
 import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
 import pandoClass.gachaPon.prizes.epic.RocketBootsPrize;
@@ -161,8 +163,21 @@ public class getEnchantment implements CommandExecutor {
             player.getInventory().addItem(new InstaMegaUpgradeShard(plugin).getItem());
         }else if(args[1].equalsIgnoreCase("gachasucio")){
             player.getInventory().addItem(createCustomGacha(1));
-        }
+        }else if(args[1].equalsIgnoreCase("classoc")){
 
+            try {
+                player.openInventory(new ExpandableClassMenu(player).createExpandableClassMenu());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else if(args[1].equalsIgnoreCase("orb")){
+            try {
+                new Orb(plugin,player,"46994d71b875f087e64dea9b4a0a5cb9f4eb9ab0e8d9060dfde7f6803baa1779",10);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         return false;
     }

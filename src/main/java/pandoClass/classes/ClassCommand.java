@@ -44,6 +44,23 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if(executingPlayer.isOp()){
+            if(args.length == 3 && args[0].equalsIgnoreCase("addCoins")){
+                Player target = Bukkit.getPlayer(args[1]);
+
+                if(target != null){
+                    RPGPlayer rpgPlayer = new RPGPlayer(target);
+                    try{
+                        int coinsToAdd = Integer.parseInt(args[2]);
+                        rpgPlayer.addCoins(coinsToAdd);
+                    }catch (NumberFormatException e){
+                        executingPlayer.sendMessage("No ingresaste un numero");
+                    }
+                }
+            }
+        }
+
+
         // Subcomando "top": muestra el top 3 de jugadores por nivel.
         if (args.length == 1 && args[0].equalsIgnoreCase("top")) {
             List<RPGPlayer> allPlayers = RPGPlayerDataManager.loadAllPlayers();

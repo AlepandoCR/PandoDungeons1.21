@@ -167,7 +167,7 @@ public class InitMenu {
         List<String> lore = new ArrayList<>();
         lore.add("§6§lDescripción: §f" + skill.getDescription());
         lore.add("§6§lNivel Actual: §f" + skill.getLvl());
-        lore.add(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "Costo de mejora:" + ChatColor.WHITE + "4" + " 💀 ");
+        lore.add(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "Costo de mejora: " + ChatColor.WHITE + "4" + " 💀 ");
         meta.setLore(lore);
         return meta;
     }
@@ -190,6 +190,7 @@ public class InitMenu {
         ItemStack head = createHead(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Arquero", url, new Archer(player));
         return head;
     }
+
 
     private static ItemStack createTankHead(RPGPlayer player) throws MalformedURLException {
         int lvl = player.getLevel();

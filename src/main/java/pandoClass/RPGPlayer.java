@@ -13,6 +13,7 @@ import org.bukkit.scoreboard.Team;
 import pandoClass.classes.ClassCommand;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
+import pandoClass.classes.farmer.Farmer;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.gachaPon.GachaHolo;
@@ -28,6 +29,9 @@ import static pandoClass.classes.archer.skills.DoubleJumSkill.doubleJumping;
 import static pandoClass.classes.archer.skills.SaveAmmoSkill.playersSavingAmmo;
 import static pandoClass.classes.assasin.skills.LifeStealSkill.lifeStealingPlayers;
 import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
+import static pandoClass.classes.farmer.skils.ExtraHarvestSkill.removeFarmingPlayer;
+import static pandoClass.classes.farmer.skils.GolemSkill.removeGolemPlayer;
+import static pandoClass.classes.farmer.skils.TameSkill.removeTamingPlayer;
 import static pandoClass.files.RPGPlayerDataManager.save;
 
 public class RPGPlayer {
@@ -206,6 +210,9 @@ public class RPGPlayer {
         playersSavingAmmo.remove(getPlayer());
         lifeStealingPlayers.remove(getPlayer());
         silencedPlayers.remove(getPlayer());
+        removeGolemPlayer(getPlayer());
+        removeFarmingPlayer(getPlayer());
+        removeTamingPlayer(getPlayer());
         getPlayer().setWalkSpeed(0.2f);
         ClassRPG classToSet = getClassFromKey(key);
 
@@ -219,6 +226,7 @@ public class RPGPlayer {
             case "ArcherClass" -> new Archer(this);
             case "TankClass" -> new Tank(this);
             case "AssassinClass" -> new Assasin(this);
+            case "FarmerClass" -> new Farmer(this);
             case null, default -> null;
         };
     }

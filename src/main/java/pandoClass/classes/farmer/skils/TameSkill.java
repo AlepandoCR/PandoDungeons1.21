@@ -13,7 +13,7 @@ public class TameSkill extends Skill {
 
     private static final List<Player> tamingPlayers = new ArrayList<>();
 
-    protected TameSkill(int lvl, UUID player) {
+    public TameSkill(int lvl, Player player) {
         super(lvl, player);
         description = "¡Los mobs neutrales y amigos te ayudarán a luchar!";
         displayValue = "1f7b6b2d509b3b7a9338e7596aa7fbd640ae39d25746a923a63e87f5f500b55d";
@@ -21,7 +21,7 @@ public class TameSkill extends Skill {
 
     @Override
     public String getName() {
-        return "Tame";
+        return "Domador";
     }
 
     @Override
@@ -47,5 +47,9 @@ public class TameSkill extends Skill {
 
     public static boolean isTamingPlayer(Player player){
         return tamingPlayers.contains(player);
+    }
+
+    public static void removeTamingPlayer(Player player){
+        tamingPlayers.remove(player);
     }
 }

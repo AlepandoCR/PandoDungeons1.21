@@ -12,6 +12,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import pandoClass.ExpandableClassMenu;
 import pandoClass.InitMenu;
 import pandoClass.RPGPlayer;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -202,7 +203,7 @@ public class CampsListener implements Listener {
 
         if (tags.contains("RPGshop")) {
             // Acción para la tienda
-            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SHOP));
+            player.openInventory(new ExpandableClassMenu(player).createExpandableClassMenu());
             // Aquí puedes agregar la lógica para abrir el inventario de la tienda u otra acción.
             event.setCancelled(true);
         } else if (tags.contains("RPGSkillMenu")) {

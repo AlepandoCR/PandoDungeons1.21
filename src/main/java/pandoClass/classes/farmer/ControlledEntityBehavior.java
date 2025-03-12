@@ -17,16 +17,19 @@ public class ControlledEntityBehavior extends BukkitRunnable {
     private final Map<LivingEntity, LivingEntity> controlledEntities = new HashMap<>();
     private final LivingEntity entity;
     private final LivingEntity target;
+    private final double ogHealth;
 
-    public ControlledEntityBehavior(LivingEntity entity, LivingEntity target) {
+    public ControlledEntityBehavior(LivingEntity entity, LivingEntity target, double ogHealth) {
         this.entity = entity;
         this.target = target;
+        this.ogHealth = ogHealth;
     }
 
     @Override
     public void run() {
         if (entity.isDead() || target.isDead() || !entity.isValid() || !target.isValid()) {
             controlledEntities.remove(entity.getUniqueId());
+            entity.setMaxHealth(ogHealth);
             this.cancel();
             return;
         }

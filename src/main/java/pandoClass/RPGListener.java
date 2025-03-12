@@ -1,11 +1,10 @@
 package pandoClass;
 
 import net.kyori.adventure.text.Component;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.entity.CraftMob;
-import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,7 +23,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
-import org.geysermc.geyser.api.GeyserApi;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.farmer.ControlledEntityBehavior;
@@ -33,7 +31,6 @@ import pandoClass.classes.farmer.skils.TameSkill;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.upgrade.ItemUpgrade;
-import pandoClass.upgrade.UpgradeAnim;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
@@ -146,6 +143,7 @@ public class RPGListener implements Listener {
     public void onAnimalInteract(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
+        RPGPlayer rpgPlayer = new RPGPlayer(player);
 
         // Verifica si el jugador tiene la habilidad Animal Wrangler
         if (!TameSkill.isTamingPlayer(player)) return;
@@ -153,15 +151,29 @@ public class RPGListener implements Listener {
         // Considera animales neutrales o amistosos
         if (entity instanceof Animals || entity instanceof Golem || entity instanceof Piglin) {
             LivingEntity neutralEntity = (LivingEntity) entity;
-            // Busca la entidad hostil más cercana en un radio de 40 bloques
+            double ogHealth = neutralEntity.getMaxHealth();
+            calculateHpFromLvlAndApply(rpgPlayer.getSecondSkilLvl(),neutralEntity);
             LivingEntity nearestHostile = findNearestHostile(neutralEntity, 40);
             if (nearestHostile != null) {
-                new ControlledEntityBehavior(neutralEntity,nearestHostile).runTaskTimer(plugin,0,1);
+                new ControlledEntityBehavior(neutralEntity,nearestHostile,ogHealth).runTaskTimer(plugin,0,1);
                 player.sendMessage("¡" + neutralEntity.getType() + " ahora atacará a " + nearestHostile.getType() + "!");
             } else {
                 player.sendMessage("No hay entidades hostiles cercanas.");
             }
         }
+    }
+
+
+    private void calculateHpFromLvlAndApply(int lvl, LivingEntity entity){
+        double baseHP = entity.getMaxHealth();
+
+        double multiply = lvl * 0.25;
+
+        double finalHp = baseHP + (baseHP * multiply);
+
+        entity.setMaxHealth(finalHp);
+
+        entity.heal(baseHP * multiply);
     }
 
 
@@ -352,6 +364,7 @@ public class RPGListener implements Listener {
             }
         }
     }
+
 
 
     private static final double BASE_LIFESTEAL_PERCENT = 0.015; // 1.5% de robo de vida por nivel

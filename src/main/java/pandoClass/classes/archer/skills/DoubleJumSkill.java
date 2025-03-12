@@ -1,11 +1,6 @@
 package pandoClass.classes.archer.skills;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.NotNull;
 import pandoClass.Skill;
 
 import java.util.ArrayList;

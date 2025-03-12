@@ -2,10 +2,13 @@ package pandoClass.classes.farmer;
 
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
+import pandoClass.classes.farmer.skils.ExtraHarvestSkill;
+import pandoClass.classes.farmer.skils.GolemSkill;
+import pandoClass.classes.farmer.skils.TameSkill;
 
 public class Farmer extends ClassRPG {
-    public Farmer(String key, RPGPlayer player) {
-        super(key, player);
+    public Farmer(RPGPlayer player) {
+        super("FarmerClass", player);
     }
 
     @Override
@@ -15,11 +18,16 @@ public class Farmer extends ClassRPG {
 
     @Override
     protected void setSkills() {
-
+        setFirstSkill(new ExtraHarvestSkill(rpgPlayer.getFirstSkilLvl(), player));
+        setSecondSkill(new TameSkill(rpgPlayer.getFirstSkilLvl(), player));
+        setThirdSkill(new GolemSkill(rpgPlayer.getFirstSkilLvl(), player));
     }
 
     @Override
     protected void skillsToTrigger() {
+        firstSkill.action();
+        secondSkill.action();
+        thirdSkill.action();
 
     }
 

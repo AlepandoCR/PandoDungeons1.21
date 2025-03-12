@@ -13,7 +13,7 @@ public class ExtraHarvestSkill extends Skill {
 
     private static final List<Player> farmingPlayers = new ArrayList<>();
 
-    protected ExtraHarvestSkill(int lvl, UUID player) {
+    public ExtraHarvestSkill(int lvl, Player player) {
         super(lvl, player);
         description = "Extra Agricultura (Cada 5 niveles de esta habilidad dará 1 drop más)";
         displayValue = "ffb9b92efedfe28e449b5a2ded2e7836812d231aa7416dd9d52974ab84694b63";
@@ -47,5 +47,9 @@ public class ExtraHarvestSkill extends Skill {
 
     public static boolean isFarmingPlayer(Player player){
         return farmingPlayers.contains(player);
+    }
+
+    public static void removeFarmingPlayer(Player player){
+        farmingPlayers.remove(player);
     }
 }

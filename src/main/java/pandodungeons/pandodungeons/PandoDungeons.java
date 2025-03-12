@@ -17,12 +17,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
-import pandoClass.Camp;
-import pandoClass.ClassRPG;
-import pandoClass.RPGListener;
-import pandoClass.RPGPlayer;
+import pandoClass.*;
 import pandoClass.campsListener.CampsListener;
 import pandoClass.classes.ClassCommand;
+import pandoClass.classes.farmer.skils.GolemHandler;
+import pandoClass.classes.mage.skills.orb.Orb;
+import pandoClass.classes.mage.skills.orb.OrbsManager;
 import pandoClass.gachaPon.GachaCommand;
 import pandoClass.gachaPon.prizes.PrizeListener;
 import pandoClass.gachaPon.prizes.PrizeManager;
@@ -67,11 +67,13 @@ public final class PandoDungeons extends JavaPlugin {
     public MissionManager missionManager = new MissionManager();
     public DefaultRewardManager defaultRewardManager;
     public PremiumRewardManager premiumRewardManager;
+    public OrbsManager orbsManager;
 
     public GamblingSession gamblingSession;
 
     @Override
     public void onEnable() {
+        orbsManager = new OrbsManager(this);
         defaultRewardManager = new DefaultRewardManager(this);
         premiumRewardManager = new PremiumRewardManager(this);
         premiumRewardManager.InitRewards();
@@ -103,6 +105,10 @@ public final class PandoDungeons extends JavaPlugin {
 
         // Register events and commands
         getServer().getPluginManager().registerEvents(new BattlePassEventHandler(this),this);
+
+        getServer().getPluginManager().registerEvents(new GolemHandler(this),this);
+
+        getServer().getPluginManager().registerEvents(new ExpandableClassMenuListener(this),this);
 
         getServer().getPluginManager().registerEvents(new PrizeListener(this), this);
         getServer().getPluginManager().registerEvents(new CampsListener(this), this);
@@ -205,14 +211,14 @@ public final class PandoDungeons extends JavaPlugin {
     @Override
     public void onDisable() {
         runnable.cancel();
+        removeOrbs();
         removeAllGachaHolos();
         gamblingSession.removeHorses();
-        for(String world : LocationUtils.getAllDungeonWorlds()){
-            if(world == null){
-                break;
-            }
-            StructureUtils.removeDungeon(world,this);
-        }
+        removePlayersFromDungeons();
+        removeDungeons();
+    }
+
+    private void removePlayersFromDungeons() {
         for(Player player : getServer().getOnlinePlayers()){
             if(LocationUtils.hasActiveDungeon(player.getUniqueId().toString())){
                 if(player.getBedSpawnLocation() != null){
@@ -224,6 +230,36 @@ public final class PandoDungeons extends JavaPlugin {
             }
         }
     }
+
+    private void removeDungeons() {
+        for(String world : LocationUtils.getAllDungeonWorlds()){
+            if(world == null){
+                break;
+            }
+            StructureUtils.removeDungeon(world,this);
+        }
+    }
+
+    private void removeOrbs() {
+        // Asegúrate de que el método orbsManager.getOrbs() devuelve una colección válida.
+        if (orbsManager != null && orbsManager.getOrbs() != null) {
+            orbsManager.getOrbs().values().forEach(orb -> {
+                if (orb != null) {
+                    orb.remove();  // Llamada a la eliminación del Orb y su ArmorStand asociado.
+                }
+            });
+        }
+
+        for(World world : Bukkit.getWorlds()){
+            world.getEntities().forEach(entity -> {
+                if (entity.getPersistentDataContainer().has(new NamespacedKey(this,"orbKey"))){
+                    entity.remove();
+                }
+            });
+        }
+    }
+
+
 
     private void unlockRecipeForAllPlayers(Recipe recipe) {
         NamespacedKey key = ((ShapedRecipe) recipe).getKey();
