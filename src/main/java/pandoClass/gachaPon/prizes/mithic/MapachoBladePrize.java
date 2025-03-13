@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
@@ -44,7 +45,13 @@ public class MapachoBladePrize extends PrizeItem {
         lore.add("");
         meta.setLore(lore);
         meta.getPersistentDataContainer().set(mapachoBlade, PersistentDataType.BOOLEAN, true);
-        meta.setCustomModelData(12383794);
+
+        CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+        component.setStrings(List.of("mapachoblade"));
+
+        meta.setCustomModelDataComponent(component);
+
         meta.setRarity(ItemRarity.EPIC);
         item.setItemMeta(meta);
         return item;

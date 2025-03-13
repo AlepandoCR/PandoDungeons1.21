@@ -19,6 +19,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -45,6 +46,9 @@ import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
 import static pandoClass.files.RPGPlayerDataManager.load;
 import static pandoClass.files.RPGPlayerDataManager.save;
 import static pandoClass.gachaPon.GachaHolo.activeHolograms;
+import static pandoClass.gachaPon.prizes.mithic.JetPackPrize.isJetPack;
+import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
+import static pandodungeons.pandodungeons.Utils.ItemUtils.isGarabiThor;
 
 public class RPGListener implements Listener {
     public static final List<Player> magicShieldPlayers = new ArrayList<>();
@@ -494,12 +498,55 @@ public class RPGListener implements Listener {
         player.setResourcePack(url, null, prompt, true);
     }
 
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) throws MalformedURLException {
         Player player = event.getPlayer();
         player.setMaxHealth(20.0);
         player.setWalkSpeed(0.2f);
+
+        for(ItemStack stack : player.getInventory()){
+            if(stack != null){
+                if(isMapachoBlade(stack,plugin)){
+                    if(!stack.getItemMeta().getCustomModelDataComponent().getStrings().contains("mapachoblade")){
+                        ItemMeta meta = stack.getItemMeta();
+
+                        CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+                        component.setStrings(List.of("mapachoblade"));
+
+                        meta.setCustomModelDataComponent(component);
+
+                        stack.setItemMeta(meta);
+                    }
+                }
+                if(isGarabiThor(stack)){
+                    if(!stack.getItemMeta().getCustomModelDataComponent().getStrings().contains("garabithor")){
+                        ItemMeta meta = stack.getItemMeta();
+
+                        CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+                        component.setStrings(List.of("garabithor"));
+
+                        meta.setCustomModelDataComponent(component);
+
+                        stack.setItemMeta(meta);
+                    }
+                }
+                if(isJetPack(stack, plugin)){
+                    if(!stack.getItemMeta().getCustomModelDataComponent().getStrings().contains("jetpack")){
+                        ItemMeta meta = stack.getItemMeta();
+
+                        CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+                        component.setStrings(List.of("jetpack"));
+
+                        meta.setCustomModelDataComponent(component);
+
+                        stack.setItemMeta(meta);
+                    }
+                }
+            }
+        }
 
         if(!player.hasPlayedBefore()){
             player.getInventory().addItem(plugin.prizeManager.gachaToken());

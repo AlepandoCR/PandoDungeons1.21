@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
@@ -48,7 +49,12 @@ public class GarabiThorPrize extends PrizeItem {
         meta.setLore(lore);
         meta.getPersistentDataContainer().set(garabiThor, PersistentDataType.STRING, "garabiThor");
         meta.getPersistentDataContainer().set(bateria, PersistentDataType.DOUBLE, 1000D);
-        meta.setCustomModelData(69);
+        CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+        component.setStrings(List.of("garabithor"));
+
+        meta.setCustomModelDataComponent(component);
+
         meta.setRarity(ItemRarity.EPIC);
         item.setItemMeta(meta);
         return item;

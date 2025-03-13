@@ -323,7 +323,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                                     player.teleport(kelpBlockLocation.add(0.5, 1, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
                                     if(isPartyDungeon){
                                         for(Player player1 : playerParty.getMembers()){
-                                            player1.teleport(kelpBlockLocation.add(0.5, 2, 0.5)); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
+                                            player1.teleport(kelpBlockLocation); // Añadir 0.5 para centrar al jugador en el bloque y 1 para que esté encima
                                             player1.setGameMode(GameMode.ADVENTURE);
                                             if(CompanionUtils.hasSelectedCompanion(player1) && !plugin.playerPartyList.isOwner(player)){
                                                 CompanionUtils.summonSelectedCompanion(player1);
