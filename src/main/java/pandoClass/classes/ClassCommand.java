@@ -39,7 +39,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
 
         // Sin argumentos: mostrar estadísticas del propio jugador.
         if (args.length == 0) {
-            RPGPlayer rpgPlayer = new RPGPlayer(executingPlayer);
+            RPGPlayer rpgPlayer = new RPGPlayer(executingPlayer, plugin);
             executingPlayer.sendMessage(rpgPlayer.toDecoratedString(executingPlayer));
             return true;
         }
@@ -49,10 +49,41 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if(target != null){
-                    RPGPlayer rpgPlayer = new RPGPlayer(target);
+                    RPGPlayer rpgPlayer = new RPGPlayer(target, plugin);
                     try{
                         int coinsToAdd = Integer.parseInt(args[2]);
                         rpgPlayer.addCoins(coinsToAdd);
+                        return true;
+                    }catch (NumberFormatException e){
+                        executingPlayer.sendMessage("No ingresaste un numero");
+                    }
+                }
+            }
+
+            if(args.length == 3 && args[0].equalsIgnoreCase("addLevels")){
+                Player target = Bukkit.getPlayer(args[1]);
+
+                if(target != null){
+                    RPGPlayer rpgPlayer = new RPGPlayer(target, plugin);
+                    try{
+                        int levelsToAdd = Integer.parseInt(args[2]);
+                        rpgPlayer.addLevel(levelsToAdd);
+                        return true;
+                    }catch (NumberFormatException e){
+                        executingPlayer.sendMessage("No ingresaste un numero");
+                    }
+                }
+            }
+
+            if(args.length == 3 && args[0].equalsIgnoreCase("addOrbs")){
+                Player target = Bukkit.getPlayer(args[1]);
+
+                if(target != null){
+                    RPGPlayer rpgPlayer = new RPGPlayer(target, plugin);
+                    try{
+                        int orbsToAdd = Integer.parseInt(args[2]);
+                        rpgPlayer.addOrb(orbsToAdd);
+                        return true;
                     }catch (NumberFormatException e){
                         executingPlayer.sendMessage("No ingresaste un numero");
                     }
@@ -61,9 +92,11 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
         }
 
 
+
+
         // Subcomando "top": muestra el top 3 de jugadores por nivel.
         if (args.length == 1 && args[0].equalsIgnoreCase("top")) {
-            List<RPGPlayer> allPlayers = RPGPlayerDataManager.loadAllPlayers();
+            List<RPGPlayer> allPlayers = plugin.rpgPlayerDataManager.loadAllPlayers();
             if (allPlayers.isEmpty()) {
                 executingPlayer.sendMessage(ChatColor.RED + "No hay jugadores registrados aún.");
                 return true;
@@ -87,7 +120,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
         // Con un argumento: se interpreta como el nombre de un jugador cuyo stats se desean ver.
         if (args.length == 1) {
             String targetName = args[0];
-            List<RPGPlayer> allPlayers = RPGPlayerDataManager.loadAllPlayers();
+            List<RPGPlayer> allPlayers = plugin.rpgPlayerDataManager.loadAllPlayers();
             if (allPlayers.isEmpty()) {
                 executingPlayer.sendMessage(ChatColor.RED + "No hay jugadores registrados aún.");
                 return true;
@@ -115,12 +148,21 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+
         List<String> completions = new java.util.ArrayList<>(List.of());
         if(strings.length == 1){
             for(Player player : Bukkit.getOnlinePlayers()){
                 completions.add(player.getName());
             }
             completions.add("top");
+
+            if(commandSender instanceof Player player){
+                if(player.isOp()){
+                    completions.add("addCoins");
+                    completions.add("addLevels");
+                    completions.add("addOrbs");
+                }
+            }
         }
         return completions;
     }

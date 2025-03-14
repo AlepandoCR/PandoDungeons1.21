@@ -18,13 +18,14 @@ public abstract class ClassRPG {
     protected Player player;
     protected boolean canceled = false;
 
-    private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    protected final PandoDungeons plugin;
 
     // Mapa para almacenar el runnable activo por jugador.
     private static final Map<Player, BukkitRunnable> triggeredSkills = new HashMap<>();
 
-    public ClassRPG(String key, RPGPlayer player) {
+    public ClassRPG(String key, RPGPlayer player, PandoDungeons plugin) {
         this.rpgPlayer = player;
+        this.plugin = plugin;
         this.lvl = player.getLevel();
         this.key = key;
         this.player = rpgPlayer.getPlayer();

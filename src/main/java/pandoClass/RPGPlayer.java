@@ -6,14 +6,11 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
-import pandoClass.classes.ClassCommand;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.farmer.Farmer;
+import pandoClass.classes.mage.Mage;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.gachaPon.GachaHolo;
@@ -32,7 +29,7 @@ import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
 import static pandoClass.classes.farmer.skils.ExtraHarvestSkill.removeFarmingPlayer;
 import static pandoClass.classes.farmer.skils.GolemSkill.removeGolemPlayer;
 import static pandoClass.classes.farmer.skils.TameSkill.removeTamingPlayer;
-import static pandoClass.files.RPGPlayerDataManager.save;
+
 
 public class RPGPlayer {
     private int level;
@@ -50,21 +47,34 @@ public class RPGPlayer {
     private int gachaopen;
     private boolean texturePack = false;
 
-    private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    private final transient PandoDungeons plugin;
 
     public static Map<Player, BossBar> activeBossBars = new HashMap<>();
 
     private static final Map<Player, BukkitRunnable> expBarTasks = new HashMap<>();
 
-    public RPGPlayer(Player player) {
+    public RPGPlayer(Player player, PandoDungeons plugin) {
         this.player = player.getUniqueId();
-        RPGPlayer loaded = RPGPlayerDataManager.load(getPlayer());
+        this.plugin = plugin;
+        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
         if (loaded != null) {
             copyFrom(loaded);
         }
         else{
             defaults();
         }
+        update();
+    }
+
+    public void addLevel(int level){
+        this.level += level;
+        save(this);
+        update();
+    }
+
+    public void addOrb(int orb){
+        this.orbs += orb;
+        save(this);
         update();
     }
 
@@ -152,7 +162,7 @@ public class RPGPlayer {
             activeBossBars.get(player).removeAll();
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         int currentExp = rpgPlayer.getExp();
         int requiredExp = rpgPlayer.calculateExpForNextLvl();
 
@@ -190,20 +200,25 @@ public class RPGPlayer {
         }
     }
 
-    public RPGPlayer(UUID player) {
+    public RPGPlayer(UUID player, PandoDungeons plugin) {
         this.player = player;
-        RPGPlayer loaded = RPGPlayerDataManager.load(getPlayer());
+        this.plugin = plugin;
+        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
         if (loaded != null) copyFrom(loaded);
     }
 
-    public RPGPlayer(String player) {
+    public RPGPlayer(String player, PandoDungeons plugin) {
         this.player = UUID.fromString(player);
-        RPGPlayer loaded = RPGPlayerDataManager.load(getPlayer());
+        this.plugin = plugin;
+        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
         if (loaded != null) copyFrom(loaded);
     }
 
     public void changeClass(String key) {
         getPlayer().setMaxHealth(20.0);
+        getPlayer().setWalkSpeed(0.2f);
+
+        // Remover efectos previos
         doubleJumping.remove(getPlayer());
         explosiveAmmo.remove(getPlayer());
         magicShieldPlayers.remove(getPlayer());
@@ -213,20 +228,23 @@ public class RPGPlayer {
         removeGolemPlayer(getPlayer());
         removeFarmingPlayer(getPlayer());
         removeTamingPlayer(getPlayer());
-        getPlayer().setWalkSpeed(0.2f);
+
         ClassRPG classToSet = getClassFromKey(key);
+        if (classToSet == null) return;
 
-        if(classToSet == null) return;
-
+        this.classKey = key;
+        save(this); // IMPORTANTE: Guardar después de cambiar la clase
         update();
     }
 
+
     private ClassRPG getClassFromKey(String classKey){
         return switch (classKey) {
-            case "ArcherClass" -> new Archer(this);
-            case "TankClass" -> new Tank(this);
-            case "AssassinClass" -> new Assasin(this);
-            case "FarmerClass" -> new Farmer(this);
+            case "ArcherClass" -> new Archer(this,plugin);
+            case "TankClass" -> new Tank(this,plugin);
+            case "AssassinClass" -> new Assasin(this,plugin);
+            case "FarmerClass" -> new Farmer(this,plugin);
+            case "MageClass" -> new Mage(this,plugin);
             case null, default -> null;
         };
     }
@@ -510,9 +528,13 @@ public class RPGPlayer {
 
 
     public void load(){
-        RPGPlayer loaded = RPGPlayerDataManager.load(getPlayer());
+        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
         if(loaded != null){
             copyFrom(loaded);
         }
+    }
+
+    public void save(RPGPlayer rpgPlayer){
+        plugin.rpgPlayerDataManager.save(rpgPlayer);
     }
 }

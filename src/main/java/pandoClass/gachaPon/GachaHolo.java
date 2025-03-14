@@ -8,9 +8,6 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.RPGPlayer;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -21,7 +18,6 @@ import java.util.UUID;
 
 public class GachaHolo {
     private final PandoDungeons plugin;
-    // Mapa para llevar el seguimiento de los hologramas activos por jugador
     public static final Map<UUID, ArmorStand> activeHolograms = new HashMap<>();
 
     public GachaHolo(PandoDungeons plugin) {
@@ -29,73 +25,59 @@ public class GachaHolo {
     }
 
     public void showHolo(Player player) {
-        // Solo se genera si el jugador está online
-        if (!player.isOnline()) {
-            return;
-        }
-        // Obtener el mundo 'spawn'
+        if (!player.isOnline()) return;
+
         World world = Bukkit.getWorld("spawn");
         if (world == null) return;
 
-        // Definir la ubicación del holograma (puede ser fija o relativa al jugador)
         Location loc = new Location(world, 294.5, 79, 441.5);
-
         UUID playerId = player.getUniqueId();
-        // Si ya existe un holograma para este jugador, eliminarlo
-        if (activeHolograms.containsKey(playerId)) {
-            ArmorStand oldHolo = activeHolograms.get(playerId);
-            if(oldHolo != null && !oldHolo.isDead()){
-                oldHolo.remove();
-            }
-            activeHolograms.remove(playerId);
-        }
 
-        // Crear el ArmorStand para el holograma en el mundo 'spawn'
+        removeHolo(player); // Asegura que no haya duplicados
+
         ArmorStand holograma = (ArmorStand) world.spawnEntity(loc, EntityType.ARMOR_STAND);
         holograma.setVisible(false);
         holograma.setGravity(false);
         holograma.setCustomNameVisible(true);
         holograma.addScoreboardTag("gachaHolo");
 
-        // Guardar el holograma activo para este jugador
         activeHolograms.put(playerId, holograma);
+        hideFromEveryoneExceptOwner(player, holograma);
 
-        // Tarea que actualiza el holograma cada segundo
         new BukkitRunnable() {
             @Override
             public void run() {
-                // Si el jugador se desconecta o el holograma ya fue removido, cancelar la tarea y eliminar el holograma
                 if (!player.isOnline() || holograma.isDead()) {
-                    activeHolograms.remove(playerId);
-                    if (!holograma.isDead()) {
-                        holograma.remove();
-                    }
+                    removeHolo(player);
                     cancel();
                     return;
                 }
-                // Configurar para que sea visible solo para el jugador correspondiente
-                sendOnlyToOwner(player, holograma);
-                // Actualizar el dato personalizado (ej. contador de gacha)
-                int gachaOpens = new RPGPlayer(player).getGachaopen();
-                holograma.setCustomName(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD +
+
+                hideFromEveryoneExceptOwner(player,holograma);
+
+                int gachaOpens = new RPGPlayer(player, plugin).getGachaopen();
+                holograma.setCustomName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD +
                         "Acumulado: " + ChatColor.RESET + gachaOpens + "/" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "50");
             }
-        }.runTaskTimer(plugin, 0L, 20L); // Se actualiza cada 20 ticks (1 segundo)
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
-    private void sendOnlyToOwner(Player player, ArmorStand holograma) {
-        // Ocultar el holograma para todos los jugadores...
+    private void hideFromEveryoneExceptOwner(Player owner, ArmorStand holograma) {
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.hideEntity(plugin, holograma);
         }
-        // ...y mostrarlo solo para el jugador correspondiente
-        player.showEntity(plugin, holograma);
+        owner.showEntity(plugin, holograma);
     }
 
-
+    public static void removeHolo(Player player) {
+        UUID playerId = player.getUniqueId();
+        ArmorStand holograma = activeHolograms.remove(playerId);
+        if (holograma != null && !holograma.isDead()) {
+            holograma.remove();
+        }
+    }
 
     public static void removeAllGachaHolos() {
-        // Iterar sobre todos los ArmorStands registrados en activeHolograms y removerlos
         for (ArmorStand holograma : activeHolograms.values()) {
             if (holograma != null && !holograma.isDead()) {
                 holograma.remove();
@@ -117,21 +99,7 @@ public class GachaHolo {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (ArmorStand holograma : activeHolograms.values()) {
-                    if (holograma != null && !holograma.isDead()) {
-                        holograma.remove();
-                    }
-                }
-                activeHolograms.clear();
-
-                World spawn = Bukkit.getWorld("spawn");
-                if (spawn != null) {
-                    for (Entity entity : spawn.getEntities()) {
-                        if (entity.getScoreboardTags().contains("gachaHolo")) {
-                            entity.remove();
-                        }
-                    }
-                }
+                removeAllGachaHolos();
             }
         }.runTaskLater(plugin, 40);
     }

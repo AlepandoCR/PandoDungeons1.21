@@ -5,10 +5,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.RPGPlayer;
@@ -111,7 +109,7 @@ public class GamblingSession {
             return;
         }
 
-        if(new RPGPlayer(player).getCoins() < amount){
+        if(new RPGPlayer(player, plugin).getCoins() < amount){
             player.sendMessage(ChatColor.RED + "No tienes ese dinero para apostar");
             return;
         }
@@ -192,7 +190,7 @@ public class GamblingSession {
     }
 
     private void removeCoinsFromPlayer(Player player, int toRemove){
-        new RPGPlayer(player).removeCoins(toRemove);
+        new RPGPlayer(player, plugin).removeCoins(toRemove);
     }
 
     private void    removeCoins(){
@@ -275,7 +273,7 @@ public class GamblingSession {
             bet.player().sendMessage(ChatColor.GREEN + "¡Ganaste! Recibes " + payout + " monedas.");
 
             // Se añade el dinero al jugador
-            new RPGPlayer(bet.player()).addCoins((int) payout);
+            new RPGPlayer(bet.player(), plugin).addCoins((int) payout);
 
             // Aquí se actualizaría el balance del jugador, según tu implementación
         }

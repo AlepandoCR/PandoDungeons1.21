@@ -5,10 +5,11 @@ import pandoClass.RPGPlayer;
 import pandoClass.classes.assasin.skills.LifeStealSkill;
 import pandoClass.classes.assasin.skills.SilentStepSkill;
 import pandoClass.classes.assasin.skills.SpeedBoostSkill;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 public class Assasin extends ClassRPG {
-    public Assasin(RPGPlayer player) {
-        super("AssassinClass", player);
+    public Assasin(RPGPlayer player, PandoDungeons plugin) {
+        super("AssassinClass", player, plugin);
     }
 
     @Override

@@ -23,6 +23,7 @@ import pandoClass.classes.ClassCommand;
 import pandoClass.classes.farmer.skils.GolemHandler;
 import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.classes.mage.skills.orb.OrbsManager;
+import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.gachaPon.GachaCommand;
 import pandoClass.gachaPon.prizes.PrizeListener;
 import pandoClass.gachaPon.prizes.PrizeManager;
@@ -50,8 +51,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
-import static pandoClass.files.RPGPlayerDataManager.getRPGPlayerMap;
-import static pandoClass.files.RPGPlayerDataManager.loadAllPlayers;
+
+import static pandoClass.classes.mage.skills.TimeRewindSkill.startTracking;
 import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolos;
 import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolosOnStart;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadAllCompanions;
@@ -68,18 +69,23 @@ public final class PandoDungeons extends JavaPlugin {
     public DefaultRewardManager defaultRewardManager;
     public PremiumRewardManager premiumRewardManager;
     public OrbsManager orbsManager;
+    public RPGPlayerDataManager rpgPlayerDataManager;
+    public InitMenu initMenu;
 
     public GamblingSession gamblingSession;
 
     @Override
     public void onEnable() {
+        startTracking(this);
+        initMenu = new InitMenu(this);
         orbsManager = new OrbsManager(this);
         defaultRewardManager = new DefaultRewardManager(this);
         premiumRewardManager = new PremiumRewardManager(this);
         premiumRewardManager.InitRewards();
         startGamble(this);
         removeAllGachaHolosOnStart(this);
-        rpgPlayersList = getRPGPlayerMap();
+        rpgPlayerDataManager = new RPGPlayerDataManager(this);
+        rpgPlayersList = rpgPlayerDataManager.getRPGPlayerMap();
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
@@ -290,7 +296,7 @@ public final class PandoDungeons extends JavaPlugin {
                     return;
                 }
 
-                if (ticks % 36000 == 0) { // Cada media hora
+                if (ticks % 18000 == 0) { // Cada 15 mins
                     List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
                     if (!onlinePlayers.isEmpty()) {
                         Random random = new Random();

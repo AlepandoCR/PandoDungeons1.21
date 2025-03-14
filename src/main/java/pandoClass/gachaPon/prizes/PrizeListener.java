@@ -8,13 +8,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -30,30 +31,125 @@ import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
 import pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize;
 import pandodungeons.pandodungeons.PandoDungeons;
 
-import javax.swing.plaf.SpinnerUI;
 import java.net.MalformedURLException;
 import java.util.*;
 
 import static pandoClass.gachaPon.Gachapon.activeGachapon;
 import static pandoClass.gachaPon.Gachapon.owedTokenPlayers;
+import static pandoClass.gachaPon.prizes.epic.PuertoViejoPipePrize.applyRandomEffect;
+import static pandoClass.gachaPon.prizes.epic.PuertoViejoPipePrize.isPuertoViejoPipe;
 import static pandoClass.gachaPon.prizes.epic.ReparationShardPrize.isReparationShardItem;
+import static pandoClass.gachaPon.prizes.legendary.EscudoReflectantePrize.isReflectShield;
 import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
 import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
-import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
 
 public class PrizeListener implements Listener {
     private final PandoDungeons plugin;
     private final NamespacedKey shieldEffect;
-
+    private final NamespacedKey usosKey;
     private final Map<Player, BukkitRunnable> activeJetPackRunnables = new HashMap<>();
     private final Map<Player, BukkitRunnable> activeBootRunnables = new HashMap<>();
 
 
     public PrizeListener(PandoDungeons plugin) {
         this.plugin = plugin;
+        this.usosKey = new NamespacedKey(plugin, "puertoViejoPipeUsos") ;
         shieldEffect = new NamespacedKey(plugin,"shieldEffect");
     }
+
+    @EventHandler
+    public void onPlayerUsePipe(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+
+        if (isPuertoViejoPipe(item, plugin)) {
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.GREEN + "Usaste la Pipa de Puerto Viejo... sientes algo extraño.");
+                applyRandomEffect(player);
+                reduceUse(player, item);
+        }
+    }
+
+
+
+    private int getRemaningUses(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return 0;
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        return data.getOrDefault(usosKey, PersistentDataType.INTEGER, 0);
+    }
+
+    private void reduceUse(Player player, ItemStack item) {
+        int usosRestantes = getRemaningUses(item);
+        if (usosRestantes <= 1) {
+            player.getInventory().removeItem(item);
+            player.sendMessage(ChatColor.RED + "Tu pipa se ha acabado...");
+            return;
+        }
+
+        // Reducir usos y actualizar el item
+        usosRestantes--;
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        data.set(usosKey, PersistentDataType.INTEGER, usosRestantes);
+
+        // Actualizar lore con los usos restantes
+        List<String> lore = meta.getLore();
+        int i = 0;
+        for(String s : lore){
+            if(s.contains("Jalones")){
+                lore.set(i, ChatColor.AQUA + "Jalones: " + usosRestantes);
+            }
+            i++;
+        }
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+    }
+
+    @EventHandler
+    public void onArrowHit(ProjectileHitEvent event) {
+        Entity entity = event.getHitEntity();
+        if (!(entity instanceof Player)) return;
+
+        Player player = (Player) entity;
+        ItemStack shield = player.getInventory().getItemInOffHand();
+
+        if (!isReflectShield(shield, plugin)) return;
+        if (!player.isBlocking()) return;
+
+        if (event.getEntity() instanceof Arrow arrow) {
+            LivingEntity shooter = (arrow.getShooter() instanceof LivingEntity) ? (LivingEntity) arrow.getShooter() : null;
+
+            // Crear nueva flecha reflejada
+            Arrow returnedArrow = player.launchProjectile(Arrow.class);
+            returnedArrow.setShooter(player);
+            returnedArrow.setCritical(arrow.isCritical());
+            returnedArrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
+
+            if (shooter != null) {
+                // Si hay un atacante, dirigir la flecha hacia él
+                returnedArrow.setVelocity(shooter.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(arrow.getVelocity().length()));
+            } else {
+                // Si no hay atacante, simplemente invertir la dirección
+                returnedArrow.setVelocity(arrow.getVelocity().multiply(-1));
+            }
+
+            // Reducir la durabilidad del escudo
+            reduceDurability(shield);
+        }
+    }
+
+    private void reduceDurability(ItemStack item) {
+        if (!(item.getItemMeta() instanceof Damageable)) return;
+
+        Damageable meta = (Damageable) item.getItemMeta();
+        int currentDamage = meta.getDamage();
+        meta.setDamage(currentDamage + 1); // Reduce la durabilidad (ajustable)
+        item.setItemMeta(meta);
+    }
+
 
     @EventHandler
     public void onMapachoBlade(PlayerInteractEvent event) {
@@ -125,7 +221,7 @@ public class PrizeListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) throws MalformedURLException {
         Player player = (Player) event.getWhoClicked();
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         ClassRPG classRPG = rpgPlayer.getClassRpg();
         String title = event.getView().getTitle();
         ItemStack clickedItem = event.getCurrentItem();

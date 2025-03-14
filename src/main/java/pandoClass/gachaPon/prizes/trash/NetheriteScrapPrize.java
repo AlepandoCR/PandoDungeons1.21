@@ -8,7 +8,7 @@ import pandoClass.gachaPon.Quality;
 public class NetheriteScrapPrize extends PrizeItem {
     @Override
     protected ItemStack createItem() {
-        return new ItemStack(Material.NETHERITE_SCRAP,4);
+        return new ItemStack(Material.NETHERITE_SCRAP,8);
     }
 
     @Override

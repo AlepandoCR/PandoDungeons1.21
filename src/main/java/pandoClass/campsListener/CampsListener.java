@@ -20,7 +20,6 @@ import pandodungeons.pandodungeons.PandoDungeons;
 import java.net.MalformedURLException;
 import java.util.*;
 
-import static pandoClass.InitMenu.createClassSelectionMenu;
 import static pandoClass.classes.archer.skills.DoubleJumSkill.doubleJumping;
 import static pandoToros.game.ArenaMaker.isRedondelWorld;
 import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
@@ -95,7 +94,7 @@ public class CampsListener implements Listener {
     @EventHandler
     public void onProtalChange(EntityPortalEnterEvent event){
         if(event.getEntity() instanceof Player player){
-            if(event.getPortalType().equals(PortalType.ENDER) && 50 > new RPGPlayer(player).getLevel()){
+            if(event.getPortalType().equals(PortalType.ENDER) && 50 > new RPGPlayer(player, plugin).getLevel()){
                 if (player.hasPermission("pandodungeons.end")) return;
                 event.setCancelled(true);
             }
@@ -104,7 +103,7 @@ public class CampsListener implements Listener {
 
     @EventHandler
     public void onTp(PlayerTeleportEvent event){
-        if(event.getTo().getWorld().getName().equals("world_the_end") && 50 > new RPGPlayer(event.getPlayer()).getLevel()){
+        if(event.getTo().getWorld().getName().equals("world_the_end") && 50 > new RPGPlayer(event.getPlayer(), plugin).getLevel()){
             if (event.getPlayer().hasPermission("pandodungeons.end")) return;
             event.setCancelled(true);
         }
@@ -129,7 +128,7 @@ public class CampsListener implements Listener {
 
         if(coinsInEntity > 0){
             addKey(coinsKey,PersistentDataType.INTEGER,enemy,coinsInEntity - 1);
-            new RPGPlayer(source).addCoins(1);
+            new RPGPlayer(source, plugin).addCoins(1);
         }
 
         // Calcula la nueva experiencia basada en la salud restante después del daño
@@ -146,7 +145,7 @@ public class CampsListener implements Listener {
         // Si la experiencia actual es mayor que 0, la actualizamos
         if (currentExp > 0) {
             addKey(expKey, PersistentDataType.INTEGER, enemy, newExp);
-            new RPGPlayer(source).addExp((int) damage);
+            new RPGPlayer(source, plugin).addExp((int) damage);
         }
     }
 
@@ -180,7 +179,7 @@ public class CampsListener implements Listener {
         int count = 0;
         for (Entity entity : entities) {
             if (entity instanceof Player player) {
-                RPGPlayer rpgPlayer = new RPGPlayer(player);
+                RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
                 totalLevel += rpgPlayer.getLevel();
                 count++;
             }
@@ -203,12 +202,12 @@ public class CampsListener implements Listener {
 
         if (tags.contains("RPGshop")) {
             // Acción para la tienda
-            player.openInventory(new ExpandableClassMenu(player).createExpandableClassMenu());
+            player.openInventory(new ExpandableClassMenu(player,plugin).createExpandableClassMenu());
             // Aquí puedes agregar la lógica para abrir el inventario de la tienda u otra acción.
             event.setCancelled(true);
         } else if (tags.contains("RPGSkillMenu")) {
             // Acción para el menú de habilidades
-            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SKILL_MENU));
+            player.openInventory(plugin.initMenu.createClassSelectionMenu(player, InitMenu.Reason.SKILL_MENU));
             // Aquí puedes agregar la lógica para mostrar el menú de habilidades u otra acción.
             event.setCancelled(true);
         }
@@ -227,7 +226,7 @@ public class CampsListener implements Listener {
     public void doubleJump(PlayerInputEvent event) {
         Player player = event.getPlayer();
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
         // Verificar que el input sea de salto.
         if (!event.getInput().isJump()) {

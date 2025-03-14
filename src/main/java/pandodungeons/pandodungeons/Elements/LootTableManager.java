@@ -71,7 +71,7 @@ public class LootTableManager {
         addItemToLootTable(createItem(Material.TNT, "Tnt", 37), 10);
         addItemToLootTable(createItem(Material.WITHER_SKELETON_SKULL, "Cabeza de Wither", 2), 5);
         addItemToLootTable(createItem(Material.NAME_TAG, "NameTag", 1), 15);
-        addItemToLootTable(createItem(Material.OMINOUS_TRIAL_KEY, "Trial Key", 1), 11);
+        addItemToLootTable(createItemNoName(Material.OMINOUS_TRIAL_KEY, 1), 11);
     }
 
     // Método para crear un ítem con un nombre personalizado y una cantidad específica
@@ -84,6 +84,13 @@ public class LootTableManager {
             meta.setRarity(ItemRarity.EPIC);
             item.setItemMeta(meta);
         }
+        return item;
+    }
+
+    // Método para crear un ítem con un nombre personalizado y una cantidad específica
+    private static @NotNull ItemStack createItemNoName(Material material, int amount) {
+        ItemStack item = new ItemStack(material, amount);
+        ItemMeta meta = item.getItemMeta();
         return item;
     }
 

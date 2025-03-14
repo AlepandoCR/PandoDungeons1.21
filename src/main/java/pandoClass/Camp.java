@@ -9,7 +9,6 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.classes.tank.Tank;
-import pandoClass.gachaPon.prizes.PrizeManager;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.*;
@@ -40,7 +39,7 @@ public class Camp {
         int count = 0;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            RPGPlayer rpgPlayer = new RPGPlayer(player);
+            RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
             totalLevel += rpgPlayer.getLevel();
             count++;
         }
@@ -125,7 +124,7 @@ public class Camp {
 
         for(Player player : players){
             player.sendMessage("¡Haz derrotado la horda!");
-            new RPGPlayer(player).addCamp(1);
+            new RPGPlayer(player, plugin).addCamp(1);
             if(2 > i){
                 player.getInventory().addItem(plugin.prizeManager.gachaToken());
             }
@@ -324,7 +323,7 @@ public class Camp {
             if (entity instanceof Mob enemy) { // Solo los Mobs pueden tener target
                 Entity target = enemy.getTarget(); // getTarget() en Mobs devuelve su objetivo actual
                 if (target instanceof Player player) {
-                    RPGPlayer rpgPlayer = new RPGPlayer(player);
+                    RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
                     if (rpgPlayer.getClassRpg() instanceof Tank) {
                         tankCandidates.add(player);
                     }

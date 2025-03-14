@@ -7,13 +7,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import pandoClass.classes.archer.Archer;
-import pandoClass.classes.tank.Tank;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
-
-import static pandoClass.InitMenu.createClassSelectionMenu;
 
 public class ExpandableClassMenuListener implements Listener {
 
@@ -44,7 +40,7 @@ public class ExpandableClassMenuListener implements Listener {
         }
 
         // Obtiene la clase seleccionada
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         ClassRPG selectedClass = getClassByItem(clickedItem, rpgPlayer);
 
         if (selectedClass == null) {
@@ -70,7 +66,7 @@ public class ExpandableClassMenuListener implements Listener {
     }
 
     private ClassRPG getClassByItem(ItemStack item, RPGPlayer rpgPlayer) {
-        for (ClassRPG classRPG : new ExpandableClassMenu(rpgPlayer.getPlayer()).getAvailableClasses()) {
+        for (ClassRPG classRPG : new ExpandableClassMenu(rpgPlayer.getPlayer(),plugin).getAvailableClasses()) {
             if (item.getItemMeta().getDisplayName().contains(classRPG.getName())) {
                 return classRPG;
             }
@@ -91,7 +87,7 @@ public class ExpandableClassMenuListener implements Listener {
                 if (rpgPlayer.getCoins() >= 500) {
                     rpgPlayer.removeCoins(500);
                     rpgPlayer.setClassKey(classKey);
-                    player.openInventory(new ExpandableClassMenu(player).createExpandableClassMenu());
+                    player.openInventory(new ExpandableClassMenu(player,plugin).createExpandableClassMenu());
                 } else {
                     player.sendMessage("No tienes suficientes monedas para cambiar tu clase");
                 }

@@ -33,6 +33,8 @@ public class PrizeManager {
     }
 
     private void setPrizeItems(){
+        prizeItems.add(new EscudoReflectantePrize(plugin));
+        prizeItems.add(new PuertoViejoPipePrize(plugin));
         prizeItems.add(new HeavyCorePrize());
         prizeItems.add(new NetherStarPrize());
         prizeItems.add(new PrestigePrize());

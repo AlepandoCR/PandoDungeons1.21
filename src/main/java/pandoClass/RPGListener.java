@@ -2,8 +2,6 @@ package pandoClass;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -38,13 +36,10 @@ import java.net.MalformedURLException;
 import java.util.*;
 
 import static pandoClass.InitMenu.INNIT_MENU_NAME;
-import static pandoClass.InitMenu.createClassSelectionMenu;
 import static pandoClass.classes.archer.skills.ArrowExplotionSkill.explosiveAmmo;
 import static pandoClass.classes.archer.skills.SaveAmmoSkill.playersSavingAmmo;
 import static pandoClass.classes.assasin.skills.LifeStealSkill.lifeStealingPlayers;
 import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
-import static pandoClass.files.RPGPlayerDataManager.load;
-import static pandoClass.files.RPGPlayerDataManager.save;
 import static pandoClass.gachaPon.GachaHolo.activeHolograms;
 import static pandoClass.gachaPon.prizes.mithic.JetPackPrize.isJetPack;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
@@ -107,7 +102,7 @@ public class RPGListener implements Listener {
 
             event.setDropItems(false);
             Collection<ItemStack> drops = block.getDrops(player.getInventory().getItemInMainHand());
-            double multiplier = new RPGPlayer(player).getFirstSkilLvl() / 5.0;
+            double multiplier = new RPGPlayer(player, plugin).getFirstSkilLvl() / 5.0;
             for (ItemStack drop : drops) {
                 drop.setAmount(Math.max(1,(int)(drop.getAmount() * multiplier)));
                 block.getWorld().dropItemNaturally(block.getLocation(), drop);
@@ -147,7 +142,7 @@ public class RPGListener implements Listener {
     public void onAnimalInteract(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
         // Verifica si el jugador tiene la habilidad Animal Wrangler
         if (!TameSkill.isTamingPlayer(player)) return;
@@ -270,7 +265,7 @@ public class RPGListener implements Listener {
     public void upGradeSkill(Skill skill, int skillNum) throws MalformedURLException {
         Player player = skill.getPlayer();
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
         if(4 <= rpgPlayer.getOrbs()){
             switch (skillNum){
@@ -287,14 +282,14 @@ public class RPGListener implements Listener {
 
             rpgPlayer.setOrbs(rpgPlayer.getOrbs() - 4);
 
-            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SKILL_MENU));
+            player.openInventory(plugin.initMenu.createClassSelectionMenu(player, InitMenu.Reason.SKILL_MENU));
         }
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) throws MalformedURLException {
         Player player = (Player) event.getWhoClicked();
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         ClassRPG classRPG = rpgPlayer.getClassRpg();
         String title = event.getView().getTitle();
         ItemStack clickedItem = event.getCurrentItem();
@@ -359,7 +354,7 @@ public class RPGListener implements Listener {
                 if (rpgPlayer.getCoins() >= 500) {
                     rpgPlayer.removeCoins(500);
                     rpgPlayer.setClassKey(classKey);
-                    player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.SHOP));
+                    player.openInventory(plugin.initMenu.createClassSelectionMenu(player, InitMenu.Reason.SHOP));
                 } else {
                     player.sendMessage("No tienes suficientes monedas para cambiar tu clase");
                 }
@@ -379,7 +374,7 @@ public class RPGListener implements Listener {
             return;
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
 
         int level = rpgPlayer.getFirstSkilLvl(); // Método para obtener el nivel del jugador
@@ -408,7 +403,7 @@ public class RPGListener implements Listener {
         }
 
         // Obtén el RPGPlayer para saber su nivel
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
         if(event.getEntity() instanceof LivingEntity mob){
 
@@ -447,7 +442,7 @@ public class RPGListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         Inventory closedInventory = event.getInventory();
         Player player = (Player) event.getPlayer();
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         String title = event.getView().getTitle();
 
         if(FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())){
@@ -461,7 +456,7 @@ public class RPGListener implements Listener {
                     @Override
                     public void run() {
                         try {
-                            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.INNIT));
+                            player.openInventory(plugin.initMenu.createClassSelectionMenu(player, InitMenu.Reason.INNIT));
                         } catch (MalformedURLException e) {
                             throw new RuntimeException(e);
                         }
@@ -556,7 +551,7 @@ public class RPGListener implements Listener {
             return;
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
         if(rpgPlayer.isTexturePack()){
             String texturePackUrl = "https://raw.githubusercontent.com/AlepandoCR/MapachoTextura/main/mapachos.zip";
@@ -564,16 +559,16 @@ public class RPGListener implements Listener {
         }
 
         if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
-            player.openInventory(createClassSelectionMenu(player, InitMenu.Reason.INNIT));
+            player.openInventory(plugin.initMenu.createClassSelectionMenu(player, InitMenu.Reason.INNIT));
            return;
         }
 
         if(!plugin.rpgPlayersList.containsKey(rpgPlayer)){
             String classKey = rpgPlayer.getClassKey();
-            ClassRPG classRPG = new Assasin(rpgPlayer);
+            ClassRPG classRPG = new Assasin(rpgPlayer,plugin);
             classRPG = switch (classKey) {
-                case "ArcherClass" -> new Archer(rpgPlayer);
-                case "TankClass" -> new Tank(rpgPlayer);
+                case "ArcherClass" -> new Archer(rpgPlayer,plugin);
+                case "TankClass" -> new Tank(rpgPlayer,plugin);
                 default -> classRPG;
             };
             plugin.rpgPlayersList.put(rpgPlayer.getPlayer(),classRPG);
@@ -587,7 +582,7 @@ public class RPGListener implements Listener {
             return;
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         int level = rpgPlayer.getFirstSkilLvl();
 
         if (playersSavingAmmo.contains(player)) {
@@ -616,7 +611,7 @@ public class RPGListener implements Listener {
         }
 
         // Obtener el RPGPlayer para conocer el nivel
-        RPGPlayer rpgPlayer = RPGPlayerDataManager.load(player);
+        RPGPlayer rpgPlayer = plugin.rpgPlayerDataManager.load(player);
         if (rpgPlayer == null) {
             return;
         }
@@ -656,5 +651,13 @@ public class RPGListener implements Listener {
             }
             activeHolograms.remove(playerId);
         }
+    }
+
+    private void save(RPGPlayer rpgPlayer){
+        plugin.rpgPlayerDataManager.save(rpgPlayer);
+    }
+
+    private RPGPlayer load(Player rpgPlayer){
+        return plugin.rpgPlayerDataManager.load(rpgPlayer);
     }
 }

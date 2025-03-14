@@ -41,7 +41,7 @@ public class GolemHandler implements Listener {
         if (!isGolemPlayer(player)) return;
 
         UUID playerId = player.getUniqueId();
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
         int skillLevel = rpgPlayer.getThirdSkillLvl();
         int maxGolems = Math.max(1, skillLevel / 10);

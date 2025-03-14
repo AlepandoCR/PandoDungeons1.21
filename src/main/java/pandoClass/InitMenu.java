@@ -1,7 +1,6 @@
 package pandoClass;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
-import net.minecraft.network.chat.ChatDecorator;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -9,11 +8,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.tank.Tank;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 import javax.annotation.Nullable;
 import java.net.MalformedURLException;
@@ -25,6 +26,13 @@ import java.util.UUID;
 public class InitMenu {
     public static final String INNIT_MENU_NAME = ChatColor.RED.toString() + ChatColor.BOLD + " Elección única" + ChatColor.DARK_GRAY + " de clase" ;
 
+    private final PandoDungeons plugin;
+
+    public InitMenu(PandoDungeons plugin){
+
+        this.plugin = plugin;
+    }
+
     public enum Reason {
         INNIT,
         SKILL_MENU,
@@ -32,8 +40,8 @@ public class InitMenu {
     }
 
     // Método que crea el menú
-    public static Inventory createClassSelectionMenu(Player player, Reason reason) throws MalformedURLException {
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+    public Inventory createClassSelectionMenu(Player player, Reason reason) throws MalformedURLException {
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         String menuTitle;
         menuTitle = switch (reason){
             case INNIT -> INNIT_MENU_NAME;
@@ -78,7 +86,7 @@ public class InitMenu {
         return menu;
     }
 
-    private static ItemStack createHeadForSkill(String displayName, Skill skill, RPGPlayer player) throws MalformedURLException {
+    private ItemStack createHeadForSkill(String displayName, Skill skill, RPGPlayer player) throws MalformedURLException {
         String textureUrl = skill.getDisplayValue();
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = getSkullMetaForSkill(player, head, skill);
@@ -96,7 +104,7 @@ public class InitMenu {
         return head;
     }
 
-    private static ItemStack createHead(String displayName, String textureUrl, ClassRPG classRPG) throws MalformedURLException {
+    private ItemStack createHead(String displayName, String textureUrl, ClassRPG classRPG) throws MalformedURLException {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = getSkullMetaForInfo(classRPG,head);
 
@@ -119,7 +127,7 @@ public class InitMenu {
         return head;
     }
 
-    private static ItemStack createAssassinHead(RPGPlayer player) throws MalformedURLException {
+    private ItemStack createAssassinHead(RPGPlayer player) throws MalformedURLException {
         int lvl = player.getLevel();
         String url;
         if(lvl < 25 || player.getClassKey() == null){
@@ -132,18 +140,18 @@ public class InitMenu {
             url = "2638583cf2c761fac3f83982589ac26ee5771a183863b47a2490e4cb506ad26";
         }
 
-        ItemStack head = createHead(ChatColor.RED.toString() + ChatColor.BOLD + "Asesíno", url, new Assasin(player));
+        ItemStack head = createHead(ChatColor.RED.toString() + ChatColor.BOLD + "Asesíno", url, new Assasin(player,plugin));
 
         return head;
     }
 
 
 
-    private static @NotNull SkullMeta getSkullMetaForInfo(@Nullable ClassRPG classRPG, ItemStack head) {
+    private @NotNull SkullMeta getSkullMetaForInfo(@Nullable ClassRPG classRPG, ItemStack head) {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         List<String> lore = new ArrayList<>();
         if(classRPG != null){
-            RPGPlayer rpgPlayer = new RPGPlayer(classRPG.rpgPlayer.getPlayer());
+            RPGPlayer rpgPlayer = new RPGPlayer(classRPG.rpgPlayer.getPlayer(), plugin);
             lore.add("§6§lHabilidades"); // Título en dorado y negrita
             lore.add("§b§l1 - §f" + classRPG.firstSkill.getDescription());
             lore.add("§b§l2 - §f" + classRPG.secondSkill.getDescription());
@@ -162,7 +170,7 @@ public class InitMenu {
         return meta;
     }
 
-    private static @NotNull SkullMeta getSkullMetaForSkill(RPGPlayer player, ItemStack head, Skill skill) {
+    private @NotNull SkullMeta getSkullMetaForSkill(RPGPlayer player, ItemStack head, Skill skill) {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         List<String> lore = new ArrayList<>();
         lore.add("§6§lDescripción: §f" + skill.getDescription());
@@ -173,7 +181,7 @@ public class InitMenu {
     }
 
 
-    private static ItemStack createArcherHead(RPGPlayer player) throws MalformedURLException {
+    private ItemStack createArcherHead(RPGPlayer player) throws MalformedURLException {
         int lvl = player.getLevel();
         String url;
 
@@ -187,12 +195,12 @@ public class InitMenu {
             url = "145eb4dcb633155fcb383006e2c626353cc680220074928e57bded2a1c955666";
         }
 
-        ItemStack head = createHead(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Arquero", url, new Archer(player));
+        ItemStack head = createHead(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Arquero", url, new Archer(player,plugin));
         return head;
     }
 
 
-    private static ItemStack createTankHead(RPGPlayer player) throws MalformedURLException {
+    private ItemStack createTankHead(RPGPlayer player) throws MalformedURLException {
         int lvl = player.getLevel();
 
         String url;
@@ -207,7 +215,7 @@ public class InitMenu {
          url = "6d402a1f9629b124c265273c1fd6aa2210fe204fb0d3416012c615aca4760b5d";
         }
 
-        ItemStack head = createHead(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Tanque", url, new Tank(player));
+        ItemStack head = createHead(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Tanque", url, new Tank(player,plugin));
         return head;
     }
 }

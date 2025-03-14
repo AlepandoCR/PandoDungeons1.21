@@ -30,6 +30,7 @@ public class OrbsManager {
     }
 
     public void removeOrb(Player player, Orb orb){
+        orb.remove();
         orbs.remove(player,orb);
     }
 

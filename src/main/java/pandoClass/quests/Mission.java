@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import pandoClass.RPGPlayer;
 import pandodungeons.pandodungeons.PandoDungeons;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public abstract class Mission<T> {
@@ -29,7 +28,7 @@ public abstract class Mission<T> {
         this.player = player.getUniqueId();
         this.plugin = plugin;
 
-        rpgPlayer = new RPGPlayer(player);
+        rpgPlayer = new RPGPlayer(player, plugin);
         level = rpgPlayer.getLevel();
 
         // Fórmula dinámica para calcular la cantidad a completar

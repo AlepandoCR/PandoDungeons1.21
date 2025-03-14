@@ -5,10 +5,11 @@ import pandoClass.RPGPlayer;
 import pandoClass.classes.archer.skills.ArrowExplotionSkill;
 import pandoClass.classes.archer.skills.SaveAmmoSkill;
 import pandoClass.classes.archer.skills.DoubleJumSkill;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 public class Archer extends ClassRPG {
-    public Archer(RPGPlayer player) {
-        super("ArcherClass", player);
+    public Archer(RPGPlayer player, PandoDungeons plugin) {
+        super("ArcherClass", player, plugin);
     }
 
     @Override

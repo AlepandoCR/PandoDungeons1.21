@@ -17,7 +17,7 @@ public class Squad {
 
     public void sortPlayers(List<Player> players){
         for(Player player : players){
-            this.players.add(new RPGPlayer(player));
+           // this.players.add(new RPGPlayer(player, ));
         }
     }
 

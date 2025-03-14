@@ -10,15 +10,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pandoClass.RPGPlayer;
-import pandoToros.Commands.PlayRedondelCommand;
-import pandoToros.Commands.ToroStatsCommand;
-import pandodungeons.pandodungeons.Game.Stats;
 import pandodungeons.pandodungeons.PandoDungeons;
 
-import javax.swing.*;
 import java.util.List;
-
-import static pandoToros.Commands.ToroStatsCommand.ToroCommandStats;
 
 public class TextureCommand implements CommandExecutor, TabCompleter {
 
@@ -42,11 +36,11 @@ public class TextureCommand implements CommandExecutor, TabCompleter {
                         player.sendMessage(ChatColor.LIGHT_PURPLE + "Enlace de descarga: " + ChatColor.GOLD + texturePackUrl);
                     }
                     if(strings[0].equalsIgnoreCase("mantener")){
-                        new RPGPlayer(player).setTexturePack(true);
+                        new RPGPlayer(player, plugin).setTexturePack(true);
                         applyPack(player,texturePackUrl);
                     }
                     if(strings[0].equalsIgnoreCase("eliminar")){
-                        new RPGPlayer(player).setTexturePack(false);
+                        new RPGPlayer(player, plugin).setTexturePack(false);
                     }
                 }
 

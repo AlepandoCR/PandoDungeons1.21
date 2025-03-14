@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.RPGPlayer;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -66,7 +65,7 @@ public class ItemUpgrade {
 
         // **Calcular costo en monedas** (10,000 + extra basado en las mejoras previas)
         int coinCost = 10000 + (upgradeCount * 10000);
-        RPGPlayer rpgPlayer = new RPGPlayer(player);
+        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
 
         if(!megaUpgrade){
             if (!removeUpgradeShard(player, 1)) {

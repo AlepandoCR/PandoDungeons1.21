@@ -8,7 +8,7 @@ import pandoClass.gachaPon.Quality;
 public class DarkPrismarinePrize extends PrizeItem {
     @Override
     protected ItemStack createItem() {
-        return new ItemStack(Material.DARK_PRISMARINE,32);
+        return new ItemStack(Material.DARK_PRISMARINE,64);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package pandoClass;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
-import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,7 +12,9 @@ import org.bukkit.profile.PlayerTextures;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.farmer.Farmer;
+import pandoClass.classes.mage.Mage;
 import pandoClass.classes.tank.Tank;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,8 +30,11 @@ public class ExpandableClassMenu {
 
     private final RPGPlayer rpgPlayer;
 
-    public ExpandableClassMenu(Player player){
-        this.rpgPlayer = new RPGPlayer(player);
+    private final PandoDungeons plugin;
+
+    public ExpandableClassMenu(Player player, PandoDungeons plugin){
+        this.rpgPlayer = new RPGPlayer(player, plugin);
+        this.plugin = plugin;
         CLASS_MENU_TITLE = ChatColor.DARK_GRAY +  "Cambiar clase          " + ChatColor.WHITE + "☃ " + ChatColor.RESET +  rpgPlayer.getCoins();
         setClasses();
     }
@@ -40,10 +44,11 @@ public class ExpandableClassMenu {
     }
 
     private void setClasses(){
-        availableClasses.add(new Farmer(rpgPlayer)); // Solo Granjero por ahora
-        availableClasses.add(new Archer(rpgPlayer));
-        availableClasses.add(new Tank(rpgPlayer));
-        availableClasses.add(new Assasin(rpgPlayer));
+        availableClasses.add(new Farmer(rpgPlayer,plugin));
+        availableClasses.add(new Archer(rpgPlayer,plugin));
+        availableClasses.add(new Tank(rpgPlayer,plugin));
+        availableClasses.add(new Assasin(rpgPlayer,plugin));
+        availableClasses.add(new Mage(rpgPlayer,plugin));
     }
 
     public Inventory createExpandableClassMenu() throws MalformedURLException {
@@ -98,6 +103,7 @@ public class ExpandableClassMenu {
             case "TankClass"  -> createTankHead();
             case "AssassinClass" -> createAssassinHead();
             case "ArcherClass" -> createArcherHead();
+            case "MageClass" -> createMageHead();
             default -> "default_texture_url"; // Cambia esto si agregas más clases
         };
     }
@@ -114,6 +120,24 @@ public class ExpandableClassMenu {
             url = "8dd43768ab9a675aafea5539417a4d495c92bb2c8be27ea4e31ff657bcffbae5";
         }else{
             url = "7b43b23189dcf1326da4253d1d7582ef5ad29f6c27b171feb17e31d084e3a7d";
+        }
+
+        return url;
+    }
+
+
+    private String  createMageHead() {
+        int lvl = rpgPlayer.getLevel();
+        String url;
+
+        if(lvl < 25){
+            url = "287db08bb13f9be91f1e9037eb2edb9c12fb7567450303b8d835a688b20ab824";
+        }else if(lvl < 50){
+            url = "9c4cd6196dd1beb7715d70406152347fcea36c2eced37fb5ccb492adfb861583";
+        }else if(lvl < 75){
+            url = "edd8fecdba1985baac4df9c3f13e4321653f6ca1e63b7a0ff78dcd73e3f0d5c8";
+        }else{
+            url = "edd8fecdba1985baac4df9c3f13e4321653f6ca1e63b7a0ff78dcd73e3f0d5c8";
         }
 
         return url;

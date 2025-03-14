@@ -19,8 +19,10 @@ import pandoClass.ExpandableClassMenu;
 import pandoClass.InitMenu;
 import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.gachaPon.prizes.epic.InstaUpgradeShard;
+import pandoClass.gachaPon.prizes.epic.PuertoViejoPipePrize;
 import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
 import pandoClass.gachaPon.prizes.epic.RocketBootsPrize;
+import pandoClass.gachaPon.prizes.legendary.EscudoReflectantePrize;
 import pandoClass.gachaPon.prizes.legendary.StormSwordPrize;
 import pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize;
 import pandoClass.gachaPon.prizes.mithic.*;
@@ -166,7 +168,7 @@ public class getEnchantment implements CommandExecutor {
         }else if(args[1].equalsIgnoreCase("classoc")){
 
             try {
-                player.openInventory(new ExpandableClassMenu(player).createExpandableClassMenu());
+                player.openInventory(new ExpandableClassMenu(player,plugin).createExpandableClassMenu());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
@@ -177,7 +179,12 @@ public class getEnchantment implements CommandExecutor {
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
+        }else if(args[1].equalsIgnoreCase("pipa")){
+                player.getInventory().addItem(new PuertoViejoPipePrize(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("rebota")){
+            player.getInventory().addItem(new EscudoReflectantePrize(plugin).getItem());
         }
+
 
         return false;
     }
