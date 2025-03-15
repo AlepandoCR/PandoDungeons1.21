@@ -30,7 +30,7 @@ public class OrbFriendSkill extends Skill {
 
     @Override
     protected boolean canActivate() {
-        return !isPlayerOnPvP(getPlayer());
+        return !isPlayerOnPvP(getPlayer()) && !owner.isDead();
     }
 
     @Override

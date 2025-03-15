@@ -26,7 +26,7 @@ public class OrbSkillAttack extends OrbSkill {
         task = new BukkitRunnable() {
             @Override
             public void run() {
-                if (!owner.isOnline() || owner.isDead()) {
+                if (!owner.isOnline() || owner.isDead() || !plugin.orbsManager.hasOrb(owner)) {
                     stop();
                     return;
                 }
@@ -41,9 +41,10 @@ public class OrbSkillAttack extends OrbSkill {
                         .ifPresent(enemy -> {
                             Location fireballLoc = orb.getLocation();
 
-                            if(!enemy.getWorld().equals(fireballLoc.getWorld())){
+                            if (fireballLoc.getWorld() == null || enemy.getWorld() == null || !enemy.getWorld().equals(fireballLoc.getWorld())) {
                                 return;
                             }
+
 
                             Vector direction = enemy.getLocation().subtract(fireballLoc).toVector();
 

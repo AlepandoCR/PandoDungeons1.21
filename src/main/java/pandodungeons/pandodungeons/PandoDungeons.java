@@ -53,6 +53,7 @@ import java.util.*;
 
 
 import static pandoClass.classes.mage.skills.TimeRewindSkill.startTracking;
+import static pandoClass.classes.mage.skills.orb.Orb.handleStands;
 import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolos;
 import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolosOnStart;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadAllCompanions;
@@ -76,6 +77,8 @@ public final class PandoDungeons extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        handleStandsHere();
+        rpgPlayerDataManager = new RPGPlayerDataManager(this);
         startTracking(this);
         initMenu = new InitMenu(this);
         orbsManager = new OrbsManager(this);
@@ -84,7 +87,6 @@ public final class PandoDungeons extends JavaPlugin {
         premiumRewardManager.InitRewards();
         startGamble(this);
         removeAllGachaHolosOnStart(this);
-        rpgPlayerDataManager = new RPGPlayerDataManager(this);
         rpgPlayersList = rpgPlayerDataManager.getRPGPlayerMap();
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists()) {
@@ -218,6 +220,7 @@ public final class PandoDungeons extends JavaPlugin {
     public void onDisable() {
         runnable.cancel();
         removeOrbs();
+        handleStands(PandoDungeons.this);
         removeAllGachaHolos();
         if(this.gamblingSession != null){
             gamblingSession.removeHorses();
@@ -237,6 +240,16 @@ public final class PandoDungeons extends JavaPlugin {
                 }
             }
         }
+    }
+
+    private void handleStandsHere(){
+        new BukkitRunnable(){
+
+            @Override
+            public void run() {
+                handleStands(PandoDungeons.this);
+            }
+        }.runTaskTimer(this,40,4000);
     }
 
     private void removeDungeons() {

@@ -19,7 +19,7 @@ public class OrbSkillSlowfall extends OrbSkill {
         task = new BukkitRunnable() {
             @Override
             public void run() {
-                if (!owner.isOnline() || owner.isDead()) {
+                if (!owner.isOnline() || owner.isDead() || !plugin.orbsManager.hasOrb(owner)) {
                     stop();
                     return;
                 }

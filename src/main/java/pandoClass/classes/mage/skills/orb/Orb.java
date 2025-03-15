@@ -16,10 +16,13 @@ import pandoClass.classes.mage.skills.orb.skills.OrbSkill;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillAttack;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillDefense;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillSlowfall;
+import pandoClass.golem.limbs.Arm;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Orb {
@@ -33,6 +36,7 @@ public class Orb {
     private OrbSkill currentSkill;
     private int level;
     private final NamespacedKey orbKey;
+    private static final List<ArmorStand> stands = new ArrayList<>();
 
     public Orb(PandoDungeons plugin, Player owner, String orbDisplay, int level) throws MalformedURLException {
         this.plugin = plugin;
@@ -60,6 +64,10 @@ public class Orb {
         orbDisplay = head;
 
         updateStand();
+    }
+
+    public ArmorStand getStand(){
+        return stand;
     }
 
     public void updateStand(){
@@ -100,7 +108,25 @@ public class Orb {
             armorStand.getEquipment().setHelmet(orbDisplay); // Orbe en la cabeza
         });
 
+        stands.add(stand);
+
         mainLoop();
+    }
+
+    public static void handleStands(PandoDungeons plugin){
+        for (World world : Bukkit.getWorlds())
+        {
+            for(Entity entity : world.getEntities()){
+                if(entity instanceof ArmorStand armorStand){
+                    NamespacedKey key = new NamespacedKey(plugin,"orbKey");
+                    if(armorStand.getPersistentDataContainer().has(key)){
+                        if(!stands.contains(armorStand)){
+                            armorStand.remove();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void mainLoop() {
@@ -114,6 +140,7 @@ public class Orb {
             @Override
             public void run() {
                 if (!owner.isOnline() || owner.isDead() || !(new RPGPlayer(owner,plugin).getClassRpg() instanceof Mage) || !stand.isValid() || stand.isDead()) {
+                    stands.remove(stand);
                     remove();
                     return;
                 }
