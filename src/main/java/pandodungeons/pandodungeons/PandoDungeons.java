@@ -219,7 +219,9 @@ public final class PandoDungeons extends JavaPlugin {
         runnable.cancel();
         removeOrbs();
         removeAllGachaHolos();
-        gamblingSession.removeHorses();
+        if(this.gamblingSession != null){
+            gamblingSession.removeHorses();
+        }
         removePlayersFromDungeons();
         removeDungeons();
     }
@@ -247,19 +249,12 @@ public final class PandoDungeons extends JavaPlugin {
     }
 
     private void removeOrbs() {
-        // Asegúrate de que el método orbsManager.getOrbs() devuelve una colección válida.
         if (orbsManager != null && orbsManager.getOrbs() != null) {
-            orbsManager.getOrbs().values().forEach(orb -> {
+            // Crear una copia de la colección para evitar ConcurrentModificationException
+            new HashMap<>(orbsManager.getOrbs()).forEach((player, orb) -> {
                 if (orb != null) {
-                    orb.remove();  // Llamada a la eliminación del Orb y su ArmorStand asociado.
-                }
-            });
-        }
-
-        for(World world : Bukkit.getWorlds()){
-            world.getEntities().forEach(entity -> {
-                if (entity.getPersistentDataContainer().has(new NamespacedKey(this,"orbKey"))){
-                    entity.remove();
+                    orb.remove();  // Eliminar visualmente el Orb y su ArmorStand
+                    orbsManager.removeOrb(player, orb); // Remover del mapa original
                 }
             });
         }

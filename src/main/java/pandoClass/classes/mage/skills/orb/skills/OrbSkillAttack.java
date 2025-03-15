@@ -21,7 +21,7 @@ public class OrbSkillAttack extends OrbSkill {
     public void start(int level) {
         stop(); // Detener la habilidad anterior si existe
         AtomicBoolean shot = new AtomicBoolean(false);
-        int fireballInterval = Math.max(20, 80 - level);
+        int fireballInterval = Math.max(4, 80 - level);
 
         task = new BukkitRunnable() {
             @Override
@@ -40,6 +40,11 @@ public class OrbSkillAttack extends OrbSkill {
                         .findFirst()
                         .ifPresent(enemy -> {
                             Location fireballLoc = orb.getLocation();
+
+                            if(!enemy.getWorld().equals(fireballLoc.getWorld())){
+                                return;
+                            }
+
                             Vector direction = enemy.getLocation().subtract(fireballLoc).toVector();
 
                             // Verificar que la distancia no sea cero
@@ -78,6 +83,6 @@ public class OrbSkillAttack extends OrbSkill {
             }
         };
 
-        task.runTaskTimer(plugin, fireballInterval / 2, fireballInterval);
+        task.runTaskTimer(plugin, 0, fireballInterval);
     }
 }

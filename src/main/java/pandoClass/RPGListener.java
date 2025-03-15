@@ -653,6 +653,7 @@ public class RPGListener implements Listener {
         }
     }
 
+
     private void save(RPGPlayer rpgPlayer){
         plugin.rpgPlayerDataManager.save(rpgPlayer);
     }

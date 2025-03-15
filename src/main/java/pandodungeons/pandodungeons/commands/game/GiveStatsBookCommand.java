@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandodungeons.pandodungeons.Game.PlayerStatsBook;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +16,11 @@ import java.util.UUID;
 
 public class GiveStatsBookCommand implements CommandExecutor {
 
-    private final JavaPlugin plugin;
+    private final PandoDungeons plugin;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private static final long COOLDOWN_TIME = 24 * 60 * 60 * 1000; // 1 día en milisegundos
 
-    public GiveStatsBookCommand(JavaPlugin plugin) {
+    public GiveStatsBookCommand(PandoDungeons plugin) {
         this.plugin = plugin;
     }
 

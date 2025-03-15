@@ -183,9 +183,11 @@ public class GamblingSession {
     }
 
     public void  removeHorses(){
-        for (Map.Entry<Integer, ArmorStand> entry : horses.entrySet()) {
-            ArmorStand horse = entry.getValue();
-            horse.remove();
+        if(plugin.gamblingSession != null){
+            for (Map.Entry<Integer, ArmorStand> entry : horses.entrySet()) {
+                ArmorStand horse = entry.getValue();
+                horse.remove();
+            }
         }
     }
 

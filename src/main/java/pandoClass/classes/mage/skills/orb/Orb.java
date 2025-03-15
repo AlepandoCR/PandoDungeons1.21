@@ -11,6 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
+import pandoClass.classes.mage.Mage;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkill;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillAttack;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillDefense;
@@ -112,7 +113,7 @@ public class Orb {
 
             @Override
             public void run() {
-                if (!owner.isOnline() || owner.isDead()) {
+                if (!owner.isOnline() || owner.isDead() || !(new RPGPlayer(owner,plugin).getClassRpg() instanceof Mage) || !stand.isValid() || stand.isDead()) {
                     remove();
                     return;
                 }

@@ -218,7 +218,6 @@ public class RPGPlayer {
         getPlayer().setMaxHealth(20.0);
         getPlayer().setWalkSpeed(0.2f);
 
-        // Remover efectos previos
         doubleJumping.remove(getPlayer());
         explosiveAmmo.remove(getPlayer());
         magicShieldPlayers.remove(getPlayer());

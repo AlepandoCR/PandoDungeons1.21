@@ -18,7 +18,8 @@ public class TimeRewindSkill extends Skill {
     private static final Map<UUID, Long> cooldowns = new HashMap<>();
     private static final List<Player> mages = new ArrayList<>();
     private static final int MAX_HISTORY = 10; // Máximo de segundos registrados
-    private static final int BASE_COOLDOWN = 20; // Cooldown base en segundos
+    private static final int BASE_COOLDOWN = 40; // Cooldown base en segundos
+    private boolean sentCdMsg = false;
 
     public TimeRewindSkill(int lvl, Player player, PandoDungeons plugin) {
         super(lvl, player);
@@ -52,7 +53,10 @@ public class TimeRewindSkill extends Skill {
             if (cooldowns.containsKey(uuid)) {
                 long timeLeft = (cooldowns.get(uuid) - System.currentTimeMillis()) / 1000;
                 if (timeLeft > 0) {
-                    owner.sendMessage("§cRetroceso Temporal en cooldown. Espera " + timeLeft + "s.");
+                    if(!sentCdMsg){
+                        owner.sendMessage("§cRetroceso Temporal en cooldown. Espera " + timeLeft + "s.");
+                        sentCdMsg = true;
+                    }
                     return;
                 }
             }
@@ -69,6 +73,7 @@ public class TimeRewindSkill extends Skill {
             //  Obtener ubicación pasada y teletransportar
             Location rewindLocation = history.get(history.size() - rewindSeconds);
             owner.teleport(rewindLocation);
+            sentCdMsg = false;
             owner.sendMessage("§aHas retrocedido " + rewindSeconds + " segundos en el tiempo.");
 
             // Aplicar cooldown

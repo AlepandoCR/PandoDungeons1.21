@@ -8,15 +8,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Game.Stats;
+import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.Comparator;
 import java.util.List;
 
 public class DungeonsTopCommand implements CommandExecutor {
 
-    private final JavaPlugin plugin;
+    private final PandoDungeons plugin;
 
-    public DungeonsTopCommand(JavaPlugin plugin) {
+    public DungeonsTopCommand(PandoDungeons plugin) {
         this.plugin = plugin;
     }
 

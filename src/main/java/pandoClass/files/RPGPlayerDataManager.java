@@ -55,6 +55,9 @@ public class RPGPlayerDataManager {
     }
 
     public RPGPlayer load(Player player) {
+        if(player == null){
+            return null;
+        }
         UUID uuid = player.getUniqueId();
         File file = new File(DATA_FOLDER, uuid + ".json");
 
