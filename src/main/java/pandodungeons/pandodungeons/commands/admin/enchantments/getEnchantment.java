@@ -185,7 +185,6 @@ public class getEnchantment implements CommandExecutor {
             player.getInventory().addItem(new EscudoReflectantePrize(plugin).getItem());
         }
 
-
         return false;
     }
 

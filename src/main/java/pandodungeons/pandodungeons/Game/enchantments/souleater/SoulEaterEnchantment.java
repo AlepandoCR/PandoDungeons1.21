@@ -125,7 +125,7 @@ public class SoulEaterEnchantment {
 
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            int soulCount = getSoulCount(item) + 1;
+            int soulCount = getSoulCount(item) + 2;
             meta.getPersistentDataContainer().set(SOUL_COUNT_KEY, PersistentDataType.INTEGER, soulCount);
 
             // Actualizar el lore con la cantidad de almas
@@ -186,9 +186,9 @@ public class SoulEaterEnchantment {
     }
 
     public static void healAbility(Player player, ItemStack item){
-        if(getSoulCount(item) >= 100){
+        if(getSoulCount(item) >= 5){
             player.setHealth(player.getMaxHealth());
-            reduceSouls(item,50);
+            reduceSouls(item,5);
             spawnHeartParticleCircle(player.getLocation(), 1, 10);
         }else{
             player.sendMessage(ChatColor.DARK_RED + "No tienes almas suficientes aun");
@@ -196,7 +196,7 @@ public class SoulEaterEnchantment {
     }
 
     public static void freezeAbility(Player player, ItemStack item){
-        if(getSoulCount(item) >= 200){
+        if(getSoulCount(item) >= 10){
             List<Entity> entities = player.getNearbyEntities(5,5,5);
             for(Entity entity : entities){
                 if(!(entity instanceof Player)){
@@ -204,14 +204,14 @@ public class SoulEaterEnchantment {
                     livingEntity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100,10));
                 }
             }
-            reduceSouls(item,100);
+            reduceSouls(item,10);
         }else{
             player.sendMessage(ChatColor.DARK_RED + "No tienes almas suficientes aun");
         }
     }
 
     public static void berserkAttack(Player player, ItemStack item){
-        if(getSoulCount(item) > 300){
+        if(getSoulCount(item) > 30){
             player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 200 * 4, 3, false,false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 200 * 4, 4, false,false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200 * 4, 1, false,false));
@@ -222,12 +222,12 @@ public class SoulEaterEnchantment {
                     livingEntity.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100,3));
                 }
             }
-            reduceSouls(item,200);
+            reduceSouls(item,30);
         }
     }
 
     public static void soulArmyAbility(Player player, ItemStack item) throws MalformedURLException {
-        if (getSoulCount(item) >= 500) {
+        if (getSoulCount(item) >= 100) {
             List<LivingEntity> nearbyMobs = player.getNearbyEntities(40, 40, 40)
                     .stream()
                     .filter(entity -> entity instanceof Monster && !(entity instanceof Player))
@@ -252,7 +252,7 @@ public class SoulEaterEnchantment {
                 moveArmorStandToTarget(armorStand, target, player);
             }
 
-            reduceSouls(item, 500);
+            reduceSouls(item, 100);
         } else {
             player.sendMessage(ChatColor.DARK_RED + "No tienes almas suficientes aún.");
         }

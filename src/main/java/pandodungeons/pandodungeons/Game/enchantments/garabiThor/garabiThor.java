@@ -21,7 +21,7 @@ import org.bukkit.util.EulerAngle;
 import static pandodungeons.pandodungeons.Utils.ParticleUtils.spawnElectricParticleCircle;
 
 public class garabiThor {
-    private static final JavaPlugin plugin = JavaPlugin.getPlugin(PandoDungeons.class);
+    private static final PandoDungeons plugin = PandoDungeons.getPlugin(PandoDungeons.class);
 
     public static void handleGarabiThor(Player player, ItemStack item) {
         Location playerLocation = player.getEyeLocation();

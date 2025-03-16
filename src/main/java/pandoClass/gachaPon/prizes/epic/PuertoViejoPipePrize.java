@@ -28,7 +28,7 @@ public class PuertoViejoPipePrize extends PrizeItem {
 
     private NamespacedKey puertoViejoPipe;
     private NamespacedKey usosKey;
-    private static final int USOS_MAXIMOS = 10;
+    private static final int USOS_MAXIMOS = 100;
 
     public PuertoViejoPipePrize(PandoDungeons plugin) {
         super(plugin);

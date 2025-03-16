@@ -17,11 +17,11 @@ public class OrbSkillAttack extends OrbSkill {
         super(plugin, orb);
     }
 
-    @Override
     public void start(int level) {
         stop(); // Detener la habilidad anterior si existe
         AtomicBoolean shot = new AtomicBoolean(false);
-        int fireballInterval = Math.max(4, 80 - level);
+
+        int fireballInterval = Math.max(4, 80 - (level * 5)); // Ajuste más claro por nivel
 
         task = new BukkitRunnable() {
             @Override
@@ -45,19 +45,15 @@ public class OrbSkillAttack extends OrbSkill {
                                 return;
                             }
 
-
                             Vector direction = enemy.getLocation().subtract(fireballLoc).toVector();
 
-                            // Verificar que la distancia no sea cero
                             if (direction.lengthSquared() == 0) {
-                                return; // No disparar si la dirección es nula
+                                return;
                             }
 
-                            // Normalizar y aplicar la velocidad de lanzamiento
                             direction.normalize();
                             double speed = 0.5 + (0.1 * level);
 
-                            // Crear la fireball y aplicarle la dirección
                             Fireball fireball = fireballLoc.getWorld().spawn(fireballLoc, Fireball.class);
                             fireball.setDirection(direction);
                             fireball.setIsIncendiary(false);
@@ -66,13 +62,13 @@ public class OrbSkillAttack extends OrbSkill {
                             fireball.setVelocity(direction.clone().multiply(speed));
                             shot.set(true);
 
-                            if(!orb.getCurrentEmotion().equals(OrbEmotion.ANGRY)){
+                            if (!orb.getCurrentEmotion().equals(OrbEmotion.ANGRY)) {
                                 orb.changeEmotion(OrbEmotion.ANGRY);
                             }
                         });
 
-                if(!shot.get()){
-                    if(!orb.getCurrentEmotion().equals(OrbEmotion.HAPPY)){
+                if (!shot.get()) {
+                    if (!orb.getCurrentEmotion().equals(OrbEmotion.HAPPY)) {
                         orb.changeEmotion(OrbEmotion.HAPPY);
                     }
                     try {
@@ -84,6 +80,7 @@ public class OrbSkillAttack extends OrbSkill {
             }
         };
 
-        task.runTaskTimer(plugin, 0, fireballInterval);
+        // Corrección: El delay entre ejecuciones ahora se basa en `fireballInterval`
+        task.runTaskTimer(plugin, fireballInterval, fireballInterval);
     }
 }

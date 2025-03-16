@@ -76,8 +76,8 @@ public class ItemUtils {
 
   public static void addBateria(ItemStack item) {
     Random random = new Random();
-    double min = 1.5;
-    double max = 15.0;
+    double min = 75;
+    double max = 150;
 
     double amount = min + (max - min) * random.nextDouble() + getBateria(item);
 

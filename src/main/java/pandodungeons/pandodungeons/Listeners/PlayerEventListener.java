@@ -329,16 +329,16 @@ public class PlayerEventListener implements Listener {
                         return;
                     }
                     if(getSoulCount(newItem) >= 100){
-                        progressBar = progressBar + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DDD" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Curación" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 50" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                        progressBar = progressBar + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DDD" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Curación" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 5" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
                     }
                     if(getSoulCount(newItem) >= 200){
-                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DID" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Inmovilizar" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 100" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DID" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Inmovilizar" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 10" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
                     }
                     if(getSoulCount(newItem) >= 300){
-                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DDI" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Berserk" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 200" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DDI" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Berserk" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 30" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
                     }
                     if((getSoulCount(newItem) >= 500)){
-                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DII" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Soul Army" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 500" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
+                        progressBar = progressBar + line + ChatColor.DARK_AQUA.toString() + "[" + ChatColor.GOLD.toString() + "DII" + ChatColor.DARK_AQUA.toString() + "]" + ChatColor.AQUA.toString() + "Soul Army" + ChatColor.DARK_AQUA + ChatColor.BOLD + " 100" + ChatColor.DARK_AQUA + " \uD83D\uDC7B";
                     }
                     player.sendActionBar(progressBar);
                 }
