@@ -31,9 +31,11 @@ import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.upgrade.ItemUpgrade;
 import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.pandodungeons.Utils.ItemUtils;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static pandoClass.InitMenu.INNIT_MENU_NAME;
 import static pandoClass.classes.archer.skills.ArrowExplotionSkill.explosiveAmmo;
@@ -41,6 +43,7 @@ import static pandoClass.classes.archer.skills.SaveAmmoSkill.playersSavingAmmo;
 import static pandoClass.classes.assasin.skills.LifeStealSkill.lifeStealingPlayers;
 import static pandoClass.classes.assasin.skills.SilentStepSkill.silencedPlayers;
 import static pandoClass.gachaPon.GachaHolo.activeHolograms;
+import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
 import static pandoClass.gachaPon.prizes.mithic.JetPackPrize.isJetPack;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.isGarabiThor;
@@ -335,9 +338,23 @@ public class RPGListener implements Listener {
                         default:
                             break;
                     }
+                    rpgPlayer.handleTexturePack(player);
                     player.setWalkSpeed(0.2f);
                 }
             }
+        }else if(title.contains(ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "¿Deseas el texturepack?")){
+            event.setCancelled(true);
+
+            if(clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()){
+                if(clickedItem.getItemMeta().getDisplayName().contains("SI")){
+                    rpgPlayer.setTexturePack(true);
+                    player.performCommand("texturas mantener");
+                }else if(clickedItem.getItemMeta().getDisplayName().contains("NO")){
+                    rpgPlayer.setTexturePack(false);
+                }
+            }
+            rpgPlayer.setHasChosenTextures(true);
+            player.closeInventory();
         }
     }
 
@@ -442,15 +459,14 @@ public class RPGListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         Inventory closedInventory = event.getInventory();
         Player player = (Player) event.getPlayer();
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
         String title = event.getView().getTitle();
-
         if(FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())){
             return;
         }
 
         // Verificar si el inventario es el menú "Elección de clase"
         if (title.equals(INNIT_MENU_NAME) || title.contains("Cambiar clase")) {
+            RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
             if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
                 new BukkitRunnable(){
                     @Override
@@ -499,49 +515,7 @@ public class RPGListener implements Listener {
         player.setMaxHealth(20.0);
         player.setWalkSpeed(0.2f);
 
-        for(ItemStack stack : player.getInventory()){
-            if(stack != null){
-                if(isMapachoBlade(stack,plugin)){
-                    if(!stack.getItemMeta().getCustomModelDataComponent().getStrings().contains("mapachoblade")){
-                        ItemMeta meta = stack.getItemMeta();
-
-                        CustomModelDataComponent component = meta.getCustomModelDataComponent();
-
-                        component.setStrings(List.of("mapachoblade"));
-
-                        meta.setCustomModelDataComponent(component);
-
-                        stack.setItemMeta(meta);
-                    }
-                }
-                if(isGarabiThor(stack)){
-                    if(!stack.getItemMeta().getCustomModelDataComponent().getStrings().contains("garabithor")){
-                        ItemMeta meta = stack.getItemMeta();
-
-                        CustomModelDataComponent component = meta.getCustomModelDataComponent();
-
-                        component.setStrings(List.of("garabithor"));
-
-                        meta.setCustomModelDataComponent(component);
-
-                        stack.setItemMeta(meta);
-                    }
-                }
-                if(isJetPack(stack, plugin)){
-                    if(!stack.getItemMeta().getCustomModelDataComponent().getStrings().contains("jetpack")){
-                        ItemMeta meta = stack.getItemMeta();
-
-                        CustomModelDataComponent component = meta.getCustomModelDataComponent();
-
-                        component.setStrings(List.of("jetpack"));
-
-                        meta.setCustomModelDataComponent(component);
-
-                        stack.setItemMeta(meta);
-                    }
-                }
-            }
-        }
+        applyMissingTextures(player);
 
         if(!player.hasPlayedBefore()){
             player.getInventory().addItem(plugin.prizeManager.gachaToken());
@@ -576,6 +550,39 @@ public class RPGListener implements Listener {
 
         save(rpgPlayer);
     }
+
+    private void applyMissingTextures(Player player) {
+        Map<String, Predicate<ItemStack>> itemChecks = Map.of(
+                "mapachoblade", stack -> isMapachoBlade(stack, plugin),
+                "garabithor", ItemUtils::isGarabiThor,
+                "thunderSword", stack -> isStormSword(stack, plugin),
+                "jetpack", stack -> isJetPack(stack, plugin)
+        );
+
+        for (ItemStack stack : player.getInventory()) {
+            if (stack == null || !stack.hasItemMeta()) continue;
+
+            ItemMeta meta = stack.getItemMeta();
+            CustomModelDataComponent component = meta.getCustomModelDataComponent();
+            List<String> existingTags = component.getStrings();
+
+            itemChecks.forEach((tag, check) -> {
+                if (check.test(stack) && !existingTags.contains(tag)) {
+                    applyCustomModelData(meta, component, tag);
+                    stack.setItemMeta(meta);
+                }
+            });
+        }
+    }
+
+    private void applyCustomModelData(ItemMeta meta, CustomModelDataComponent component, String tag) {
+        List<String> newTags = new ArrayList<>(component.getStrings());
+        newTags.add(tag);
+        component.setStrings(newTags);
+        meta.setCustomModelDataComponent(component);
+    }
+
+
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         if (!(event.getEntity().getShooter() instanceof Player player)) {

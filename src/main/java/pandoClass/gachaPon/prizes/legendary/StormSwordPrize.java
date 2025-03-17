@@ -6,6 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +60,12 @@ public class StormSwordPrize extends PrizeItem {
 
             // Añade una clave persistente para identificar que este ítem es una "Espada de las Tormentas"
             meta.getPersistentDataContainer().set(SWORD_KEY, PersistentDataType.BOOLEAN, true);
+
+            CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+            component.setStrings(List.of("thunderSword"));
+
+            meta.setCustomModelDataComponent(component);
 
             // Establece los metadatos del ítem
             sword.setItemMeta(meta);

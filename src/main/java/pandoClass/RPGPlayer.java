@@ -2,10 +2,14 @@ package pandoClass;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
@@ -16,7 +20,9 @@ import pandoClass.classes.tank.Tank;
 import pandoClass.gachaPon.GachaHolo;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,6 +52,9 @@ public class RPGPlayer {
     private String playerName = "";
     private int gachaopen;
     private boolean texturePack = false;
+    private boolean hasChosenTextures = false;
+    private boolean isChoosing = false;
+    private transient boolean hasSelectedClass = false;
 
     private final transient PandoDungeons plugin;
 
@@ -63,6 +72,9 @@ public class RPGPlayer {
         else{
             defaults();
         }
+        if (classKey != null) hasSelectedClass = !classKey.isEmpty();
+        else hasSelectedClass = false;
+
         update();
     }
 
@@ -339,6 +351,81 @@ public class RPGPlayer {
         plugin.rpgPlayersList.get(player).triggerSkills();
     }
 
+    public void handleTexturePack(Player player) {
+        if (!hasChosenTextures) {
+            if (isChoosing) {
+                return; // Evita llamar de nuevo si ya está en proceso
+            }
+
+            isChoosing = true;
+            player.openInventory(createChoosMenu());
+            save(this);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (player.getOpenInventory().getTitle().contains("texturepack")) {
+                        return;
+                    }
+
+                    if(new RPGPlayer(player,plugin).hasChosenTextures){
+                        this.cancel();
+                        return;
+                    }
+
+                    isChoosing = true;
+                    player.openInventory(createChoosMenu());
+                    isChoosing = false;
+                    save(RPGPlayer.this);
+                    update();
+                }
+            }.runTaskTimer(plugin, 0,40); // Pequeño retraso para evitar recursión inmediata
+        }
+    }
+
+
+    public void setHasChosenTextures(boolean hasChosenTextures) {
+        this.hasChosenTextures = hasChosenTextures;
+        save(this);
+        update();
+    }
+
+    // Método que crea el menú
+    public Inventory createChoosMenu(){
+        String menuTitle;
+
+
+        Inventory menu = Bukkit.createInventory(null, 9, ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "¿Deseas el texturepack?");
+
+        ItemStack head1 = new ItemStack(Material.GREEN_CONCRETE);
+        ItemStack head2 = new ItemStack(Material.RED_CONCRETE);
+
+
+
+        ItemMeta meta = head2.getItemMeta();
+
+        meta.setDisplayName(ChatColor.RED.toString() + ChatColor.BOLD  + "NO");
+
+        meta.setLore(List.of(ChatColor.RED + "No afecta el gameplay", ChatColor.DARK_RED + "Tendrás problemas al ver entidades custom y items custom",ChatColor.GREEN + "Podrás activarlo en cualquier momento con: " + ChatColor.GOLD + "/texturas mantener"));
+
+        ItemMeta meta2 = head1.getItemMeta();
+
+        meta2.setDisplayName(ChatColor.GREEN.toString() + ChatColor.BOLD  + "SI");
+
+        meta2.setLore(List.of(ChatColor.GREEN + "No afecta el gameplay", ChatColor.GOLD.toString() + ChatColor.BOLD + "Podrás tener la experiencia que se quiere brindar", ChatColor.RED + "Podrás eliminarlo en cualquier momento con: " + ChatColor.GOLD + "/texturas eliminar"));
+
+
+        head1.setItemMeta(meta2);
+        head2.setItemMeta(meta);
+
+        // Asignar las cabezas a las posiciones 2, 4 y 6
+        menu.setItem(2, head1);
+        menu.setItem(6, head2);
+
+        return menu;
+    }
+
+
 
     private void copyFrom(RPGPlayer other) {
         this.orbProgress = other.orbProgress;
@@ -354,6 +441,8 @@ public class RPGPlayer {
         this.playerName = other.playerName;
         this.gachaopen = other.gachaopen;
         this.texturePack = other.texturePack;
+        this.hasChosenTextures = other.hasChosenTextures;
+        this.isChoosing = other.isChoosing;
     }
 
     private void defaults() {
@@ -370,6 +459,8 @@ public class RPGPlayer {
         this.playerName = "";
         this.gachaopen = 0;
         this.texturePack = false;
+        this.hasChosenTextures = false;
+        this.isChoosing = false;
     }
 
     public String getClassKey() {

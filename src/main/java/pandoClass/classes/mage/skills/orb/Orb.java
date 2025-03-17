@@ -21,9 +21,7 @@ import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Orb {
     private final PandoDungeons plugin;
@@ -36,14 +34,21 @@ public class Orb {
     private OrbSkill currentSkill;
     private int level;
     private final NamespacedKey orbKey;
-    private static final List<ArmorStand> stands = new ArrayList<>();
+    private static final Map<Player, ArmorStand> stands = new HashMap<>();
 
     public Orb(PandoDungeons plugin, Player owner, String orbDisplay, int level) throws MalformedURLException {
         this.plugin = plugin;
         this.owner = owner;
+        this.orbKey = new NamespacedKey(plugin, "orbKey");
+
+        // Si el jugador ya tiene un orbe, no permitir la creación de otro
+        if (stands.containsKey(owner)) {
+            owner.sendMessage(ChatColor.RED + "Ya tienes un orb activo.");
+            return;
+        }
+
         setOrbDisplay(orbDisplay);
         this.level = level;
-        this.orbKey = new NamespacedKey(plugin,"orbKey");
         spawnOrb();
         activateSkill(new OrbSkillAttack(plugin, this)); // Habilidad por defecto
     }
@@ -96,31 +101,33 @@ public class Orb {
         }
     }
 
+
     private void spawnOrb() {
-        Location loc = owner.getLocation().add(1, 0.5, 0); // Posición inicial del orbe
+        Location loc = owner.getLocation().add(1, 0.5, 0);
         stand = owner.getWorld().spawn(loc, ArmorStand.class, armorStand -> {
             armorStand.setInvisible(true);
             armorStand.setMarker(true);
             armorStand.setSmall(true);
             armorStand.setInvulnerable(true);
-            armorStand.getPersistentDataContainer().set(orbKey, PersistentDataType.BOOLEAN,true);
+            armorStand.getPersistentDataContainer().set(orbKey, PersistentDataType.BOOLEAN, true);
             armorStand.setGravity(false);
-            armorStand.getEquipment().setHelmet(orbDisplay); // Orbe en la cabeza
+            armorStand.getEquipment().setHelmet(orbDisplay);
         });
 
-        stands.add(stand);
+        // Registrar el orbe en el mapa
+        stands.put(owner, stand);
 
         mainLoop();
     }
 
-    public static void handleStands(PandoDungeons plugin){
-        for (World world : Bukkit.getWorlds())
-        {
-            for(Entity entity : world.getEntities()){
-                if(entity instanceof ArmorStand armorStand){
-                    NamespacedKey key = new NamespacedKey(plugin,"orbKey");
-                    if(armorStand.getPersistentDataContainer().has(key)){
-                        if(!stands.contains(armorStand)){
+    public static void handleStands(PandoDungeons plugin) {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity instanceof ArmorStand armorStand) {
+                    NamespacedKey key = new NamespacedKey(plugin, "orbKey");
+                    if (armorStand.getPersistentDataContainer().has(key)) {
+                        // Remover orbes no registrados en el mapa
+                        if (!stands.containsValue(armorStand)) {
                             armorStand.remove();
                         }
                     }
@@ -316,6 +323,7 @@ public class Orb {
         if (stand != null && stand.isValid()) {
             stand.remove();
         }
+        stands.remove(owner);
         plugin.orbsManager.removeOrb(owner, this);
     }
 }
