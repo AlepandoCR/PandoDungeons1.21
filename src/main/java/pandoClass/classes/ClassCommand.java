@@ -117,6 +117,19 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if(args.length == 1 && args[0].equalsIgnoreCase("resetMejoras")){
+            RPGPlayer rpgPlayer  = new RPGPlayer(executingPlayer,plugin);
+            if(rpgPlayer.getCoins() >= 500){
+                rpgPlayer.resetOrbs();
+                rpgPlayer.removeCoins(500);
+                executingPlayer.sendMessage(ChatColor.AQUA + "¡Has reiniciado tus orbes de mejora!");
+                return true;
+            }else{
+                executingPlayer.sendMessage(ChatColor.RED + "No tienes monedas para resetear tus orbes de mejora (500 monedas)");
+                return true;
+            }
+        }
+
         // Con un argumento: se interpreta como el nombre de un jugador cuyo stats se desean ver.
         if (args.length == 1) {
             String targetName = args[0];
@@ -155,6 +168,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 completions.add(player.getName());
             }
             completions.add("top");
+            completions.add("resetMejoras");
 
             if(commandSender instanceof Player player){
                 if(player.isOp()){

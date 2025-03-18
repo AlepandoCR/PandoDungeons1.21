@@ -216,7 +216,12 @@ public class RPGPlayer {
         this.player = player;
         this.plugin = plugin;
         RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
-        if (loaded != null) copyFrom(loaded);
+        if (loaded != null) {
+            copyFrom(loaded);
+        }
+        else{
+            defaults();
+        }
     }
 
     public RPGPlayer(String player, PandoDungeons plugin) {
@@ -382,6 +387,24 @@ public class RPGPlayer {
             }.runTaskTimer(plugin, 0,40); // Pequeño retraso para evitar recursión inmediata
         }
     }
+
+    public void resetOrbs() {
+        int skillLvls = (firstSkilLvl + secondSkilLvl + thirdSkillLvl) - 3; // Restamos los niveles base (1-1-1)
+
+        int orbsSpent = skillLvls * 4; // Calculamos los orbes gastados en total
+
+        // Reiniciar habilidades a nivel 1
+        firstSkilLvl = 1;
+        secondSkilLvl = 1;
+        thirdSkillLvl = 1;
+
+        // Devolver solo los orbes gastados
+        orbs += orbsSpent;
+
+        save(this);
+        update();
+    }
+
 
 
     public void setHasChosenTextures(boolean hasChosenTextures) {

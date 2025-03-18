@@ -535,6 +535,8 @@ public class RPGListener implements Listener {
         if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
             player.openInventory(plugin.initMenu.createClassSelectionMenu(player, InitMenu.Reason.INNIT));
            return;
+        }else{
+            rpgPlayer.handleTexturePack(player);
         }
 
         if(!plugin.rpgPlayersList.containsKey(rpgPlayer)){

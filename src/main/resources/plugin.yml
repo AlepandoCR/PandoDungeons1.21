@@ -38,6 +38,10 @@ commands:
     description: Comando para revisar tu mision actual
     usage: /<command>
 
+  pagar:
+    description: Comando transferir monedas
+    usage: /<command> [player]
+
 
 permissions:
   pandodungeons.pandaMount:

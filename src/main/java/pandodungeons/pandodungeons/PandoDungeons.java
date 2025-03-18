@@ -134,6 +134,7 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("stats").setExecutor(new ClassCommand(this));
         this.getCommand("bet").setExecutor(new GambleCommand(this));
         this.getCommand("encargo").setExecutor(new QuestCommand(this));
+        this.getCommand("pagar").setExecutor(new PayCommand(this));
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");
