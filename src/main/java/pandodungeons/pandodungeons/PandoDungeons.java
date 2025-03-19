@@ -4,6 +4,7 @@ import battlePass.BattlePassEventHandler;
 import battlePass.premium.PremiumBattlePass;
 import battlePass.premium.PremiumRewardManager;
 import battlePass.regular.DefaultRewardManager;
+import com.ticxo.modelengine.api.ModelEngineAPI;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.level.chunk.BulkSectionAccess;
 import org.bukkit.*;
@@ -52,10 +53,10 @@ import java.net.MalformedURLException;
 import java.util.*;
 
 
+import static controlledEntities.ControlledEntity.startMonitoringControlledEntities;
 import static pandoClass.classes.mage.skills.TimeRewindSkill.startTracking;
 import static pandoClass.classes.mage.skills.orb.Orb.handleStands;
-import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolos;
-import static pandoClass.gachaPon.GachaHolo.removeAllGachaHolosOnStart;
+import static pandoClass.gachaPon.GachaHolo.*;
 import static pandodungeons.pandodungeons.Utils.CompanionUtils.loadAllCompanions;
 import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 
@@ -148,6 +149,9 @@ public final class PandoDungeons extends JavaPlugin {
         }
 
         startHordeLookout(this);
+
+
+        startMonitoringControlledEntities(this);
 
         breezeCompanionCustomRecipe();
         armadilloCompanionCustomRecipe();
@@ -242,6 +246,7 @@ public final class PandoDungeons extends JavaPlugin {
             }
         }
     }
+
 
     private void handleStandsHere(){
         new BukkitRunnable(){

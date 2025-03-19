@@ -85,6 +85,7 @@
             <version>2.4.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>net.citizensnpcs</groupId>
             <artifactId>citizens-main</artifactId>
@@ -110,6 +111,13 @@
             <version>1.0.0</version>
             <scope>system</scope>
             <systemPath>D:/Plugins/PandoDungeons/lib/Fawe.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.ticxo.modelengine</groupId>
+            <artifactId>ModelEngine</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>D:/Plugins/PandoDungeons/lib/ModelEngine.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>paper</groupId>

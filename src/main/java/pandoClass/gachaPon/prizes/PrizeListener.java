@@ -23,6 +23,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.checkerframework.checker.calledmethods.qual.EnsuresCalledMethods;
+import org.checkerframework.checker.lock.qual.LockingFree;
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
 import pandoClass.gachaPon.GachaHolo;
@@ -43,6 +45,8 @@ import static pandoClass.gachaPon.prizes.legendary.EscudoReflectantePrize.isRefl
 import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
 import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
+import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
+import static pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize.*;
 
 public class PrizeListener implements Listener {
     private final PandoDungeons plugin;
@@ -203,6 +207,23 @@ public class PrizeListener implements Listener {
                 if (new Random().nextDouble() < 0.3) { // 30% de probabilidad
                     // Llama a un rayo en la ubicación de la entidad afectada
                     enemy.getWorld().strikeLightning(enemy.getLocation());
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void rechargeShards(PlayerFishEvent event){
+        if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)){
+            Player player = event.getPlayer();
+            for(ItemStack stack : player.getInventory()){
+                if(stack != null){
+                    if(isTeleShardItem(plugin,stack)){
+                        setTeleShardBatery(plugin,stack,getTeleShardBatery(plugin,stack) + 10);
+                    }
+                    if(isTeleVillagerShardItem(plugin,stack)){
+                        setTeleVillagerShardBatery(plugin,stack,getTeleVillagerShardBatery(plugin,stack) + 10);
+                    }
                 }
             }
         }
@@ -593,7 +614,7 @@ public class PrizeListener implements Listener {
 
         ItemStack stack = player.getInventory().getItem(slot);
         // Si el item NO es ni TeleShard ni TeleVillagerShard, salimos
-        if (!TeleShardPrize.isTeleShardItem(plugin, stack) && !TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, stack)) {
+        if (!isTeleShardItem(plugin, stack) && !isTeleVillagerShardItem(plugin, stack)) {
             return;
         }
 
@@ -606,9 +627,9 @@ public class PrizeListener implements Listener {
         RayTraceResult result = null;
 
         // Dependiendo del tipo de shard, raytrace de Enemy o Villager
-        if (TeleShardPrize.isTeleShardItem(plugin, stack)) {
+        if (isTeleShardItem(plugin, stack)) {
             result = world.rayTraceEntities(eyeLoc, dir, 5, entity -> entity instanceof Enemy);
-        } else if (TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, stack)) {
+        } else if (isTeleVillagerShardItem(plugin, stack)) {
             result = world.rayTraceEntities(eyeLoc, dir, 5, entity -> entity instanceof Villager);
         }
 
@@ -660,10 +681,10 @@ public class PrizeListener implements Listener {
                         ticks++;
                         // Cada 20 ticks (1 segundo) se reduce la batería en 1
                         if (ticks % 20 == 0) {
-                            if (TeleShardPrize.isTeleShardItem(plugin, currentStack)) {
-                                TeleShardPrize.setTeleShardBatery(plugin, currentStack, battery - 1);
-                            } else if (TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, currentStack)) {
-                                TeleVillagerShardPrize.setTeleVillagerShardBatery(plugin, currentStack, battery - 1);
+                            if (isTeleShardItem(plugin, currentStack)) {
+                                setTeleShardBatery(plugin, currentStack, battery - 1);
+                            } else if (isTeleVillagerShardItem(plugin, currentStack)) {
+                                setTeleVillagerShardBatery(plugin, currentStack, battery - 1);
                             }
                         }
 
@@ -691,7 +712,7 @@ public class PrizeListener implements Listener {
                     }
 
                     private boolean isValid(int battery) {
-                        return (TeleShardPrize.isTeleShardItem(plugin, currentStack) || TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, currentStack))
+                        return (isTeleShardItem(plugin, currentStack) || isTeleVillagerShardItem(plugin, currentStack))
                                 && battery > 0;
                     }
                 };
@@ -709,7 +730,7 @@ public class PrizeListener implements Listener {
         ItemStack stack = player.getInventory().getItem(event.getHand());
         if (stack == null) return;
 
-        if (TeleVillagerShardPrize.isTeleVillagerShardItem(plugin, stack)) {
+        if (isTeleVillagerShardItem(plugin, stack)) {
             event.setCancelled(true);
             // Si se abre alguna interfaz del villager, forzamos su cierre:
             player.closeInventory();

@@ -1,5 +1,6 @@
 package pandodungeons.pandodungeons.commands.admin.enchantments;
 
+import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -183,6 +184,8 @@ public class getEnchantment implements CommandExecutor {
                 player.getInventory().addItem(new PuertoViejoPipePrize(plugin).getItem());
         }else if(args[1].equalsIgnoreCase("rebota")){
             player.getInventory().addItem(new EscudoReflectantePrize(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("mapachin")){
+            new RacoonPet(player,plugin);
         }
 
         return false;

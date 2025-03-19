@@ -40,6 +40,7 @@ public class GachaHolo {
         holograma.setGravity(false);
         holograma.setCustomNameVisible(true);
         holograma.addScoreboardTag("gachaHolo");
+        holograma.addScoreboardTag(player.getName());
 
         activeHolograms.put(playerId, holograma);
         hideFromEveryoneExceptOwner(player, holograma);
@@ -53,7 +54,7 @@ public class GachaHolo {
                     return;
                 }
 
-                hideFromEveryoneExceptOwner(player,holograma);
+                keepHidingHolos(plugin);
 
                 int gachaOpens = new RPGPlayer(player, plugin).getGachaopen();
                 holograma.setCustomName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD +
@@ -102,5 +103,21 @@ public class GachaHolo {
                 removeAllGachaHolos();
             }
         }.runTaskLater(plugin, 40);
+    }
+
+    public static void keepHidingHolos(PandoDungeons plugin){
+        for (ArmorStand holograma : activeHolograms.values()) {
+            if (holograma != null && !holograma.isDead()) {
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    if(holograma.getScoreboardTags().contains("gachaHolo")){
+                        if(!holograma.getScoreboardTags().contains(player.getName())){
+                            player.hideEntity(plugin, player);
+                        }else{
+                            player.showEntity(plugin, player);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
