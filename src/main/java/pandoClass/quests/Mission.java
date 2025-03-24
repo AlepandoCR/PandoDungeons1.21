@@ -53,6 +53,7 @@ public abstract class Mission<T> {
 
     public void addAmount() {
         amount++;
+        this.rpgPlayer = new RPGPlayer(getPlayer(),plugin);
     }
 
     public boolean isCompleted() {

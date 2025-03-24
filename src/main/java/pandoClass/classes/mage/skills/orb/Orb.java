@@ -9,19 +9,18 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
-import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
-import pandoClass.classes.mage.Mage;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkill;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillAttack;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillDefense;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillSlowfall;
-import pandoClass.golem.limbs.Arm;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class Orb {
     private final PandoDungeons plugin;
@@ -34,14 +33,18 @@ public class Orb {
     private OrbSkill currentSkill;
     private int level;
     private final NamespacedKey orbKey;
-    private static final Map<Player, ArmorStand> stands = new HashMap<>();
+    private final NamespacedKey playerName;
+
+    // Usamos un ConcurrentHashMap para evitar condiciones de carrera
+    private static final ConcurrentMap<Player, ArmorStand> stands = new ConcurrentHashMap<>();
 
     public Orb(PandoDungeons plugin, Player owner, String orbDisplay, int level) throws MalformedURLException {
         this.plugin = plugin;
         this.owner = owner;
         this.orbKey = new NamespacedKey(plugin, "orbKey");
+        this.playerName = new NamespacedKey(plugin, "playerName");
 
-        // Si el jugador ya tiene un orbe, no permitir la creación de otro
+        // Verificar de forma thread-safe si el jugador ya tiene un orbe
         if (stands.containsKey(owner)) {
             owner.sendMessage(ChatColor.RED + "Ya tienes un orb activo.");
             return;
@@ -63,11 +66,9 @@ public class Orb {
         textures.setSkin(new URL("https://textures.minecraft.net/texture/" + textureUrl));
         profile.setTextures(textures);
         meta.setPlayerProfile(profile);
-
         head.setItemMeta(meta);
 
         orbDisplay = head;
-
         updateStand();
     }
 
@@ -76,20 +77,21 @@ public class Orb {
     }
 
     public void updateStand(){
-        if(stand != null){
+        if (stand != null) {
             stand.setHelmet(orbDisplay);
         }
     }
 
     public void removeStand(){
-        stand.remove();
+        if (stand != null && stand.isValid()) {
+            stand.remove();
+        }
     }
 
     public void activateSkill(OrbSkill newSkill) {
         if (currentSkill != null) {
             currentSkill.stop();
         }
-
         currentSkill = newSkill;
         currentSkill.start(level);
     }
@@ -101,7 +103,6 @@ public class Orb {
         }
     }
 
-
     private void spawnOrb() {
         Location loc = owner.getLocation().add(1, 0.5, 0);
         stand = owner.getWorld().spawn(loc, ArmorStand.class, armorStand -> {
@@ -110,11 +111,12 @@ public class Orb {
             armorStand.setSmall(true);
             armorStand.setInvulnerable(true);
             armorStand.getPersistentDataContainer().set(orbKey, PersistentDataType.BOOLEAN, true);
+            armorStand.getPersistentDataContainer().set(playerName, PersistentDataType.STRING, owner.getName());
             armorStand.setGravity(false);
             armorStand.getEquipment().setHelmet(orbDisplay);
         });
 
-        // Registrar el orbe en el mapa
+        // Registrar el orbe de forma atómica
         stands.put(owner, stand);
 
         mainLoop();
@@ -146,12 +148,11 @@ public class Orb {
 
             @Override
             public void run() {
-                if (!owner.isOnline() || owner.isDead() || !(new RPGPlayer(owner,plugin).getClassRpg() instanceof Mage) || !stand.isValid() || stand.isDead()) {
-                    stands.remove(stand);
+                if (!owner.isOnline() || owner.isDead() || !stand.isValid() || stand.isDead()) {
+                    stands.remove(owner);
                     remove();
                     return;
                 }
-
                 if (stand.isValid()) {
                     handleDefense();
                     handleSlowFall();
@@ -167,42 +168,37 @@ public class Orb {
                 if (!defenseActive && !slowfallActive) {
                     if (!(currentSkill instanceof OrbSkillAttack) && !firing) {
                         activateSkill(new OrbSkillAttack(plugin, Orb.this));
-                        firing = true; // Marcar que se ha lanzado un ataque
+                        firing = true;
                     }
                 } else {
-                    firing = false; // Resetear cuando no se está atacando
+                    firing = false;
                 }
             }
 
-
             private void handleSlowFall() {
                 if (owner.getFallDistance() >= 4) {
-
-                    if(owner.isFlying())return;
-                    if(owner.getPose().equals(Pose.FALL_FLYING))return;
-
+                    if (owner.isFlying() || owner.getPose().equals(Pose.FALL_FLYING)) return;
                     if (!slowfallActive && !(currentSkill instanceof OrbSkillSlowfall)) {
                         activateSkill(new OrbSkillSlowfall(plugin, Orb.this));
                         slowfallActive = true;
                     }
                 } else {
-                    slowfallActive = false; // Resetear cuando el jugador deja de caer
+                    slowfallActive = false;
                 }
             }
 
             private void handleDefense() {
-                for(Entity e : owner.getNearbyEntities(5,5,5)){
-                    if(e instanceof Projectile){
+                for (Entity e : owner.getNearbyEntities(5, 5, 5)) {
+                    if (e instanceof Projectile) {
                         if (!defenseActive && !(currentSkill instanceof OrbSkillDefense)) {
                             activateSkill(new OrbSkillDefense(plugin, Orb.this));
                             defenseActive = true;
                         }
                         return;
-                    }else{
+                    } else {
                         defenseActive = false;
                     }
                 }
-
             }
 
             private void levitate() {
@@ -215,18 +211,13 @@ public class Orb {
 
             private void teleportToOwner() {
                 Location playerLoc = owner.getLocation();
-                float yaw = playerLoc.getYaw(); // Dirección en la que mira el jugador en grados
+                float yaw = playerLoc.getYaw();
                 float pitch = owner.getPitch();
-
-                // Convertir yaw a radianes y calcular la posición relativa
                 double radians = Math.toRadians(yaw);
-                double xOffset = -Math.cos(radians) * 1; // Hombro izquierdo
+                double xOffset = -Math.cos(radians) * 1;
                 double zOffset = -Math.sin(radians) * 1;
-
                 Location orbLocation = playerLoc.clone().add(xOffset, 1.5 + offset, zOffset);
                 stand.teleport(orbLocation);
-
-                // Aplicar rotación de la cabeza (pitch del jugador convertido a radianes)
                 stand.setHeadPose(new EulerAngle(Math.toRadians(pitch), 0, 0));
             }
 
@@ -239,7 +230,7 @@ public class Orb {
     }
 
     public Location getLocation() {
-        return stand.getLocation().add(0,0.5,0);
+        return stand.getLocation().add(0, 0.5, 0);
     }
 
     public void pauseLevitation() {
@@ -265,10 +256,10 @@ public class Orb {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                    stand.setHeadPose(new org.bukkit.util.EulerAngle(-0.3, 0, 0)); // Cabeza ligeramente hacia arriba
+                    stand.setHeadPose(new EulerAngle(-0.3, 0, 0));
                     break;
                 case SAD:
-                    stand.setHeadPose(new org.bukkit.util.EulerAngle(0.3, 0, 0)); // Cabeza ligeramente hacia abajo
+                    stand.setHeadPose(new EulerAngle(0.3, 0, 0));
                     break;
                 case ANGRY:
                     try {
@@ -280,7 +271,7 @@ public class Orb {
                         Bukkit.getScheduler().runTaskLater(plugin, () -> {
                             double randomX = (Math.random() - 0.5) * 0.1;
                             double randomZ = (Math.random() - 0.5) * 0.1;
-                            stand.teleport(stand.getLocation().add(randomX, 0, randomZ)); // Se mueve un poco aleatoriamente
+                            stand.teleport(stand.getLocation().add(randomX, 0, randomZ));
                         }, i * 3);
                     }
                     break;
@@ -290,7 +281,7 @@ public class Orb {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                    stand.setHeadPose(new org.bukkit.util.EulerAngle(0, 0.4, 0)); // Cabeza girada ligeramente a la derecha
+                    stand.setHeadPose(new EulerAngle(0, 0.4, 0));
                     break;
                 case SCARED:
                     try {
@@ -298,7 +289,7 @@ public class Orb {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                    stand.setHeadPose(new org.bukkit.util.EulerAngle(0, -0.4, 0)); // Cabeza girada ligeramente a la izquierda
+                    stand.setHeadPose(new EulerAngle(0, -0.4, 0));
                     break;
                 default:
                     try {
@@ -306,7 +297,7 @@ public class Orb {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                    stand.setHeadPose(new org.bukkit.util.EulerAngle(0, 0, 0)); // Posición normal
+                    stand.setHeadPose(new EulerAngle(0, 0, 0));
                     break;
             }
         });

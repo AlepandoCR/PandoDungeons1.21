@@ -6,13 +6,10 @@ import pandoClass.classes.mage.skills.orb.Orb;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
-import java.util.UUID;
 
 import static pandoClass.RPGListener.isPlayerOnPvP;
 
 public class OrbFriendSkill extends Skill {
-
-    private boolean hasOrb = false;
 
     private final PandoDungeons plugin;
 
@@ -30,26 +27,29 @@ public class OrbFriendSkill extends Skill {
 
     @Override
     protected boolean canActivate() {
-        return !isPlayerOnPvP(getPlayer()) && !owner.isDead();
+        // Se activa solo si el jugador NO está en PvP, está vivo y EN LÍNEA
+        return !isPlayerOnPvP(getPlayer()) && !owner.isDead() && owner.isOnline();
     }
 
     @Override
     protected void doAction() {
-        // Verifica si el jugador ya tiene un orbe activo
-        if (!plugin.orbsManager.getOrbs().containsKey(owner)) {
+        // Verifica si el jugador ya tiene un orbe activo usando el mapa de orbes
+        if (!plugin.orbsManager.hasOrb(owner)) {
             try {
-                // Crea un nuevo orbe solo si no existe uno para el jugador
-                plugin.orbsManager.putOrb(owner, new Orb(plugin, owner, "46994d71b875f087e64dea9b4a0a5cb9f4eb9ab0e8d9060dfde7f6803baa1779", getLvl()));
-                hasOrb = true;
+                // Crea un nuevo orbe y lo registra en el orbsManager
+                Orb newOrb = new Orb(plugin, owner, "46994d71b875f087e64dea9b4a0a5cb9f4eb9ab0e8d9060dfde7f6803baa1779", getLvl());
+                plugin.orbsManager.putOrb(owner, newOrb);
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error al crear el orbe: " + e.getMessage(), e);
             }
         }
     }
 
-
     @Override
     public void reset() {
-
+        Orb toRemove =  plugin.orbsManager.getOrbs().getOrDefault(owner,null);
+       if(toRemove != null){
+           toRemove.remove();
+        }
     }
 }

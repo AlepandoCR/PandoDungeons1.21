@@ -186,6 +186,8 @@ public class getEnchantment implements CommandExecutor {
             player.getInventory().addItem(new EscudoReflectantePrize(plugin).getItem());
         }else if(args[1].equalsIgnoreCase("mapachin")){
             new RacoonPet(player,plugin);
+        }else if(args[1].equalsIgnoreCase("star")){
+            player.getInventory().addItem(new InmortalityStar(plugin).getItem());
         }
 
         return false;

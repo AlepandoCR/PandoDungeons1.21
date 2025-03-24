@@ -65,6 +65,7 @@ public class KillQuest extends Mission<EntityDeathEvent> {
 
     @Override
     public void rewardPlayer() {
+        rpgPlayer = new RPGPlayer(getPlayer(),plugin);
         int coins = calculateReward();
         int exp = coins * 2;
         rpgPlayer.addCoins(coins);

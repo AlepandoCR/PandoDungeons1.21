@@ -255,7 +255,7 @@ public final class PandoDungeons extends JavaPlugin {
             public void run() {
                 handleStands(PandoDungeons.this);
             }
-        }.runTaskTimer(this,40,4000);
+        }.runTaskTimer(this,1,200);
     }
 
     private void removeDungeons() {

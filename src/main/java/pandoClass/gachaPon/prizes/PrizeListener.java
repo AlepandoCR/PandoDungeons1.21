@@ -8,6 +8,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -44,6 +46,8 @@ import static pandoClass.gachaPon.prizes.epic.ReparationShardPrize.isReparationS
 import static pandoClass.gachaPon.prizes.legendary.EscudoReflectantePrize.isReflectShield;
 import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
 import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
+import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.chargeStar;
+import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.useStar;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
 import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize.*;
@@ -83,6 +87,16 @@ public class PrizeListener implements Listener {
         if (meta == null) return 0;
         PersistentDataContainer data = meta.getPersistentDataContainer();
         return data.getOrDefault(usosKey, PersistentDataType.INTEGER, 0);
+    }
+
+    @EventHandler
+    private void inmStar(PlayerDeathEvent event){
+        useStar(plugin,event);
+    }
+
+    @EventHandler
+    private void entityKilled(EntityDeathEvent event){
+        chargeStar(plugin,event);
     }
 
     private void reduceUse(Player player, ItemStack item) {
