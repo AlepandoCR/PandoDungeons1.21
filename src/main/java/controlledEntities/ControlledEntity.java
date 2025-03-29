@@ -17,11 +17,11 @@ import java.util.UUID;
 public abstract class ControlledEntity {
     protected static final Map<UUID, ControlledEntity> CONTROLLED_ENTITIES = new HashMap<>();
 
-    protected final Mob mob;
+    protected Mob mob;
     protected final PandoDungeons plugin;
     protected List<Goal> goals;
     protected final UUID uuid;
-    protected final Location spawnLoc;
+    protected Location spawnLoc;
 
     public ControlledEntity(PandoDungeons plugin, Location spawnLoc, boolean appyGoals) {
         this.plugin = plugin;
@@ -53,7 +53,7 @@ public abstract class ControlledEntity {
 
     public abstract Mob setEntity();
 
-    private void applyGoalsMain() {
+    protected void applyGoalsMain() {
         if (goals.isEmpty()) return;
 
         net.minecraft.world.entity.Mob nmsMob = ((CraftMob) mob).getHandle();
@@ -61,7 +61,7 @@ public abstract class ControlledEntity {
         // Remover cualquier goal anterior
         nmsMob.goalSelector.removeAllGoals(goal -> true);
 
-        int i = 1;
+        int i = 0;
         for (Goal goal : goals) {
             nmsMob.goalSelector.addGoal(i, goal);
             i++;

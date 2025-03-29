@@ -55,6 +55,7 @@ public class LootTableManager {
         addItemToLootTable(createItem(Material.HEARTBREAK_POTTERY_SHERD, "Trozo de ceramica", 8), 8);
         addItemToLootTable(createItem(Material.DANGER_POTTERY_SHERD, "Trozo de ceramica", 8), 11);
         addItemToLootTable(createItem(Material.PRIZE_POTTERY_SHERD, "Trozo de ceramica", 8), 11);
+        addItemToLootTable(createItem(Material.LAPIS_BLOCK, "Bloque del mineral este que no se como se escribe en español", 10), 11);
         addItemToLootTable(createItem(Material.ANGLER_POTTERY_SHERD, "Trozo de ceramica", 8), 11);
         addItemToLootTable(createEnchantedBook(Enchantment.SWIFT_SNEAK, 3, 1, "Libro encantado"), 6);
         addItemToLootTable(createEnchantedBook(Enchantment.SWEEPING_EDGE, 3, 1, "Libro encantado"), 3);

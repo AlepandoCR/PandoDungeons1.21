@@ -76,7 +76,7 @@ public class RPGPlayerDataManager {
 
     public List<RPGPlayer> loadAllPlayers() {
         List<RPGPlayer> players = new ArrayList<>();
-        File[] files = DATA_FOLDER.listFiles((dir, name) -> name.endsWith(".json"));
+        File[] files = DATA_FOLDER.listFiles((dir, name) -> name.endsWith(".json") && !name.contains(".backup"));
 
         if (files != null) {
             for (File file : files) {

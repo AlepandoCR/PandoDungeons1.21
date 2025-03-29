@@ -5,6 +5,8 @@ import battlePass.premium.PremiumBattlePass;
 import battlePass.premium.PremiumRewardManager;
 import battlePass.regular.DefaultRewardManager;
 import com.ticxo.modelengine.api.ModelEngineAPI;
+import controlledEntities.modeled.pets.PetsListener;
+import controlledEntities.modeled.pets.PetsManager;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.level.chunk.BulkSectionAccess;
 import org.bukkit.*;
@@ -73,12 +75,14 @@ public final class PandoDungeons extends JavaPlugin {
     public OrbsManager orbsManager;
     public RPGPlayerDataManager rpgPlayerDataManager;
     public InitMenu initMenu;
+    public PetsManager petsManager;
 
     public GamblingSession gamblingSession;
 
     @Override
     public void onEnable() {
         handleStandsHere();
+        petsManager = new PetsManager(this);
         rpgPlayerDataManager = new RPGPlayerDataManager(this);
         startTracking(this);
         initMenu = new InitMenu(this);
@@ -126,6 +130,7 @@ public final class PandoDungeons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
         getServer().getPluginManager().registerEvents(new RPGListener(this), this);
         getServer().getPluginManager().registerEvents(new MissionListener(this),this);
+        getServer().getPluginManager().registerEvents(new PetsListener(this),this);
 
         this.getCommand("gachatoken").setExecutor(new GachaCommand(this));
         this.getCommand("texturas").setExecutor(new TextureCommand(this));
@@ -232,6 +237,7 @@ public final class PandoDungeons extends JavaPlugin {
         }
         removePlayersFromDungeons();
         removeDungeons();
+        petsManager.destroyAllPets();
     }
 
     private void removePlayersFromDungeons() {
@@ -317,7 +323,7 @@ public final class PandoDungeons extends JavaPlugin {
                         Player randomPlayer = onlinePlayers.get(random.nextInt(onlinePlayers.size()));
                         String worldName = randomPlayer.getWorld().getName();
 
-                        if (worldName.equalsIgnoreCase("world") || worldName.equalsIgnoreCase("recursos")) {
+                        if (worldName.equalsIgnoreCase("world") || worldName.equalsIgnoreCase("recursos") || worldName.equalsIgnoreCase("world_the_end") || worldName.equalsIgnoreCase("world_nether") || worldName.equalsIgnoreCase("masmo")) {
                             randomPlayer.sendMessage(ChatColor.RED + "¡Ha aparecido una horda a tus alrededores, ten cuidado!");
 
                             Location spawnLoc = getValidHordeSpawnLocation(randomPlayer);

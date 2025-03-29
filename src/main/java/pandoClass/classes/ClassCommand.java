@@ -11,14 +11,13 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pandoClass.RPGPlayer;
-import pandoClass.files.RPGPlayerDataManager;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.List;
 
 public class ClassCommand implements CommandExecutor, TabCompleter {
 
-    private PandoDungeons plugin;
+    private final PandoDungeons plugin;
 
     public ClassCommand(PandoDungeons plugin) {
         this.plugin = plugin;
@@ -94,26 +93,8 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
 
 
 
-        // Subcomando "top": muestra el top 3 de jugadores por nivel.
         if (args.length == 1 && args[0].equalsIgnoreCase("top")) {
-            List<RPGPlayer> allPlayers = plugin.rpgPlayerDataManager.loadAllPlayers();
-            if (allPlayers.isEmpty()) {
-                executingPlayer.sendMessage(ChatColor.RED + "No hay jugadores registrados aún.");
-                return true;
-            }
-
-            // Ordena de mayor a menor nivel.
-            allPlayers.sort((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel()));
-
-            executingPlayer.sendMessage(ChatColor.GOLD + "Top 5 Jugadores:");
-            for (int i = 0; i < Math.min(5, allPlayers.size()); i++) {
-                RPGPlayer topPlayer = allPlayers.get(i);
-                String name = Bukkit.getOfflinePlayer(topPlayer.getPlayerUUID()).getName();
-                if (name == null) {
-                    name = "Desconocido";
-                }
-                executingPlayer.sendMessage(ChatColor.LIGHT_PURPLE.toString() + (i + 1) + ". " + ChatColor.GOLD + name + ChatColor.YELLOW +" - Nivel " + topPlayer.getLevel());
-            }
+            if (topStatsList(args, executingPlayer)) return true;
             return true;
         }
 
@@ -123,11 +104,10 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 rpgPlayer.resetOrbs();
                 rpgPlayer.removeCoins(500);
                 executingPlayer.sendMessage(ChatColor.AQUA + "¡Has reiniciado tus orbes de mejora!");
-                return true;
             }else{
                 executingPlayer.sendMessage(ChatColor.RED + "No tienes monedas para resetear tus orbes de mejora (500 monedas)");
-                return true;
             }
+            return true;
         }
 
         // Con un argumento: se interpreta como el nombre de un jugador cuyo stats se desean ver.
@@ -140,10 +120,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
             }
             // Se usa Bukkit.getOfflinePlayer para poder obtener la UUID incluso si el jugador no está en línea.
             OfflinePlayer targetOffline = Bukkit.getOfflinePlayer(targetName);
-            if (targetOffline == null || targetOffline.getUniqueId() == null) {
-                executingPlayer.sendMessage(ChatColor.RED + "No se encontró al jugador: " + targetName);
-                return true;
-            }
+            targetOffline.getUniqueId();
             for(RPGPlayer player : allPlayers){
                 if(player.getPlayerUUID().equals(targetOffline.getUniqueId())){
                     executingPlayer.sendMessage(player.toDecoratedString(targetName));
@@ -156,7 +133,67 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean topStatsList(@NotNull String[] args, Player executingPlayer) {
+        int page = 1; // Default page if no argument is provided
 
+        // Check if the user has passed an argument for the page
+        if (args.length > 1) {
+            try {
+                page = Integer.parseInt(args[1]);
+                if (page < 1) {
+                    executingPlayer.sendMessage(ChatColor.RED + "La página debe ser un número positivo.");
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                executingPlayer.sendMessage(ChatColor.RED + "Debes ingresar un número de página válido.");
+                return true;
+            }
+        }
+
+        List<RPGPlayer> allPlayers = plugin.rpgPlayerDataManager.loadAllPlayers();
+        if (allPlayers.isEmpty()) {
+            executingPlayer.sendMessage(ChatColor.RED + "No hay jugadores registrados aún.");
+            return true;
+        }
+
+        // Ordena los jugadores por nivel (mayor a menor).
+        allPlayers.sort((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel()));
+
+        // Configuración de paginación
+        int playersPerPage = 10;
+        int totalPlayers = allPlayers.size();
+        int totalPages = (int) Math.ceil((double) totalPlayers / playersPerPage);
+
+        if (page > totalPages) {
+            executingPlayer.sendMessage(ChatColor.RED + "La página " + page + " no existe. Máximo: " + totalPages);
+            return true;
+        }
+
+        executingPlayer.sendMessage(ChatColor.GOLD + "📜 Top Jugadores - Página " + page + "/" + totalPages + " 📜");
+
+        int startIndex = (page - 1) * playersPerPage;
+        int endIndex = Math.min(startIndex + playersPerPage, totalPlayers);
+
+        for (int i = startIndex; i < endIndex; i++) {
+            RPGPlayer topPlayer = allPlayers.get(i);
+            String name = Bukkit.getOfflinePlayer(topPlayer.getPlayerUUID()).getName();
+            if (name == null) {
+                name = "Desconocido";
+            }
+
+            executingPlayer.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ChatColor.GOLD + name +
+                    ChatColor.WHITE + " - Nivel " + ChatColor.AQUA + topPlayer.getLevel());
+        }
+
+        // Flechas de navegación en el chat
+        String prevPage = (page > 1) ? ChatColor.GREEN + "[⬅ Página Anterior]" : "";
+        String nextPage = (page < totalPages) ? ChatColor.GREEN + "[Página Siguiente ➡]" : "";
+
+        executingPlayer.spigot().sendMessage(
+                net.md_5.bungee.api.chat.TextComponent.fromLegacyText(prevPage + " " + nextPage)
+        );
+        return false;
+    }
 
 
     @Override

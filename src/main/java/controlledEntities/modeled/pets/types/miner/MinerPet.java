@@ -1,4 +1,4 @@
-package controlledEntities.modeled.pets.types.racoon;
+package controlledEntities.modeled.pets.types.miner;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.animation.handler.AnimationHandler;
@@ -11,6 +11,7 @@ import com.ticxo.modelengine.api.model.render.ModelRenderer;
 import controlledEntities.modeled.ModelBuilder;
 import controlledEntities.modeled.pets.Pet;
 import controlledEntities.modeled.pets.goals.FollowOwnerGoal;
+import controlledEntities.modeled.pets.types.miner.goals.CollectAndDeliverMineralsGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import org.apache.maven.model.Model;
 import org.bukkit.Location;
@@ -24,11 +25,11 @@ import org.bukkit.entity.PolarBear;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.List;
-import java.util.function.Function;
 
-public class RacoonPet extends Pet {
-    public RacoonPet(Player owner, PandoDungeons plugin) {
-        super(owner, plugin,false, "mapacho");
+
+public class MinerPet extends Pet {
+    public MinerPet(Player owner, PandoDungeons plugin) {
+        super(owner, plugin,false, "minero");
         this.goals = setGoals();
         applyGoals(getMob());
     }
@@ -53,7 +54,7 @@ public class RacoonPet extends Pet {
         // Asegúrate de que 'mob' no sea null y tenga un handle válido
         if (mob != null && mob instanceof CraftMob) {
             return List.of(
-                    new FollowOwnerGoal(((CraftMob) mob).getHandle(), ((CraftPlayer) owner).getHandle(), 1.7, 3, 0.5f)
+                    new CollectAndDeliverMineralsGoal(((CraftMob) mob).getHandle(), ((CraftPlayer) owner).getHandle(), 1.4f, 15,5f)
             );
         }
         return List.of(); // Retorna una lista vacía si 'mob' es null
@@ -80,6 +81,6 @@ public class RacoonPet extends Pet {
 
     @Override
     public Hitbox setHitbox() {
-       return new Hitbox(0.5,0.3,0.7,0.2);
+        return new Hitbox(0.5,0.3,0.7,0.2);
     }
 }

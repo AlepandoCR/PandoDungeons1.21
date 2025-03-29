@@ -42,4 +42,29 @@ public abstract class ModeledControlled extends ControlledEntity {
 
         modeledEntity.getBase().save();
     }
+
+    public void respawn(Location location) {
+        // Destruir el modelo si existe
+        if (modeledEntity != null) {
+            modeledEntity.destroy();
+        }
+
+        // Eliminar la entidad si existe
+        if (mob != null) {
+            mob.remove();
+        }
+
+        this.spawnLoc = location;
+        // Volver a crear la entidad
+        this.mob = setEntity();
+        applyGoalsMain();
+
+        // Volver a crear el modelo
+        this.builder = new ModelBuilder(modelName, mob).setHitbox(hitbox);
+        this.modeledEntity = builder.apply().getModeledEntity();
+
+        // Hacer invisible la base
+        modeledEntity.getBase().setVisible(false);
+        modeledEntity.getBase().save();
+    }
 }

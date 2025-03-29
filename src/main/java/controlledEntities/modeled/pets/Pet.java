@@ -1,10 +1,6 @@
 package controlledEntities.modeled.pets;
 
-import com.ticxo.modelengine.api.entity.Hitbox;
 import controlledEntities.modeled.ModeledControlled;
-import controlledEntities.modeled.pets.goals.FollowOwnerGoal;
-import org.bukkit.craftbukkit.entity.CraftMob;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import pandodungeons.pandodungeons.PandoDungeons;
 
@@ -17,6 +13,7 @@ public abstract class Pet extends ModeledControlled {
         this.mob.setInvulnerable(true);
         this.mob.setInvisible(true);
         this.owner = owner;
+        plugin.petsManager.addPet(this);
     }
 
     protected boolean hasPermission(){
@@ -29,6 +26,22 @@ public abstract class Pet extends ModeledControlled {
 
     public String getPermission() {
         return permission;
+    }
+
+    public void destroy(){
+        if(mob.isDead() || !mob.isValid()) return;
+
+        modeledEntity.destroy();
+
+        mob.remove();
+    }
+
+    public void respawnPet(){
+        respawn(owner.getLocation());
+
+        if(!plugin.petsManager.getPets().contains(this)){
+            plugin.petsManager.addPet(this);
+        }
     }
 
 }

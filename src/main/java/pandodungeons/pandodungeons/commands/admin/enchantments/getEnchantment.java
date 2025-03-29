@@ -1,5 +1,6 @@
 package pandodungeons.pandodungeons.commands.admin.enchantments;
 
+import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -188,6 +189,8 @@ public class getEnchantment implements CommandExecutor {
             new RacoonPet(player,plugin);
         }else if(args[1].equalsIgnoreCase("star")){
             player.getInventory().addItem(new InmortalityStar(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("miner")){
+            new MinerPet(player,plugin);
         }
 
         return false;
