@@ -1,8 +1,7 @@
 package pandoClass.classes;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,6 +34,8 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
         }
 
         Player executingPlayer = (Player) sender;
+
+        if (exchangeLvls(args, executingPlayer)) return true;
 
         // Sin argumentos: mostrar estadísticas del propio jugador.
         if (args.length == 0) {
@@ -90,10 +91,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-
-
-
-        if (args.length == 1 && args[0].equalsIgnoreCase("top")) {
+        if ((args.length == 1 || args.length == 2 )&& args[0].equalsIgnoreCase("top")) {
             if (topStatsList(args, executingPlayer)) return true;
             return true;
         }
@@ -131,6 +129,43 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
 
         executingPlayer.sendMessage(ChatColor.RED + "Uso correcto: /stats [top|nombre]");
         return true;
+    }
+
+    private boolean exchangeLvls(@NotNull String[] args, Player executingPlayer) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("intercambio")) {
+            try {
+                int amount = Integer.parseInt(args[1]);
+
+                // Verifica si el jugador está en el mundo "spawn"
+                World world = executingPlayer.getWorld();
+                if (!world.getName().equalsIgnoreCase("spawn")) {
+                    executingPlayer.sendMessage(ChatColor.RED + "Debes estar en el mundo 'spawn' para intercambiar niveles.");
+                    return true;
+                }
+
+                if(executingPlayer.getLocation().distance(new Location(world,309,92,439)) > 20){
+                    executingPlayer.sendMessage(ChatColor.RED + "Debes ir al altar de intercambio /warp intercambio");
+                    return true;
+                }
+
+                // Verifica si el bloque debajo del jugador es netherite
+                Block blockBelow = executingPlayer.getLocation().subtract(0, 1, 0).getBlock();
+                if (blockBelow.getType() != Material.NETHERITE_BLOCK) {
+                    executingPlayer.sendMessage(ChatColor.RED + "Debes estar sobre el bloque de netherite para intercambiar niveles.");
+                    return true;
+                }
+
+                // Ejecutar la animación e intercambio de niveles
+                RPGPlayer rpgPlayer = new RPGPlayer(executingPlayer, plugin);
+                rpgPlayer.animateAndApplyLevelExchange(amount);
+                return true;
+
+            } catch (NumberFormatException e) {
+                executingPlayer.sendMessage(ChatColor.RED + "El valor ingresado no es un número válido.");
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean topStatsList(@NotNull String[] args, Player executingPlayer) {
@@ -198,23 +233,24 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-
         List<String> completions = new java.util.ArrayList<>(List.of());
-        if(strings.length == 1){
-            for(Player player : Bukkit.getOnlinePlayers()){
-                completions.add(player.getName());
-            }
+
+        if (strings.length == 1) {
             completions.add("top");
             completions.add("resetMejoras");
+            completions.add("intercambio");
 
-            if(commandSender instanceof Player player){
-                if(player.isOp()){
+            if (commandSender instanceof Player player) {
+                if (player.isOp()) {
                     completions.add("addCoins");
                     completions.add("addLevels");
                     completions.add("addOrbs");
                 }
             }
+        } else if (strings.length == 2 && strings[0].equalsIgnoreCase("intercambio")) {
+            completions.add("<cantidad>");
         }
+
         return completions;
     }
 }

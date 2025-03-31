@@ -72,6 +72,7 @@ public class PrizeManager {
         prizeItems.add(new InstaMegaUpgradeShard(plugin));
         prizeItems.add(new StormSwordPrize(plugin));
         prizeItems.add(new InmortalityStar(plugin));
+        prizeItems.add(new SlingShotPrize(plugin));
     }
 
     public List<PrizeItem> getPrizeItems(){

@@ -40,14 +40,14 @@ public class PlayRedondelCommand {
 
         if(partyList.isMember(player)){
             if(partyList.isOwner(player)){
-                RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), partyList.getPartyByOwner(player).getMembers(), classic);
+                RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), partyList.getPartyByOwner(player).getMembers(), classic,plugin);
             } else {
                 player.sendMessage(ChatColor.AQUA + "No puedes iniciar la partida porque estas en un party y no eres el dueño");
             }
         }else{
             List<Player> list = new ArrayList<>();
             list.add(player);
-            RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), list, classic);
+            RedondelGame.StartRedondel(player.getName().toLowerCase(Locale.ROOT), list, classic,plugin);
         }
     }
 }

@@ -191,6 +191,8 @@ public class getEnchantment implements CommandExecutor {
             player.getInventory().addItem(new InmortalityStar(plugin).getItem());
         }else if(args[1].equalsIgnoreCase("miner")){
             new MinerPet(player,plugin);
+        }else if(args[1].equalsIgnoreCase("resortera")){
+            player.getInventory().addItem(new SlingShotPrize(plugin).getItem());
         }
 
         return false;

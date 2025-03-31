@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import static pandoToros.utils.PlayerArmorChecker.hasArmor;
 import static pandodungeons.pandodungeons.Utils.StructureUtils.deleteWorld;
@@ -49,12 +50,8 @@ public class ArenaMaker {
             return Bukkit.createWorld(worldCreator);
         }
 
-        try {
-            Bukkit.unloadWorld(newWorldName, true); // true guarda los datos del mundo antes de descargarlo
-            copyWorldFolder(source, destination);
-        } catch (IOException e) {
-            throw new RuntimeException("Error al copiar el mundo: " + e.getMessage(), e);
-        }
+        Bukkit.unloadWorld(newWorldName, true); // true guarda los datos del mundo antes de descargarlo
+        copyWorldFolderAsync(source, destination);
 
         WorldCreator worldCreator = new WorldCreator(newWorldName);
         return Bukkit.createWorld(worldCreator);
@@ -113,7 +110,48 @@ public class ArenaMaker {
     }
 
 
+    /**
+     * Copia el contenido de una carpeta a otra de manera asincrónica, omitiendo el archivo `session.lock`.
+     *
+     * @param source      Directorio de origen.
+     * @param destination Directorio de destino.
+     * @return Un CompletableFuture que se completa cuando la copia haya terminado.
+     */
+    public static CompletableFuture<Void> copyWorldFolderAsync(File source, File destination) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                Files.walk(source.toPath())
+                        .forEach(sourcePath -> {
+                            Path targetPath = destination.toPath().resolve(source.toPath().relativize(sourcePath));
+                            try {
+                                String fileName = sourcePath.getFileName().toString();
+                                if ("session.lock".equals(fileName) || "uid.dat".equals(fileName)) return;
+                                Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                            } catch (FileAlreadyExistsException ignored) {
+                                // Ignorar si el archivo ya existe
+                            } catch (IOException e) {
+                                throw new RuntimeException("Error al copiar el archivo: " + sourcePath, e);
+                            }
+                        });
 
+                // Verificar y eliminar uid.dat
+                Path uidFile = destination.toPath().resolve("uid.dat");
+                System.out.println("Intentando eliminar: " + uidFile.toAbsolutePath());
+                if (Files.exists(uidFile)) {
+                    try {
+                        Files.delete(uidFile);
+                        System.out.println("Archivo uid.dat eliminado correctamente.");
+                    } catch (IOException e) {
+                        System.err.println("No se pudo eliminar uid.dat: " + e.getMessage());
+                    }
+                } else {
+                    System.out.println("El archivo uid.dat no existe.");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error durante la caminata de archivos: " + e.getMessage(), e);
+            }
+        });
+    }
 
 
     /**

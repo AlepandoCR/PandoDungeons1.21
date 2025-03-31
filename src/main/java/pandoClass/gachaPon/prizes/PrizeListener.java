@@ -7,10 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
@@ -49,6 +46,7 @@ import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.chargeStar;
 import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.useStar;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
+import static pandoClass.gachaPon.prizes.mithic.SlingShotPrize.fireCustomCrossbow;
 import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize.*;
 
@@ -80,6 +78,17 @@ public class PrizeListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerShoot(EntityShootBowEvent event) {
+        // Verificar si el tirador es un jugador
+        if (event.getEntity() instanceof Player player) {
+            // Verificar si el artículo utilizado es una ballesta
+            ItemStack item = player.getInventory().getItemInMainHand();
+            if (item.getType() == Material.CROSSBOW) {
+                fireCustomCrossbow(player,item,plugin);
+            }
+        }
+    }
 
 
     private int getRemaningUses(ItemStack item) {

@@ -85,7 +85,9 @@ public class CollectAndDeliverMineralsGoal extends Goal {
     private void findNewItemTarget() {
         List<ItemEntity> nearbyItems = mob.level().getEntitiesOfClass(ItemEntity.class, mob.getBoundingBox().inflate(trackDistance),
                 item -> MINERAL_TYPES.contains(((CraftItem) item.getBukkitEntity()).getItemStack().getType()) &&
-                        !droppedItems.containsKey(item.getUUID())); // Evita recoger sus propios ítems
+                        !droppedItems.containsKey(item.getUUID()) &&
+                        !isPlayerNearby(item) // Excluir ítems cerca de jugadores
+        );
 
         if (!nearbyItems.isEmpty()) {
             nearbyItems.sort(Comparator.comparingDouble(mob::distanceTo));
@@ -93,8 +95,20 @@ public class CollectAndDeliverMineralsGoal extends Goal {
         }
     }
 
+    private boolean isPlayerNearby(ItemEntity item) {
+        return !mob.level().getEntitiesOfClass(Player.class, item.getBoundingBox().inflate(2)).isEmpty();
+    }
+
+
     private void moveToItem() {
         if (currentTargetItem != null) {
+            // Si un jugador se acerca al item, cambiar de objetivo
+            if (isPlayerNearby(currentTargetItem)) {
+                currentTargetItem = null;
+                findNewItemTarget();
+                return;
+            }
+
             mob.getNavigation().moveTo(currentTargetItem, speedModifier);
 
             // Recoger el ítem si está lo suficientemente cerca y han pasado 2 segundos

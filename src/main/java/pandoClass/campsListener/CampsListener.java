@@ -172,7 +172,7 @@ public class CampsListener implements Listener {
 
     private int calculateExpFromLvl(int lvl, LivingEntity entity){
         if(entity instanceof Enderman){
-            return (int) entity.getHealth()/3;
+            return (int) entity.getHealth()/10;
         }
         return (int) entity.getHealth();
     }

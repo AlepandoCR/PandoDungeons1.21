@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import pandoClass.RPGPlayer;
 import pandoToros.game.modes.cosmetic.base.effects.team.TeamPlayerEffect;
 import pandodungeons.pandodungeons.PandoDungeons;
 
@@ -24,8 +25,6 @@ import static pandoToros.utils.PlayerArmorChecker.hasArmor;
 
 public class RedondelGame {
 
-    private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
-
     public static Map<UUID,Boolean> activeRedondel = new HashMap<>();
 
     public static boolean hasActiveRedondel(Player player){
@@ -36,7 +35,7 @@ public class RedondelGame {
         }
     }
 
-    public static void StartRedondel(String creator, List<Player> players, boolean classic) {
+    public static void StartRedondel(String creator, List<Player> players, boolean classic, PandoDungeons plugin) {
         World newWorld = createRedondelWorld(creator); // Método para crear el mundo
         pandoToros.game.modes.GameMode gameMode = new pandoToros.game.modes.GameMode(players, newWorld);
         if (newWorld != null) {
@@ -92,13 +91,7 @@ public class RedondelGame {
 
                         }
                         if(!classic){
-                            if(gameMode.isTeamGamemode()){
-                                for(Player player : gameMode.getWiningTeam()){
-                                    player.sendMessage("Ganó tu equipo");
-                                }
-                            }else{
-                                gameMode.getWinningPlayer().sendMessage("Ganaste el juego!");
-                            }
+                            celebrate();
                         }
                         deleteRedondelWorld("redondel_" + creator.toLowerCase(Locale.ROOT));
                         this.cancel(); // Detiene el loop
@@ -151,7 +144,28 @@ public class RedondelGame {
                     // Decrece el tiempo
                     remainingTime--;
                 }
+
+                private void celebrate() {
+                    if(gameMode.isTeamGamemode()){
+                        for(Player player : gameMode.getWiningTeam()){
+                            player.sendMessage("Ganó tu equipo");
+                            rewardPlayers(plugin,gameMode.getWiningTeam());
+                        }
+                    }else{
+                        if(players.size() > 1){
+                            gameMode.getWinningPlayer().sendMessage("Ganaste el juego!");
+                            rewardPlayers(plugin, List.of(gameMode.getWinningPlayer()));
+                        }
+                    }
+                }
             }.runTaskTimer(plugin, 0L, 20L); // Ejecuta cada segundo
+        }
+    }
+    private static void rewardPlayers(PandoDungeons plugin,  List<Player> players){
+        for (Player player : players) {
+            RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+            rpgPlayer.addCoins(650);
+            player.sendMessage(ChatColor.GREEN + "¡Haz ganado " + ChatColor.GOLD + "650" + ChatColor.GREEN + " monedas!");
         }
     }
 

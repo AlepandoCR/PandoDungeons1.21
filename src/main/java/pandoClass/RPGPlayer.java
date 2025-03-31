@@ -1,11 +1,11 @@
 package pandoClass;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Enderman;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -15,12 +15,10 @@ import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.farmer.Farmer;
 import pandoClass.classes.mage.Mage;
-import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.gachaPon.GachaHolo;
 import pandodungeons.pandodungeons.PandoDungeons;
 
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,6 +165,71 @@ public class RPGPlayer {
 
     public int calculateExpForNextLvl() {
         return (int) (500 + (50 * Math.pow(level, 1.2)));
+    }
+
+    public void exchangeLevelsForCoins(int levelsToExchange) {
+        if (levelsToExchange <= 1 || levelsToExchange >= level) {
+            getPlayer().sendMessage(ChatColor.RED + "No tienes suficientes niveles para intercambiar.");
+            return;
+        }
+
+        resetOrbs();
+
+        int totalCoins = 0;
+
+        // Calculamos el costo en monedas basado en la experiencia requerida para cada nivel intercambiado
+        for (int i = 0; i < levelsToExchange; i++) {
+            int expRequired = calculateExpForNextLvl();
+            totalCoins += expRequired / 100;
+            if(getLevel() > 0 && getOrbs() >= 0){
+                addLevel(-1); // Restamos el nivel
+                addOrb(-1);
+                addExp(-getExp()); // Reiniciamos la experiencia actual del nivel
+            }
+        }
+
+        addCoins(totalCoins);
+        save(this);
+        update();
+
+        getPlayer().sendMessage(ChatColor.GOLD + "Has intercambiado " + levelsToExchange + " niveles y orbes por " + totalCoins + " monedas.");
+        getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "Se han extraido los orbes de las habilidades por el intercambio");
+    }
+
+    public void animateAndApplyLevelExchange(int amount){
+
+        Enderman enderman = spawnEndermanNoAI(getPlayer());
+
+        GameMode previousGameMode = getPlayer().getGameMode();
+
+        // Cambia al jugador a modo espectador y lo hace ver desde el Enderman
+        getPlayer().setGameMode(GameMode.SPECTATOR);
+        getPlayer().setSpectatorTarget(enderman);
+
+        new BukkitRunnable(){
+
+            @Override
+            public void run() {
+                if (getPlayer().isOnline() && getPlayer().getGameMode() == GameMode.SPECTATOR) {
+                    getPlayer().setGameMode(previousGameMode);
+                    exchangeLevelsForCoins(amount);
+                    getPlayer().teleport(enderman);
+                    enderman.remove();
+                }
+            }
+        }.runTaskLater(plugin,60);
+    }
+
+    public Enderman spawnEndermanNoAI(Player player) {
+        Location location = player.getLocation(); // Obtiene la ubicación del jugador
+        Enderman enderman = (Enderman) player.getWorld().spawnEntity(location, EntityType.ENDERMAN); // Crea el Enderman
+        // Desactiva la IA del Enderman
+        enderman.setAI(false);
+        enderman.setSilent(true);
+        enderman.setInvulnerable(true);
+        enderman.setInvisible(true);
+
+        return enderman;
     }
 
     public void showExpBossBar(Player player) {

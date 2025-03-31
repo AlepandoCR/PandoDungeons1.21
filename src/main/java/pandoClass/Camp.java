@@ -62,6 +62,8 @@ public class Camp {
             double damageMultiplier = 1.0 + (lvl * 0.001);
             double baseHealth = entity.getHealth();
             entity.setMaxHealth(baseHealth * healthMultiplier);
+            entity.setRemoveWhenFarAway(false);
+            entity.setPersistent(true);
             if (entity.getAttribute(Attribute.ATTACK_DAMAGE) != null) {
                 double baseDamage = entity.getAttribute(Attribute.ATTACK_DAMAGE).getBaseValue();
                 entity.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(baseDamage * damageMultiplier);

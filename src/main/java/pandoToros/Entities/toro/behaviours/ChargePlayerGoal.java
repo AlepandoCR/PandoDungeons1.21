@@ -17,6 +17,7 @@ import org.bukkit.Sound;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
 import pandoToros.Entities.toro.Toro;
 import pandoToros.game.ToroStatManager;
@@ -247,13 +248,15 @@ public class ChargePlayerGoal extends Goal {
                     unRedPlayer(this.target);
                 }
                 this.resetCharge();
-                this.dodgeMessage(this.target);
+                if(target != null){
+                    this.dodgeMessage(this.target);
+                }
                 anger++;
             }
         }
     }
 
-    private void dodgeMessage(Player player){
+    private void dodgeMessage(@NotNull Player player){
         org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) player.getBukkitEntity();
         ToroStatManager.getToroStatsManager(bukkitPlayer).addDodges();
         bukkitPlayer.playSound(bukkitPlayer, Sound.BLOCK_NOTE_BLOCK_BELL,1,1.2f);

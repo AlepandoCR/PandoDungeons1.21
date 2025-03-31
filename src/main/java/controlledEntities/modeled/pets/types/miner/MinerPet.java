@@ -54,7 +54,7 @@ public class MinerPet extends Pet {
         // Asegúrate de que 'mob' no sea null y tenga un handle válido
         if (mob != null && mob instanceof CraftMob) {
             return List.of(
-                    new CollectAndDeliverMineralsGoal(((CraftMob) mob).getHandle(), ((CraftPlayer) owner).getHandle(), 1.4f, 15,5f)
+                    new CollectAndDeliverMineralsGoal(((CraftMob) mob).getHandle(), ((CraftPlayer) owner).getHandle(), 1.4f, 15,3.5f)
             );
         }
         return List.of(); // Retorna una lista vacía si 'mob' es null
