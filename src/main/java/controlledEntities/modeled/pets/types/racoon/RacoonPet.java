@@ -13,6 +13,7 @@ import controlledEntities.modeled.pets.Pet;
 import controlledEntities.modeled.pets.goals.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import org.apache.maven.model.Model;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.entity.CraftMob;
@@ -21,6 +22,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.PolarBear;
+import org.bukkit.permissions.Permission;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.List;
@@ -53,7 +55,7 @@ public class RacoonPet extends Pet {
         // Asegúrate de que 'mob' no sea null y tenga un handle válido
         if (mob != null && mob instanceof CraftMob) {
             return List.of(
-                    new FollowOwnerGoal(((CraftMob) mob).getHandle(), ((CraftPlayer) owner).getHandle(), 1.7, 3, 0.5f)
+                    new FollowOwnerGoal(((CraftMob) mob).getHandle(), ((CraftPlayer) owner).getHandle(), 1.4,0.6, 3, 0.5f)
             );
         }
         return List.of(); // Retorna una lista vacía si 'mob' es null
@@ -73,6 +75,7 @@ public class RacoonPet extends Pet {
 
         bear.setPersistent(true); // Para que no desaparezca
         bear.setSilent(true); // Sin sonidos
+        bear.setInvisible(true);
 
 
         return bear;
@@ -81,5 +84,15 @@ public class RacoonPet extends Pet {
     @Override
     public Hitbox setHitbox() {
        return new Hitbox(0.5,0.3,0.7,0.2);
+    }
+
+    @Override
+    public String setPermission() {
+        return "mascota.mapache";
+    }
+
+    @Override
+    public String getDisplayValue() {
+        return "37bd204512728130b7f65ff2714b98d48735ff0288b6e9a50270002290fa58d7";
     }
 }

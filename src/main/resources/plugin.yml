@@ -41,6 +41,12 @@ commands:
   pagar:
     description: Comando transferir monedas
     usage: /<command> [player]
+  mascotas:
+    description: Comando para invocar mascotas
+    usage: /<command>
+  petoken:
+    description: dar petokens
+    usage: /<command>
 
 
 permissions:
@@ -52,4 +58,10 @@ permissions:
     default: op
   pandodungeons.battlepass:
     description: Permiso de pase de batalla premium.
+    default: op
+  mascota.minero:
+    decription: Permiso para mascota minero
+    default: op
+  mascota.mapache:
+    decription: Permiso para mascota mapache
     default: op

@@ -1,5 +1,6 @@
 package pandodungeons.pandodungeons.commands.admin.enchantments;
 
+import controlledEntities.modeled.pets.PetGachapon;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import org.bukkit.ChatColor;
@@ -193,6 +194,12 @@ public class getEnchantment implements CommandExecutor {
             new MinerPet(player,plugin);
         }else if(args[1].equalsIgnoreCase("resortera")){
             player.getInventory().addItem(new SlingShotPrize(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("petgacha")){
+            try {
+                createPetGachaponArmorStand(player.getLocation());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return false;
@@ -252,6 +259,23 @@ public class getEnchantment implements CommandExecutor {
         // Se asigna el item a la cabeza del ArmorStand
         armorStand.getEquipment().setHelmet(head);
         armorStand.addScoreboardTag("Gachapon");
+    }
+
+    private void createPetGachaponArmorStand(Location location) throws MalformedURLException {
+        // Se crea el item para la cabeza
+        ItemStack head = createHead("black", "b6dd8919fe8f7507b4641bf3aa72b056e0857cc202a8e5eb66c9c21aa73c3876");
+
+        // Se instancia el ArmorStand en la ubicación indicada
+        ArmorStand armorStand = location.getWorld().spawn(location, ArmorStand.class);
+
+        // Configuraciones del ArmorStand
+        armorStand.setGravity(false);               // Sin gravedad
+        armorStand.setVisible(false);               // Invisible
+        armorStand.setInvulnerable(true);           // Invulnerable
+        armorStand.setRemoveWhenFarAway(false);     // Persistente (no se elimina al estar lejos)
+        // Se asigna el item a la cabeza del ArmorStand
+        armorStand.getEquipment().setHelmet(head);
+        armorStand.addScoreboardTag("PetGachapon");
     }
 
 }

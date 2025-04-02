@@ -14,6 +14,7 @@ import controlledEntities.modeled.pets.goals.FollowOwnerGoal;
 import controlledEntities.modeled.pets.types.miner.goals.CollectAndDeliverMineralsGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import org.apache.maven.model.Model;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.entity.CraftMob;
@@ -22,6 +23,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.PolarBear;
+import org.bukkit.permissions.Permission;
 import pandodungeons.pandodungeons.PandoDungeons;
 
 import java.util.List;
@@ -74,9 +76,20 @@ public class MinerPet extends Pet {
 
         bear.setPersistent(true); // Para que no desaparezca
         bear.setSilent(true); // Sin sonidos
+        bear.setInvisible(true);
 
 
         return bear;
+    }
+
+    @Override
+    public String setPermission() {
+        return "mascota.minero";
+    }
+
+    @Override
+    public String getDisplayValue() {
+        return "7d915e395587c5cd4a7e6416195575f5bfdb6c476398fe8e3a87e3c7fbb894eb";
     }
 
     @Override

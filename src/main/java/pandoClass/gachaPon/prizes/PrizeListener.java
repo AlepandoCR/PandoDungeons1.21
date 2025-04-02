@@ -186,7 +186,7 @@ public class PrizeListener implements Listener {
 
         if (event.getAction().equals(Action.LEFT_CLICK_AIR)) {
             if (isMapachoBlade(item, plugin)) {
-                launchMapachoBlade(player);
+                launchMapachoBlade(player, item);
             }
         }
     }
@@ -336,7 +336,7 @@ public class PrizeListener implements Listener {
         }
     }
 
-    public void launchMapachoBlade(Player player) {
+    public void launchMapachoBlade(Player player, ItemStack blade) {
         World world = player.getWorld();
         Location startLoc = player.getEyeLocation().add(0,-1.4,0);
         Vector direction = startLoc.getDirection().normalize();
@@ -350,11 +350,7 @@ public class PrizeListener implements Listener {
             armorStand.setGlowing(true);
             armorStand.setCustomNameVisible(false);
             // Colocar la espada en la cabeza
-            ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
-            ItemMeta meta = sword.getItemMeta();
-            meta.setCustomModelData(345345545);
-            sword.setItemMeta(meta);
-            armorStand.getEquipment().setHelmet(sword);
+            armorStand.getEquipment().setHelmet(blade);
         });
 
         // Runnable para mover la espada (blade)
@@ -411,7 +407,6 @@ public class PrizeListener implements Listener {
 
     private void explodeEffect(Location loc) {
         loc.getWorld().spawnParticle(Particle.CRIT, loc, 20, 0.5, 0.5, 0.5, 0.1);
-        loc.getWorld().playSound(loc, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.0f, 1.0f);
     }
 
     @EventHandler

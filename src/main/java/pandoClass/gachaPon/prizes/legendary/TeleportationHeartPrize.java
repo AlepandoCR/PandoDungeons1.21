@@ -113,7 +113,7 @@ public class TeleportationHeartPrize extends PrizeItem {
 
         String worldName = loc.getWorld().getName();
 
-        if(isDungeonWorld(worldName) || isRedondelWorld(worldName) || worldName.equalsIgnoreCase("spawn") || worldName.equalsIgnoreCase("pvp") || worldName.equalsIgnoreCase("parkours") || worldName.equalsIgnoreCase("laberintos")){
+        if(isDungeonWorld(worldName) || isRedondelWorld(worldName) || worldName.equalsIgnoreCase("pvp") || worldName.equalsIgnoreCase("parkours") || worldName.equalsIgnoreCase("laberintos")){
             return;
         }
 

@@ -5,6 +5,8 @@ import battlePass.premium.PremiumBattlePass;
 import battlePass.premium.PremiumRewardManager;
 import battlePass.regular.DefaultRewardManager;
 import com.ticxo.modelengine.api.ModelEngineAPI;
+import controlledEntities.modeled.pets.PetCommand;
+import controlledEntities.modeled.pets.PetGachaCommand;
 import controlledEntities.modeled.pets.PetsListener;
 import controlledEntities.modeled.pets.PetsManager;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
@@ -132,6 +134,7 @@ public final class PandoDungeons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MissionListener(this),this);
         getServer().getPluginManager().registerEvents(new PetsListener(this),this);
 
+        this.getCommand("mascotas").setExecutor(new PetCommand(this));
         this.getCommand("gachatoken").setExecutor(new GachaCommand(this));
         this.getCommand("texturas").setExecutor(new TextureCommand(this));
         this.getCommand("dungeons").setExecutor(new CommandManager(this));
@@ -141,6 +144,7 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("bet").setExecutor(new GambleCommand(this));
         this.getCommand("encargo").setExecutor(new QuestCommand(this));
         this.getCommand("pagar").setExecutor(new PayCommand(this));
+        this.getCommand("petoken").setExecutor(new PetGachaCommand(this));
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");

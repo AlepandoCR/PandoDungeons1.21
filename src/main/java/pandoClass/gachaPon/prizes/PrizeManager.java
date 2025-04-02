@@ -83,12 +83,59 @@ public class PrizeManager {
         return new NamespacedKey(plugin,"gachaToken");
     }
 
+    public NamespacedKey getGachaPetTokenKey(){
+        return new NamespacedKey(plugin,"gachaPetToken");
+    }
+
     public Boolean hasGatchaToken(ItemStack itemStack){
         return itemStack.getPersistentDataContainer().has(getGachaTokenKey(),PersistentDataType.BOOLEAN);
     }
 
+    public Boolean hasGatchaPetToken(ItemStack itemStack){
+        return itemStack.getPersistentDataContainer().has(getGachaPetTokenKey(),PersistentDataType.BOOLEAN);
+    }
+
     public ItemStack gachaToken(){
         ItemStack itemStack = new ItemStack(Material.SUNFLOWER,1);
+        ItemMeta meta = itemStack.getItemMeta();
+
+        meta.getPersistentDataContainer().set(getGachaTokenKey(), PersistentDataType.BOOLEAN, true);
+
+        meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.BOLD + "Ficha de gachapon");
+        meta.setRarity(ItemRarity.EPIC);
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.LIGHT_PURPLE + "Te servirá para abrir gachapon");
+        lore.add(ChatColor.GOLD + "/warp gachapon");
+
+        meta.setLore(lore);
+
+        itemStack.setItemMeta(meta);
+
+        return itemStack;
+    }
+
+    public ItemStack gachaPetToken(){
+        ItemStack itemStack = new ItemStack(Material.SUNFLOWER,1);
+        ItemMeta meta = itemStack.getItemMeta();
+
+        meta.getPersistentDataContainer().set(getGachaPetTokenKey(), PersistentDataType.BOOLEAN, true);
+
+        meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.GREEN + "Ficha de Mascotas");
+        meta.setRarity(ItemRarity.EPIC);
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.LIGHT_PURPLE + "Te servirá para abrir un gachapon de mascotas");
+        lore.add(ChatColor.GOLD + "/warp mascotas");
+
+        meta.setLore(lore);
+
+        itemStack.setItemMeta(meta);
+
+        return itemStack;
+    }
+
+
+    public ItemStack gachaToken(int i){
+        ItemStack itemStack = new ItemStack(Material.SUNFLOWER,i);
         ItemMeta meta = itemStack.getItemMeta();
 
         meta.getPersistentDataContainer().set(getGachaTokenKey(), PersistentDataType.BOOLEAN, true);
