@@ -1,6 +1,5 @@
 package pandodungeons.pandodungeons.commands.admin.enchantments;
 
-import controlledEntities.modeled.pets.PetGachapon;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import org.bukkit.ChatColor;
@@ -26,6 +25,7 @@ import pandoClass.gachaPon.prizes.epic.PuertoViejoPipePrize;
 import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
 import pandoClass.gachaPon.prizes.epic.RocketBootsPrize;
 import pandoClass.gachaPon.prizes.legendary.EscudoReflectantePrize;
+import pandoClass.gachaPon.prizes.legendary.SlingShotPrize;
 import pandoClass.gachaPon.prizes.legendary.StormSwordPrize;
 import pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize;
 import pandoClass.gachaPon.prizes.mithic.*;
@@ -187,7 +187,7 @@ public class getEnchantment implements CommandExecutor {
         }else if(args[1].equalsIgnoreCase("rebota")){
             player.getInventory().addItem(new EscudoReflectantePrize(plugin).getItem());
         }else if(args[1].equalsIgnoreCase("mapachin")){
-            new RacoonPet(player,plugin);
+            new RacoonPet(player,plugin).setCustomName("mapachin");
         }else if(args[1].equalsIgnoreCase("star")){
             player.getInventory().addItem(new InmortalityStar(plugin).getItem());
         }else if(args[1].equalsIgnoreCase("miner")){

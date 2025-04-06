@@ -3,6 +3,7 @@ package controlledEntities.modeled.pets;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
+import controlledEntities.modeled.pets.types.sakura.SakuraPet;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -51,9 +52,9 @@ public class PetGachapon {
         // Definir mascotas por calidad
         addPet(new RacoonPet(player, plugin), Quality.RARO);
         addPet(new MinerPet(player, plugin), Quality.LEGENDARIO);
-        addPet(new RacoonPet(player, plugin), Quality.INFERIOR);
+        addPet(new SakuraPet(player, plugin), Quality.MITICO);
         addPet(new MinerPet(player, plugin), Quality.EPICO);
-        addPet(new RacoonPet(player, plugin), Quality.MITICO);
+        addPet(new RacoonPet(player, plugin), Quality.INFERIOR);
 
         // Probabilidades de cada calidad
         qualityProbabilities.put(Quality.INFERIOR, 30.0);
@@ -73,7 +74,7 @@ public class PetGachapon {
 
     public void trigger() {
 
-        Location center = new Location(Bukkit.getWorld("spawn"), 416, 89, 212);
+        Location center = new Location(Bukkit.getWorld("spawn"), 416.5, 87.5, 212.5);
 
         if(activePetGachapon != null){
             player.sendMessage("Hay otro gachapon activo");
@@ -105,6 +106,7 @@ public class PetGachapon {
         // Verifica si el jugador ya tiene el permiso
         if (player.hasPermission(permission)) {
             player.sendMessage(ChatColor.RED + "¡Ya tienes esa mascota!");
+            player.sendMessage(ChatColor.GREEN + "Recibiste " + ChatColor.GOLD + "2 " + ChatColor.GREEN + "fichas de Gachapon normal");
             player.getInventory().addItem(plugin.prizeManager.gachaToken(2));
 
             return; // Salir del método si el jugador ya tiene el permiso

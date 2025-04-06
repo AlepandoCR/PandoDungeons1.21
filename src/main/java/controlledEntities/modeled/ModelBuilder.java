@@ -21,6 +21,7 @@ public class ModelBuilder {
         if (this.blueprint == null) {
             throw new IllegalArgumentException("No se encontró el modelo con ID: " + modelId);
         }
+        this.blueprint.setName("ASD");
 
         // Crear el ActiveModel
         this.activeModel = ModelEngineAPI.createActiveModel(blueprint);

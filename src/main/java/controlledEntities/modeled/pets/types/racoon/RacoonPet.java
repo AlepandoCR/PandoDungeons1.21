@@ -10,6 +10,7 @@ import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.render.ModelRenderer;
 import controlledEntities.modeled.ModelBuilder;
 import controlledEntities.modeled.pets.Pet;
+import controlledEntities.modeled.pets.PetType;
 import controlledEntities.modeled.pets.goals.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import org.apache.maven.model.Model;
@@ -87,6 +88,11 @@ public class RacoonPet extends Pet {
     }
 
     @Override
+    public PetType setType() {
+        return PetType.MAPACHE;
+    }
+
+    @Override
     public String setPermission() {
         return "mascota.mapache";
     }
@@ -95,4 +101,5 @@ public class RacoonPet extends Pet {
     public String getDisplayValue() {
         return "37bd204512728130b7f65ff2714b98d48735ff0288b6e9a50270002290fa58d7";
     }
+
 }

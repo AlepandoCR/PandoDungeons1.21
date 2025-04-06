@@ -22,8 +22,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.checkerframework.checker.calledmethods.qual.EnsuresCalledMethods;
-import org.checkerframework.checker.lock.qual.LockingFree;
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
 import pandoClass.gachaPon.GachaHolo;
@@ -46,7 +44,7 @@ import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.chargeStar;
 import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.useStar;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
-import static pandoClass.gachaPon.prizes.mithic.SlingShotPrize.fireCustomCrossbow;
+import static pandoClass.gachaPon.prizes.legendary.SlingShotPrize.fireCustomCrossbow;
 import static pandoClass.gachaPon.prizes.mithic.TeleShardPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize.*;
 

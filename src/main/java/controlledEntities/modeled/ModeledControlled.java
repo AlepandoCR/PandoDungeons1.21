@@ -26,6 +26,10 @@ public abstract class ModeledControlled extends ControlledEntity {
 
     public abstract Hitbox setHitbox();
 
+    public String getModelName() {
+        return modelName;
+    }
+
     public ModeledEntity getModeledEntity() {
         return modeledEntity;
     }
@@ -38,7 +42,7 @@ public abstract class ModeledControlled extends ControlledEntity {
 
         modeledEntity = builder.apply().getModeledEntity();
 
-        modeledEntity.getBase().setVisible(false);
+        modeledEntity.save();
 
         modeledEntity.getBase().save();
     }

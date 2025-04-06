@@ -53,6 +53,9 @@ public class RPGPlayer {
     private boolean hasChosenTextures = false;
     private boolean isChoosing = false;
     private transient boolean hasSelectedClass = false;
+    private String racoonPetName  = "";
+    private String minerPetName  = "";
+    private String sakuraPetName  = "";
 
     private final transient PandoDungeons plugin;
 
@@ -529,6 +532,10 @@ public class RPGPlayer {
         this.texturePack = other.texturePack;
         this.hasChosenTextures = other.hasChosenTextures;
         this.isChoosing = other.isChoosing;
+        this.racoonPetName  = other.racoonPetName;
+        this.minerPetName  = other.minerPetName;
+        this.sakuraPetName  = other.sakuraPetName;
+
     }
 
     private void defaults() {
@@ -547,6 +554,39 @@ public class RPGPlayer {
         this.texturePack = false;
         this.hasChosenTextures = false;
         this.isChoosing = false;
+        this.racoonPetName  = "";
+        this.minerPetName  = "";
+        this.sakuraPetName  = "";
+    }
+
+    public String getMinerPetName() {
+        return minerPetName;
+    }
+
+    public String getRacoonPetName() {
+        return racoonPetName;
+    }
+
+    public String getSakuraPetName() {
+        return sakuraPetName;
+    }
+
+    public void setMinerPetName(String minerPetName) {
+        this.minerPetName = minerPetName;
+        save(this);
+        update();
+    }
+
+    public void setRacoonPetName(String racoonPetName) {
+        this.racoonPetName = racoonPetName;
+        save(this);
+        update();
+    }
+
+    public void setSakuraPetName(String sakuraPetName) {
+        this.sakuraPetName = sakuraPetName;
+        save(this);
+        update();
     }
 
     public String getClassKey() {

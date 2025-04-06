@@ -2,6 +2,7 @@ package controlledEntities.modeled.pets;
 
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
+import controlledEntities.modeled.pets.types.sakura.SakuraPet;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -88,6 +89,8 @@ public class PetsManager {
           new RacoonPet(player,plugin);
         }else if(pet instanceof MinerPet){
             new MinerPet(player,plugin);
+        }else if(pet instanceof SakuraPet){
+            new SakuraPet(player,plugin);
         }else{
             player.sendMessage("No es pet");
         }
@@ -95,6 +98,6 @@ public class PetsManager {
     }
 
     public void destroyAllPets(){
-        pets.forEach(this::destroyPet);
+        pets.forEach(pet -> destroyPets(pet.getOwner()));
     }
 }

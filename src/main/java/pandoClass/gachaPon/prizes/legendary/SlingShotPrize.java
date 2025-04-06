@@ -1,9 +1,8 @@
-package pandoClass.gachaPon.prizes.mithic;
+package pandoClass.gachaPon.prizes.legendary;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -34,7 +33,7 @@ public class SlingShotPrize extends PrizeItem {
 
     @Override
     protected Quality selectQuality() {
-        return Quality.MITICO;
+        return Quality.LEGENDARIO;
     }
 
     private ItemStack createCustomCrossbow(int amount) {
@@ -65,20 +64,25 @@ public class SlingShotPrize extends PrizeItem {
         return false;
     }
 
-    public static void fireCustomCrossbow(Player player, ItemStack crossbow,PandoDungeons plugin) {
-        if(!isCustomCrossbow(crossbow,plugin))return;
-        int multishotLevel = crossbow.getEnchantmentLevel(Enchantment.MULTISHOT);
-        int totalArrows = 2 + multishotLevel; // Dispara 2 flechas adicionales al nivel de Multishot
-        double spreadAngle = Math.PI / (totalArrows - 1); // Ángulo entre flechas para formar un semicírculo
+    public static void fireCustomCrossbow(Player player, ItemStack crossbow, PandoDungeons plugin) {
+        if (!isCustomCrossbow(crossbow, plugin)) return;
 
-        Vector direction = player.getLocation().getDirection();
-        double initialYaw = Math.atan2(direction.getZ(), direction.getX());
+        Vector direction = player.getLocation().getDirection().normalize();
 
-        for (int i = 0; i < totalArrows; i++) {
-            double angle = initialYaw - Math.PI / 2 + (spreadAngle * i);
-            Vector arrowDirection = new Vector(Math.cos(angle), direction.getY(), Math.sin(angle)).normalize();
-            Arrow arrow = player.launchProjectile(Arrow.class);
-            arrow.setVelocity(arrowDirection.multiply(2));
-        }
+        // Disparo principal
+        Arrow arrow1 = player.launchProjectile(Arrow.class);
+        arrow1.setVelocity(direction.multiply(2.0));
+
+        // Flechas adicionales estilo multishot
+        Arrow arrow2 = player.launchProjectile(Arrow.class);
+        Arrow arrow3 = player.launchProjectile(Arrow.class);
+
+        // Usar ángulos simples para no sobrecargar
+        Vector right = direction.clone().rotateAroundY(Math.toRadians(15));
+        Vector left = direction.clone().rotateAroundY(Math.toRadians(-15));
+
+        arrow2.setVelocity(right.multiply(2.0));
+        arrow3.setVelocity(left.multiply(2.0));
     }
+
 }

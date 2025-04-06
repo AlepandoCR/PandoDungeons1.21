@@ -65,3 +65,9 @@ permissions:
   mascota.mapache:
     decription: Permiso para mascota mapache
     default: op
+  mascota.sakura:
+    description: Permiso para mascota sakura
+    default: op
+  mascota.nombres:
+    description: Permiso para cambiar nombre de mascotas
+    default: op

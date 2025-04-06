@@ -21,7 +21,7 @@ import static pandodungeons.pandodungeons.Utils.StructureUtils.findDriedKelpBloc
 import static pandodungeons.pandodungeons.Utils.StructureUtils.isWorldLoaded;
 
 public class DungeonBuilder {
-    private final JavaPlugin plugin;
+    private final PandoDungeons plugin;
     private final World world;
     private final Random random;
     private final List<Room> rooms;
@@ -30,7 +30,7 @@ public class DungeonBuilder {
 
     private static final Set<Material> validMaterials = new HashSet<>();
 
-    public DungeonBuilder(JavaPlugin plugin, World world, Player player) {
+    public DungeonBuilder(PandoDungeons plugin, World world, Player player) {
         this.plugin = plugin;
         this.world = world;
         this.random = new Random();
@@ -75,7 +75,7 @@ public class DungeonBuilder {
                     int attempts = 0;
                     Location roomLocation;
                     do {
-                        roomLocation = getRandomLocation(baseLocation);
+                        roomLocation = findValidRoomLocation(baseLocation);
                         attempts++;
                     } while (placedLocations.contains(roomLocation) && attempts < 20);
 
@@ -86,6 +86,8 @@ public class DungeonBuilder {
 
                     Clipboard clipboard = StructureUtils.loadStructure(roomLocation, theme, playerName, world);
                     if (clipboard != null) {
+                        if(roomLocation == null)return;
+                        roomLocation.getChunk().load();
                         placedLocations.add(roomLocation);
                         Room room = new Room(roomLocation, rooms.size() + 1, false);
                         room.setClipboard(clipboard);
@@ -104,6 +106,27 @@ public class DungeonBuilder {
         });
     }
 
+    private Location findValidRoomLocation(Location base) {
+        int maxAttempts = 1000;
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+            Location candidate = getRandomLocation(base);
+
+            boolean tooClose = false;
+            for (Location placed : placedLocations) {
+                if (candidate.distanceSquared(placed) < (100 * 100)) {
+                    tooClose = true;
+                    break;
+                }
+            }
+
+            if (!tooClose) {
+                return candidate;
+            }
+        }
+        return null; // No se encontró ubicación válida tras muchos intentos
+    }
+
+
     private void spawnRoomsAndMobs(List<Room> rooms, int index) {
         if (index >= rooms.size() || world == null || !isWorldLoaded(world)) return;
 
@@ -117,13 +140,15 @@ public class DungeonBuilder {
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> spawnRoomsAndMobs(rooms, index + 1), 80L);
     }
 
-    private Location getRandomLocation(Location baseLocation) {
-        int xOffset = random.nextInt(300) + 200;
-        int zOffset = random.nextInt(300) + 200;
-        int yOffset = random.nextInt(50) + 10;
+    private Location getRandomLocation(Location center) {
+        int radius = 500;
+        int x = center.getBlockX() + random.nextInt(radius * 2) - radius;
+        int z = center.getBlockZ() + random.nextInt(radius * 2) - radius;
+        int y = center.getBlockY(); // Asumimos nivel plano
 
-        return baseLocation.clone().add(xOffset, yOffset, zOffset);
+        return new Location(world, x, y, z);
     }
+
 
     public static void spawnRoomNumber(int i, Location location) {
         if (location == null) return;
