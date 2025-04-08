@@ -77,6 +77,8 @@ public class RPGPlayer {
         else hasSelectedClass = false;
 
         update();
+
+        plugin.rpgManager.addPlayer(this);
     }
 
     public void addLevel(int level){
@@ -240,7 +242,7 @@ public class RPGPlayer {
             activeBossBars.get(player).removeAll();
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         int currentExp = rpgPlayer.getExp();
         int requiredExp = rpgPlayer.calculateExpForNextLvl();
 
@@ -439,7 +441,7 @@ public class RPGPlayer {
                         return;
                     }
 
-                    if(new RPGPlayer(player,plugin).hasChosenTextures){
+                    if(plugin.rpgManager.getPlayer(player).hasChosenTextures){
                         this.cancel();
                         return;
                     }

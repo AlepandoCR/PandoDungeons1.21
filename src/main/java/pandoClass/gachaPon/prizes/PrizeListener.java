@@ -263,7 +263,7 @@ public class PrizeListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) throws MalformedURLException {
         Player player = (Player) event.getWhoClicked();
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         ClassRPG classRPG = rpgPlayer.getClassRpg();
         String title = event.getView().getTitle();
         ItemStack clickedItem = event.getCurrentItem();

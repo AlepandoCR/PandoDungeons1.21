@@ -41,7 +41,7 @@ public class InitMenu {
 
     // Método que crea el menú
     public Inventory createClassSelectionMenu(Player player, Reason reason) throws MalformedURLException {
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         String menuTitle;
         menuTitle = switch (reason){
             case INNIT -> INNIT_MENU_NAME;
@@ -151,7 +151,7 @@ public class InitMenu {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         List<String> lore = new ArrayList<>();
         if(classRPG != null){
-            RPGPlayer rpgPlayer = new RPGPlayer(classRPG.rpgPlayer.getPlayer(), plugin);
+            RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(classRPG.player);
             lore.add("§6§lHabilidades"); // Título en dorado y negrita
             lore.add("§b§l1 - §f" + classRPG.firstSkill.getDescription());
             lore.add("§b§l2 - §f" + classRPG.secondSkill.getDescription());

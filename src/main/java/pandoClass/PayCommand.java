@@ -77,8 +77,8 @@ public class PayCommand implements CommandExecutor, TabCompleter {
         cooldowns.put(executingPlayer.getUniqueId(), System.currentTimeMillis());
 
         // Obtener los datos de los jugadores
-        RPGPlayer senderData = new RPGPlayer(executingPlayer, plugin);
-        RPGPlayer receiverData = new RPGPlayer(targetPlayer, plugin);
+        RPGPlayer senderData = plugin.rpgManager.getPlayer(executingPlayer);
+        RPGPlayer receiverData = plugin.rpgManager.getPlayer(targetPlayer);
 
         // Verificar que el jugador tenga dinero suficiente
         if (senderData.getCoins() < amount) {

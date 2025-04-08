@@ -39,7 +39,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
 
         // Sin argumentos: mostrar estadísticas del propio jugador.
         if (args.length == 0) {
-            RPGPlayer rpgPlayer = new RPGPlayer(executingPlayer, plugin);
+            RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(executingPlayer);
             executingPlayer.sendMessage(rpgPlayer.toDecoratedString(executingPlayer));
             return true;
         }
@@ -49,7 +49,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if(target != null){
-                    RPGPlayer rpgPlayer = new RPGPlayer(target, plugin);
+                    RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(target);
                     try{
                         int coinsToAdd = Integer.parseInt(args[2]);
                         rpgPlayer.addCoins(coinsToAdd);
@@ -64,7 +64,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if(target != null){
-                    RPGPlayer rpgPlayer = new RPGPlayer(target, plugin);
+                    RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(target);
                     try{
                         int levelsToAdd = Integer.parseInt(args[2]);
                         rpgPlayer.addLevel(levelsToAdd);
@@ -79,7 +79,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if(target != null){
-                    RPGPlayer rpgPlayer = new RPGPlayer(target, plugin);
+                    RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(target);
                     try{
                         int orbsToAdd = Integer.parseInt(args[2]);
                         rpgPlayer.addOrb(orbsToAdd);
@@ -97,7 +97,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
         }
 
         if(args.length == 1 && args[0].equalsIgnoreCase("resetMejoras")){
-            RPGPlayer rpgPlayer  = new RPGPlayer(executingPlayer,plugin);
+            RPGPlayer rpgPlayer  = plugin.rpgManager.getPlayer(executingPlayer);
             if(rpgPlayer.getCoins() >= 500){
                 rpgPlayer.resetOrbs();
                 rpgPlayer.removeCoins(500);
@@ -156,7 +156,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 }
 
                 // Ejecutar la animación e intercambio de niveles
-                RPGPlayer rpgPlayer = new RPGPlayer(executingPlayer, plugin);
+                RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(executingPlayer);
                 rpgPlayer.animateAndApplyLevelExchange(amount);
                 return true;
 

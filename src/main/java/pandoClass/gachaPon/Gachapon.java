@@ -36,7 +36,7 @@ public class Gachapon {
     public Gachapon(PandoDungeons plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
-        this.rpgPlayer = new RPGPlayer(player, plugin);
+        this.rpgPlayer = plugin.rpgManager.getPlayer(player);
         // Inicializar listas de premios para cada calidad (se pueden cargar de un config)
         for (Quality q : Quality.values()) {
             prizeLists.put(q, new ArrayList<>());

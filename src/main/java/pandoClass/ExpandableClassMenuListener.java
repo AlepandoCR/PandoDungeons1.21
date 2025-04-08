@@ -40,7 +40,7 @@ public class ExpandableClassMenuListener implements Listener {
         }
 
         // Obtiene la clase seleccionada
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         ClassRPG selectedClass = getClassByItem(clickedItem, rpgPlayer);
 
         if (selectedClass == null) {

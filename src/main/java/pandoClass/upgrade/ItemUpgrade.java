@@ -65,7 +65,7 @@ public class ItemUpgrade {
 
         // **Calcular costo en monedas** (10,000 + extra basado en las mejoras previas)
         int coinCost = 10000 + (upgradeCount * 10000);
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         if(!megaUpgrade){
             if (!removeUpgradeShard(player, 1)) {

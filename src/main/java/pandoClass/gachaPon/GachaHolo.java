@@ -56,7 +56,7 @@ public class GachaHolo {
 
                 keepHidingHolos(plugin);
 
-                int gachaOpens = new RPGPlayer(player, plugin).getGachaopen();
+                int gachaOpens = plugin.rpgManager.getPlayer(player).getGachaopen();
                 holograma.setCustomName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD +
                         "Acumulado: " + ChatColor.RESET + gachaOpens + "/" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "50");
             }

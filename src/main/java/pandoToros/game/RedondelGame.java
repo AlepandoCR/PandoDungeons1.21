@@ -163,7 +163,7 @@ public class RedondelGame {
     }
     private static void rewardPlayers(PandoDungeons plugin,  List<Player> players){
         for (Player player : players) {
-            RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+            RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
             rpgPlayer.addCoins(650);
             player.sendMessage(ChatColor.GREEN + "¡Haz ganado " + ChatColor.GOLD + "650" + ChatColor.GREEN + " monedas!");
         }

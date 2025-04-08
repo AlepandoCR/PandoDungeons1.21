@@ -36,11 +36,11 @@ public class TextureCommand implements CommandExecutor, TabCompleter {
                         player.sendMessage(ChatColor.LIGHT_PURPLE + "Enlace de descarga: " + ChatColor.GOLD + texturePackUrl);
                     }
                     if(strings[0].equalsIgnoreCase("mantener")){
-                        new RPGPlayer(player, plugin).setTexturePack(true);
+                        plugin.rpgManager.getPlayer(player).setTexturePack(true);
                         applyPack(player,texturePackUrl);
                     }
                     if(strings[0].equalsIgnoreCase("eliminar")){
-                        new RPGPlayer(player, plugin).setTexturePack(false);
+                        plugin.rpgManager.getPlayer(player).setTexturePack(false);
                     }
                 }
 

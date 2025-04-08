@@ -28,7 +28,7 @@ public abstract class Mission<T> {
         this.player = player.getUniqueId();
         this.plugin = plugin;
 
-        rpgPlayer = new RPGPlayer(player, plugin);
+        rpgPlayer = plugin.rpgManager.getPlayer(player);
         level = rpgPlayer.getLevel();
 
         // Fórmula dinámica para calcular la cantidad a completar
@@ -53,7 +53,7 @@ public abstract class Mission<T> {
 
     public void addAmount() {
         amount++;
-        this.rpgPlayer = new RPGPlayer(getPlayer(),plugin);
+        this.rpgPlayer = plugin.rpgManager.getPlayer(getPlayer());
     }
 
     public boolean isCompleted() {

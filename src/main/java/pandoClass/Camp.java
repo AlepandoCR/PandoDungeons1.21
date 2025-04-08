@@ -39,7 +39,7 @@ public class Camp {
         int count = 0;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+            RPGPlayer rpgPlayer =  plugin.rpgManager.getPlayer(player);
             totalLevel += rpgPlayer.getLevel();
             count++;
         }
@@ -126,7 +126,7 @@ public class Camp {
 
         for(Player player : players){
             player.sendMessage("¡Haz derrotado la horda!");
-            new RPGPlayer(player, plugin).addCamp(1);
+            plugin.rpgManager.getPlayer(player).addCamp(1);
             if(2 > i){
                 player.getInventory().addItem(plugin.prizeManager.gachaToken());
             }
@@ -325,7 +325,7 @@ public class Camp {
             if (entity instanceof Mob enemy) { // Solo los Mobs pueden tener target
                 Entity target = enemy.getTarget(); // getTarget() en Mobs devuelve su objetivo actual
                 if (target instanceof Player player) {
-                    RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+                    RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
                     if (rpgPlayer.getClassRpg() instanceof Tank) {
                         tankCandidates.add(player);
                     }

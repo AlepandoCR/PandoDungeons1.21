@@ -109,7 +109,7 @@ public class GamblingSession {
             return;
         }
 
-        if(new RPGPlayer(player, plugin).getCoins() < amount){
+        if(plugin.rpgManager.getPlayer(player).getCoins() < amount){
             player.sendMessage(ChatColor.RED + "No tienes ese dinero para apostar");
             return;
         }
@@ -192,7 +192,7 @@ public class GamblingSession {
     }
 
     private void removeCoinsFromPlayer(Player player, int toRemove){
-        new RPGPlayer(player, plugin).removeCoins(toRemove);
+        plugin.rpgManager.getPlayer(player).removeCoins(toRemove);
     }
 
     private void    removeCoins(){
@@ -275,7 +275,7 @@ public class GamblingSession {
             bet.player().sendMessage(ChatColor.GREEN + "¡Ganaste! Recibes " + payout + " monedas.");
 
             // Se añade el dinero al jugador
-            new RPGPlayer(bet.player(), plugin).addCoins((int) payout);
+            plugin.rpgManager.getPlayer(bet.player()).addCoins((int) payout);
 
             // Aquí se actualizaría el balance del jugador, según tu implementación
         }

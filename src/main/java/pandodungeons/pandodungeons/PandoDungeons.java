@@ -78,12 +78,14 @@ public final class PandoDungeons extends JavaPlugin {
     public RPGPlayerDataManager rpgPlayerDataManager;
     public InitMenu initMenu;
     public PetsManager petsManager;
+    public RpgManager rpgManager;
 
     public GamblingSession gamblingSession;
 
     @Override
     public void onEnable() {
         handleStandsHere();
+        rpgManager = new RpgManager(this);
         petsManager = new PetsManager(this);
         rpgPlayerDataManager = new RPGPlayerDataManager(this);
         startTracking(this);

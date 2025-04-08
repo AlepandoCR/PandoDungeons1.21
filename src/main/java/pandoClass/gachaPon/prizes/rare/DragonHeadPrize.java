@@ -5,10 +5,10 @@ import org.bukkit.inventory.ItemStack;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
 
-public class NetheriteBarPrize extends PrizeItem {
+public class DragonHeadPrize extends PrizeItem {
     @Override
     protected ItemStack createItem() {
-        return new ItemStack(Material.NETHERITE_INGOT,2);
+        return new ItemStack(Material.DRAGON_HEAD,2);
     }
 
     @Override

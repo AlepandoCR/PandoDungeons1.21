@@ -29,7 +29,14 @@ public class PetCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        new PetSelectionMenu().openMenu(executingPlayer);
+        if(args.length == 2){
+            if(args[1].equalsIgnoreCase("quitar")){
+                plugin.petsManager.destroyPets(executingPlayer);
+                executingPlayer.sendMessage( ChatColor.YELLOW + "[" + ChatColor.GOLD + "Macotas" + ChatColor.YELLOW + "]" + "Haz quitado tu mascota");
+            }
+        }else{
+            PetSelectionMenu.openMenu(executingPlayer);
+        }
 
         return true;
     }
@@ -38,6 +45,8 @@ public class PetCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         List<String> completions = new java.util.ArrayList<>(List.of());
+
+        completions.add("quitar");
 
         return completions;
     }

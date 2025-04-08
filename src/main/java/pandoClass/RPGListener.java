@@ -25,8 +25,10 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.farmer.ControlledEntityBehavior;
+import pandoClass.classes.farmer.Farmer;
 import pandoClass.classes.farmer.skils.ExtraHarvestSkill;
 import pandoClass.classes.farmer.skils.TameSkill;
+import pandoClass.classes.mage.Mage;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.upgrade.ItemUpgrade;
@@ -105,7 +107,7 @@ public class RPGListener implements Listener {
 
             event.setDropItems(false);
             Collection<ItemStack> drops = block.getDrops(player.getInventory().getItemInMainHand());
-            double multiplier = new RPGPlayer(player, plugin).getFirstSkilLvl() / 5.0;
+            double multiplier = plugin.rpgManager.getPlayer(player).getFirstSkilLvl() / 5.0;
             for (ItemStack drop : drops) {
                 drop.setAmount(Math.max(1,(int)(drop.getAmount() * multiplier)));
                 block.getWorld().dropItemNaturally(block.getLocation(), drop);
@@ -145,7 +147,7 @@ public class RPGListener implements Listener {
     public void onAnimalInteract(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         // Verifica si el jugador tiene la habilidad Animal Wrangler
         if (!TameSkill.isTamingPlayer(player)) return;
@@ -268,7 +270,7 @@ public class RPGListener implements Listener {
     public void upGradeSkill(Skill skill, int skillNum) throws MalformedURLException {
         Player player = skill.getPlayer();
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         if(4 <= rpgPlayer.getOrbs()){
             switch (skillNum){
@@ -292,7 +294,7 @@ public class RPGListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) throws MalformedURLException {
         Player player = (Player) event.getWhoClicked();
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         ClassRPG classRPG = rpgPlayer.getClassRpg();
         String title = event.getView().getTitle();
         ItemStack clickedItem = event.getCurrentItem();
@@ -391,7 +393,7 @@ public class RPGListener implements Listener {
             return;
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
 
         int level = rpgPlayer.getFirstSkilLvl(); // Método para obtener el nivel del jugador
@@ -420,7 +422,7 @@ public class RPGListener implements Listener {
         }
 
         // Obtén el RPGPlayer para saber su nivel
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         if(event.getEntity() instanceof LivingEntity mob){
 
@@ -466,7 +468,7 @@ public class RPGListener implements Listener {
 
         // Verificar si el inventario es el menú "Elección de clase"
         if (title.equals(INNIT_MENU_NAME) || title.contains("Cambiar clase")) {
-            RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+            RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
             if(rpgPlayer.getClassKey() == null || rpgPlayer.getClassKey().isEmpty()){
                 new BukkitRunnable(){
                     @Override
@@ -525,7 +527,7 @@ public class RPGListener implements Listener {
             return;
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         if(rpgPlayer.isTexturePack()){
             String texturePackUrl = "https://raw.githubusercontent.com/AlepandoCR/MapachoTextura/main/mapachos.zip";
@@ -544,7 +546,9 @@ public class RPGListener implements Listener {
             ClassRPG classRPG = new Assasin(rpgPlayer,plugin);
             classRPG = switch (classKey) {
                 case "ArcherClass" -> new Archer(rpgPlayer,plugin);
+                case "MageClass" -> new Mage(rpgPlayer,plugin);
                 case "TankClass" -> new Tank(rpgPlayer,plugin);
+                case "FarmerClass"-> new Farmer(rpgPlayer,plugin);
                 default -> classRPG;
             };
             plugin.rpgPlayersList.put(rpgPlayer.getPlayer(),classRPG);
@@ -591,7 +595,7 @@ public class RPGListener implements Listener {
             return;
         }
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         int level = rpgPlayer.getFirstSkilLvl();
 
         if (playersSavingAmmo.contains(player)) {
@@ -653,6 +657,9 @@ public class RPGListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         UUID playerId = player.getUniqueId();
+
+        plugin.rpgManager.removePlayer(player);
+
         if (activeHolograms.containsKey(playerId)) {
             ArmorStand holograma = activeHolograms.get(playerId);
             if (holograma != null && !holograma.isDead()) {

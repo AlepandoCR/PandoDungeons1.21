@@ -34,6 +34,10 @@ public class CampsListener implements Listener {
 
     private final NamespacedKey coinsKey;
 
+    private final Map<UUID, Long> lastUpdateTime = new HashMap<>();
+
+    private final long UPDATE_COOLDOWN_MS = 100; // 100ms entre actualizaciones por mob (~10 veces por segundo)
+
     public CampsListener(PandoDungeons plugin) {
         this.plugin = plugin;
         expKey = new NamespacedKey(plugin,"exp");
@@ -47,29 +51,32 @@ public class CampsListener implements Listener {
     }
 
     @EventHandler
-    public void onEnemySpawn(EntitySpawnEvent event){
+    public void onEnemySpawn(EntitySpawnEvent event) {
         Entity entity = event.getEntity();
-        if(entity instanceof Enemy enemy){
+
+        if (entity instanceof Enemy enemy) {
             String worldName = event.getLocation().getWorld().getName();
-            if(!isDungeonWorld(worldName) && !isRedondelWorld(worldName)){
-                switch (entity.getEntitySpawnReason()){
-                    case SPAWNER_EGG:
-                    case COMMAND:
-                    case CUSTOM:
-                        transformNoName(enemy);
+            if (!isDungeonWorld(worldName) && !isRedondelWorld(worldName)) {
+                switch (entity.getEntitySpawnReason()) {
+                    case SPAWNER_EGG, COMMAND, CUSTOM -> {
+                        // Ejecutar async si es posible
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> transformNoName(enemy), 1L);
                         return;
-                    case SPAWNER:
+                    }
+                    case SPAWNER -> {
                         return;
-                    default:
-                        enemyTransformation(enemy);
-                        break;
+                    }
+                    default -> {
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> enemyTransformation(enemy), 1L);
+                    }
                 }
             }
         }
     }
 
+
     private void transformNoName(Enemy enemy) {
-        List<Entity> near = enemy.getNearbyEntities(100,100,100);
+        List<Entity> near = enemy.getNearbyEntities(100,100,100).stream().filter(entity -> entity instanceof Player).limit(10).toList();
         int avrgLvl = getAvrgLevel(near);
         int exp = calculateExpFromLvl(avrgLvl, enemy);
         double finalHp = (int) calculateHpFromLvlAndApply(avrgLvl, enemy);
@@ -80,21 +87,18 @@ public class CampsListener implements Listener {
 
     @EventHandler
     public void onEnemyHit(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity livingEntity)) {
-            return;
-        }
-        // Solo nos interesa si la entidad dañada es un Enemy
-        if (livingEntity instanceof Enemy enemy) {
-            if(event.getDamager() instanceof Player source){
-                updateEnemyExperience(enemy, event.getDamage(), source);
-            }
+        if (!(event.getEntity() instanceof Enemy enemy)) return;
+
+        if (event.getDamager() instanceof Player player) {
+            double damage = event.getFinalDamage(); // Más preciso que getDamage()
+            handleEnemyDamage(enemy, damage, player);
         }
     }
 
     @EventHandler
     public void onProtalChange(EntityPortalEnterEvent event){
         if(event.getEntity() instanceof Player player){
-            if(event.getPortalType().equals(PortalType.ENDER) && 50 > new RPGPlayer(player, plugin).getLevel()){
+            if(event.getPortalType().equals(PortalType.ENDER) && 30 > plugin.rpgManager.getPlayer(player).getLevel()){
                 if (player.hasPermission("pandodungeons.end")) return;
                 event.setCancelled(true);
             }
@@ -103,7 +107,7 @@ public class CampsListener implements Listener {
 
     @EventHandler
     public void onTp(PlayerTeleportEvent event){
-        if(event.getTo().getWorld().getName().equals("world_the_end") && 50 > new RPGPlayer(event.getPlayer(), plugin).getLevel()){
+        if(event.getTo().getWorld().getName().equals("world_the_end") && 30 > plugin.rpgManager.getPlayer(event.getPlayer()).getLevel()){
             if (event.getPlayer().hasPermission("pandodungeons.end")) return;
             event.setCancelled(true);
         }
@@ -115,37 +119,47 @@ public class CampsListener implements Listener {
      * @param enemy  El enemigo que recibió daño.
      * @param damage El daño recibido.
      */
-    private void updateEnemyExperience(Enemy enemy, double damage, Player source) {
-        Integer currentExp = getData(expKey, PersistentDataType.INTEGER, enemy);
-        Integer currentLevel = getData(lvlKey, PersistentDataType.INTEGER, enemy);
-        Integer coinsInEntity = getData(coinsKey, PersistentDataType.INTEGER, enemy);
-        // Solo actualizamos si ambos valores existen
-        if (currentExp == null || currentLevel == null) {
-            return;
+    private void handleEnemyDamage(Enemy enemy, double damage, Player player) {
+
+        UUID enemyId = enemy.getUniqueId();
+        long now = System.currentTimeMillis();
+
+        // Throttle por mob
+        Long lastUpdate = lastUpdateTime.get(enemyId);
+        if (lastUpdate != null && (now - lastUpdate) < UPDATE_COOLDOWN_MS) {
+            return; // Saltar actualización si fue hace muy poco
         }
+        lastUpdateTime.put(enemyId, now);
+
+        // Pre-cache datos del mob para evitar múltiples llamadas a PersistentDataContainer
+        var data = enemy.getPersistentDataContainer();
+
+        Integer currentExp = data.get(expKey, PersistentDataType.INTEGER);
+        Integer currentLevel = data.get(lvlKey, PersistentDataType.INTEGER);
+        Integer coins = data.getOrDefault(coinsKey, PersistentDataType.INTEGER, 0);
+
+        if (currentExp == null || currentLevel == null) return;
 
         double health = enemy.getHealth();
 
-        if(coinsInEntity > 0){
-            addKey(coinsKey,PersistentDataType.INTEGER,enemy,coinsInEntity - 1);
-            new RPGPlayer(source, plugin).addCoins(1);
+        // Asegurar que el daño no sea más alto que la vida
+        damage = Math.min(damage, health);
+
+        // Moneda al jugador si el mob tiene
+        if (coins > 0) {
+            int finalCoins = (int) damage;
+            data.set(coinsKey, PersistentDataType.INTEGER, coins - 1);
+            if(damage > coins){
+                finalCoins = coins;
+            }
+            plugin.rpgManager.getPlayer(player).addCoins(finalCoins);
         }
 
-        // Calcula la nueva experiencia basada en la salud restante después del daño
-        int newExp = (int) (health - damage);
-
-        if(0 > newExp){
-            newExp = 0;
-        }
-
-        if(damage > health){
-            damage = health;
-        }
-
-        // Si la experiencia actual es mayor que 0, la actualizamos
+        // Restar daño a "exp" del mob, si aún le queda
         if (currentExp > 0) {
-            addKey(expKey, PersistentDataType.INTEGER, enemy, newExp);
-            new RPGPlayer(source, plugin).addExp((int) damage);
+            int newExp = Math.max(0, currentExp - (int) damage);
+            data.set(expKey, PersistentDataType.INTEGER, newExp);
+            plugin.rpgManager.getPlayer(player).addExp((int) damage);
         }
     }
 
@@ -160,21 +174,21 @@ public class CampsListener implements Listener {
 
 
     private void enemyTransformation(LivingEntity entity){
-        List<Entity> near = entity.getNearbyEntities(60,60,60);
+        List<Entity> near = entity.getNearbyEntities(100,100,100).stream().filter(e -> e instanceof Player).limit(10).toList();
         int avrgLvl = getAvrgLevel(near);
         double finalHp = (int) calculateHpFromLvlAndApply(avrgLvl, entity);
-        int exp = calculateExpFromLvl(avrgLvl,entity);
+        int exp = calculateExpFromLvl((int) finalHp,entity);
         addKey(expKey, PersistentDataType.INTEGER, entity, exp);
         addKey(lvlKey,PersistentDataType.INTEGER,entity,avrgLvl);
         addKey(coinsKey, PersistentDataType.INTEGER, entity, Math.max(1, (int) (avrgLvl/2.5)));
         entity.setCustomName(getEmojiForLevel(avrgLvl) + ChatColor.WHITE + ChatColor.BOLD + " " + entity.getType());
     }
 
-    private int calculateExpFromLvl(int lvl, LivingEntity entity){
+    private int calculateExpFromLvl(int finalHp, LivingEntity entity){
         if(entity instanceof Enderman){
-            return (int) entity.getHealth()/10;
+            return finalHp /10;
         }
-        return (int) entity.getHealth();
+        return finalHp;
     }
 
     private int getAvrgLevel(List<Entity> entities) {
@@ -182,7 +196,7 @@ public class CampsListener implements Listener {
         int count = 0;
         for (Entity entity : entities) {
             if (entity instanceof Player player) {
-                RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+                RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
                 totalLevel += rpgPlayer.getLevel();
                 count++;
             }
@@ -229,7 +243,7 @@ public class CampsListener implements Listener {
     public void doubleJump(PlayerInputEvent event) {
         Player player = event.getPlayer();
 
-        RPGPlayer rpgPlayer = new RPGPlayer(player, plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         // Verificar que el input sea de salto.
         if (!event.getInput().isJump()) {

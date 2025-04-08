@@ -44,7 +44,7 @@ public class PetGachapon {
     public PetGachapon(PandoDungeons plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
-        this.rpgPlayer = new RPGPlayer(player, plugin);
+        this.rpgPlayer =  plugin.rpgManager.getPlayer(player);
         init();
     }
 

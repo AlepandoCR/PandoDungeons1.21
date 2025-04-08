@@ -33,7 +33,7 @@ public class ExpandableClassMenu {
     private final PandoDungeons plugin;
 
     public ExpandableClassMenu(Player player, PandoDungeons plugin){
-        this.rpgPlayer = new RPGPlayer(player, plugin);
+        this.rpgPlayer = plugin.rpgManager.getPlayer(player);
         this.plugin = plugin;
         CLASS_MENU_TITLE = ChatColor.DARK_GRAY +  "Cambiar clase          " + ChatColor.WHITE + "☃ " + ChatColor.RESET +  rpgPlayer.getCoins();
         setClasses();

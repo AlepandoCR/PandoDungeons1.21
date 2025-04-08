@@ -21,7 +21,7 @@ public class PetFactory {
     }
 
     public static void savePetName(PetType petType, String name, Player player, PandoDungeons plugin){
-        RPGPlayer rpgPlayer = new RPGPlayer(player,plugin);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         switch (petType) {
             case MAPACHE ->  rpgPlayer.setRacoonPetName(name);
@@ -31,7 +31,7 @@ public class PetFactory {
     }
 
     public static String getPetName(PetType petType, Player player, PandoDungeons plugin){
-        RPGPlayer rpgPlayer = new RPGPlayer(player,plugin);
+        RPGPlayer rpgPlayer =  plugin.rpgManager.getPlayer(player);
 
         return switch (petType) {
             case MAPACHE ->  rpgPlayer.getRacoonPetName();
