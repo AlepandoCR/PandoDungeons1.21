@@ -29,7 +29,6 @@ import pandoClass.classes.farmer.Farmer;
 import pandoClass.classes.farmer.skils.ExtraHarvestSkill;
 import pandoClass.classes.farmer.skils.TameSkill;
 import pandoClass.classes.mage.Mage;
-import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.classes.tank.Tank;
 import pandoClass.upgrade.ItemUpgrade;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -48,7 +47,6 @@ import static pandoClass.gachaPon.GachaHolo.activeHolograms;
 import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
 import static pandoClass.gachaPon.prizes.mithic.JetPackPrize.isJetPack;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
-import static pandodungeons.pandodungeons.Utils.ItemUtils.isGarabiThor;
 
 public class RPGListener implements Listener {
     public static final List<Player> magicShieldPlayers = new ArrayList<>();
@@ -203,7 +201,7 @@ public class RPGListener implements Listener {
 
 
     public void reduceEffectDamage(Player player, EntityDamageByEntityEvent event) {
-        RPGPlayer rpgPlayer = load(player);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         if (rpgPlayer != null) {
             int thirdSkillLvl = rpgPlayer.getThirdSkillLvl();  // Obtener el nivel de la habilidad
             double reductionPercentage = 0.0;
@@ -541,7 +539,7 @@ public class RPGListener implements Listener {
             rpgPlayer.handleTexturePack(player);
         }
 
-        if(!plugin.rpgPlayersList.containsKey(rpgPlayer)){
+        if(!plugin.playerAndClassAssosiation.containsKey(rpgPlayer)){
             String classKey = rpgPlayer.getClassKey();
             ClassRPG classRPG = new Assasin(rpgPlayer,plugin);
             classRPG = switch (classKey) {
@@ -551,10 +549,8 @@ public class RPGListener implements Listener {
                 case "FarmerClass"-> new Farmer(rpgPlayer,plugin);
                 default -> classRPG;
             };
-            plugin.rpgPlayersList.put(rpgPlayer.getPlayer(),classRPG);
+            plugin.playerAndClassAssosiation.put(rpgPlayer.getPlayer(),classRPG);
         }
-
-        save(rpgPlayer);
     }
 
     private void applyMissingTextures(Player player) {
@@ -624,7 +620,7 @@ public class RPGListener implements Listener {
         }
 
         // Obtener el RPGPlayer para conocer el nivel
-        RPGPlayer rpgPlayer = plugin.rpgPlayerDataManager.load(player);
+        RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         if (rpgPlayer == null) {
             return;
         }
@@ -667,14 +663,5 @@ public class RPGListener implements Listener {
             }
             activeHolograms.remove(playerId);
         }
-    }
-
-
-    private void save(RPGPlayer rpgPlayer){
-        plugin.rpgPlayerDataManager.save(rpgPlayer);
-    }
-
-    private RPGPlayer load(Player rpgPlayer){
-        return plugin.rpgPlayerDataManager.load(rpgPlayer);
     }
 }

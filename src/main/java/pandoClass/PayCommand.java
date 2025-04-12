@@ -91,8 +91,8 @@ public class PayCommand implements CommandExecutor, TabCompleter {
         receiverData.addCoins(amount);
 
         // Guardar cambios
-        senderData.save(senderData);
-        receiverData.save(receiverData);
+        senderData.save();
+        receiverData.save();
 
         executingPlayer.sendMessage(ChatColor.GREEN + "Has enviado " + ChatColor.GOLD + amount + " monedas" + ChatColor.GREEN + " a: " + ChatColor.LIGHT_PURPLE + targetPlayer.getName());
         if (targetPlayer.isOnline()) {

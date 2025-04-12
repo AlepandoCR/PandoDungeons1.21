@@ -2,6 +2,7 @@ package pandoClass.files;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import pandoClass.ClassRPG;
@@ -35,6 +36,10 @@ public class RPGPlayerDataManager {
         this.GSON = new GsonBuilder().setPrettyPrinting().create();
     }
 
+    public File getDataFolder() {
+        return DATA_FOLDER;
+    }
+
     public void save(RPGPlayer player) {
         File file = new File(DATA_FOLDER, player.getPlayerUUID() + ".json");
         File backup = new File(DATA_FOLDER, player.getPlayerUUID() + ".backup.json");
@@ -55,11 +60,13 @@ public class RPGPlayerDataManager {
     }
 
     public RPGPlayer load(Player player) {
-        if(player == null){
+        if (player == null) {
             return null;
         }
+
         UUID uuid = player.getUniqueId();
         File file = new File(DATA_FOLDER, uuid + ".json");
+        File backup = new File(DATA_FOLDER, uuid + ".backup.json");
 
         if (!file.exists()) {
             return null;
@@ -68,11 +75,21 @@ public class RPGPlayerDataManager {
         try (FileReader reader = new FileReader(file)) {
             return GSON.fromJson(reader, RPGPlayer.class);
         } catch (IOException e) {
-            plugin.getLogger().severe("Error loading data for: " + uuid);
+            plugin.getLogger().severe("Error loading data for " + uuid + " from main file. Trying backup...");
+            // intentar cargar backup
+            if (backup.exists()) {
+                try (FileReader backupReader = new FileReader(backup)) {
+                    return GSON.fromJson(backupReader, RPGPlayer.class);
+                } catch (IOException ex) {
+                    plugin.getLogger().severe("Failed to load backup data for: " + uuid);
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
             return null;
         }
     }
+
 
     public List<RPGPlayer> loadAllPlayers() {
         List<RPGPlayer> players = new ArrayList<>();

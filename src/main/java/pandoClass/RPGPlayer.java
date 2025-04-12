@@ -19,6 +19,7 @@ import pandoClass.classes.tank.Tank;
 import pandoClass.gachaPon.GachaHolo;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,6 @@ public class RPGPlayer {
     private boolean texturePack = false;
     private boolean hasChosenTextures = false;
     private boolean isChoosing = false;
-    private transient boolean hasSelectedClass = false;
     private String racoonPetName  = "";
     private String minerPetName  = "";
     private String sakuraPetName  = "";
@@ -67,35 +67,85 @@ public class RPGPlayer {
         this.player = player.getUniqueId();
         this.plugin = plugin;
         RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
+
         if (loaded != null) {
             copyFrom(loaded);
+            plugin.rpgManager.addPlayer(this);
+            update();
+        } else {
+            if (getPlayerDataFile().exists()) {
+                // El archivo existe pero está corrupto
+                plugin.getLogger().severe("El archivo de datos del jugador " + getPlayer() + " está corrupto. No se pudo cargar.");
+            }else{
+                defaults();
+                plugin.getLogger().info("El archivo de datos del jugador " + getPlayer() + " se ha creado por primera vez.");
+                update();
+            }
         }
-        else{
-            defaults();
-        }
-        if (classKey != null) hasSelectedClass = !classKey.isEmpty();
-        else hasSelectedClass = false;
+    }
 
-        update();
+    private void copyFrom(RPGPlayer other) {
+        this.orbProgress = other.orbProgress;
+        this.orbs = other.orbs;
+        this.level = other.level;
+        this.exp = other.exp;
+        this.campsDefeated = other.campsDefeated;
+        this.coins = other.coins;
+        this.firstSkilLvl = other.firstSkilLvl;
+        this.secondSkilLvl = other.secondSkilLvl;
+        this.thirdSkillLvl = other.thirdSkillLvl;
+        this.classKey = other.classKey;
+        this.playerName = other.playerName;
+        this.gachaopen = other.gachaopen;
+        this.texturePack = other.texturePack;
+        this.hasChosenTextures = other.hasChosenTextures;
+        this.isChoosing = other.isChoosing;
+        this.racoonPetName  = other.racoonPetName;
+        this.minerPetName  = other.minerPetName;
+        this.sakuraPetName  = other.sakuraPetName;
 
-        plugin.rpgManager.addPlayer(this);
+    }
+
+    private void defaults() {
+        this.orbProgress = 0;
+        this.orbs = 0;
+        this.level = 1;
+        this.exp = 0;
+        this.campsDefeated = 0;
+        this.coins = 0;
+        this.firstSkilLvl = 1;
+        this.secondSkilLvl = 1;
+        this.thirdSkillLvl = 1;
+        this.classKey = "";
+        this.playerName = "";
+        this.gachaopen = 0;
+        this.texturePack = false;
+        this.hasChosenTextures = false;
+        this.isChoosing = false;
+        this.racoonPetName  = "";
+        this.minerPetName  = "";
+        this.sakuraPetName  = "";
+    }
+
+    public File getPlayerDataFile(){
+        return new File(plugin.rpgPlayerDataManager.getDataFolder(), getPlayer().toString() + ".json");
     }
 
     public void addLevel(int level){
         this.level += level;
-        save(this);
+        save();
         update();
     }
 
     public void addOrb(int orb){
         this.orbs += orb;
-        save(this);
+        save();
         update();
     }
 
     public void addCoins(int toAdd){
         coins += toAdd;
-        save(this);
+        save();
         update();
     }
 
@@ -105,7 +155,7 @@ public class RPGPlayer {
 
     public void setTexturePack(boolean texturePack) {
         this.texturePack = texturePack;
-        save(this);
+        save();
         update();
     }
 
@@ -120,19 +170,19 @@ public class RPGPlayer {
             orbs++; // Aumenta un orbe cada nivel
         }
 
-        save(this);
+        save();
         update();
     }
 
     public void resetGachaOpens(){
         gachaopen = 0;
-        save(this);
+        save();
         update();
     }
 
     public void addGachaOpen(){
         gachaopen++;
-        save(this);
+        save();
         new GachaHolo(plugin).showHolo(getPlayer());
         update();
     }
@@ -194,7 +244,7 @@ public class RPGPlayer {
         }
 
         addCoins(totalCoins);
-        save(this);
+        save();
         update();
 
         getPlayer().sendMessage(ChatColor.GOLD + "Has intercambiado " + levelsToExchange + " niveles y orbes por " + totalCoins + " monedas.");
@@ -280,25 +330,6 @@ public class RPGPlayer {
         }
     }
 
-    public RPGPlayer(UUID player, PandoDungeons plugin) {
-        this.player = player;
-        this.plugin = plugin;
-        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
-        if (loaded != null) {
-            copyFrom(loaded);
-        }
-        else{
-            defaults();
-        }
-    }
-
-    public RPGPlayer(String player, PandoDungeons plugin) {
-        this.player = UUID.fromString(player);
-        this.plugin = plugin;
-        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
-        if (loaded != null) copyFrom(loaded);
-    }
-
     public void changeClass(String key) {
         getPlayer().setMaxHealth(20.0);
         getPlayer().setWalkSpeed(0.2f);
@@ -317,7 +348,7 @@ public class RPGPlayer {
         if (classToSet == null) return;
 
         this.classKey = key;
-        save(this); // IMPORTANTE: Guardar después de cambiar la clase
+        save(); // IMPORTANTE: Guardar después de cambiar la clase
         update();
     }
 
@@ -343,7 +374,7 @@ public class RPGPlayer {
 
     public void setOrbs(int orbs) {
         this.orbs = orbs;
-        save(this);
+        save();
         update();
     }
 
@@ -408,9 +439,9 @@ public class RPGPlayer {
         }
 
         // Si ya existe un objeto asociado, cancelar su runnable
-        if (plugin.rpgPlayersList.containsKey(player) && plugin.rpgPlayersList.get(player) != null) {
-            plugin.rpgPlayersList.get(player).cancel();
-            plugin.rpgPlayersList.remove(player);
+        if (plugin.playerAndClassAssosiation.containsKey(player) && plugin.playerAndClassAssosiation.get(player) != null) {
+            plugin.playerAndClassAssosiation.get(player).cancel();
+            plugin.playerAndClassAssosiation.remove(player);
         }
 
         // Crear la nueva instancia a partir del classKey
@@ -420,8 +451,8 @@ public class RPGPlayer {
 
         // Actualizar el mapa y ejecutar triggerSkills
         setPlayerTag(player);
-        plugin.rpgPlayersList.put(player, updatedClass);
-        plugin.rpgPlayersList.get(player).triggerSkills();
+        plugin.playerAndClassAssosiation.put(player, updatedClass);
+        plugin.playerAndClassAssosiation.get(player).triggerSkills();
     }
 
     public void handleTexturePack(Player player) {
@@ -432,7 +463,7 @@ public class RPGPlayer {
 
             isChoosing = true;
             player.openInventory(createChoosMenu());
-            save(this);
+            save();
 
             new BukkitRunnable() {
                 @Override
@@ -449,7 +480,7 @@ public class RPGPlayer {
                     isChoosing = true;
                     player.openInventory(createChoosMenu());
                     isChoosing = false;
-                    save(RPGPlayer.this);
+                    save();
                     update();
                 }
             }.runTaskTimer(plugin, 0,40); // Pequeño retraso para evitar recursión inmediata
@@ -469,7 +500,7 @@ public class RPGPlayer {
         // Devolver solo los orbes gastados
         orbs += orbsSpent;
 
-        save(this);
+        save();
         update();
     }
 
@@ -477,7 +508,7 @@ public class RPGPlayer {
 
     public void setHasChosenTextures(boolean hasChosenTextures) {
         this.hasChosenTextures = hasChosenTextures;
-        save(this);
+        save();
         update();
     }
 
@@ -516,51 +547,6 @@ public class RPGPlayer {
         return menu;
     }
 
-
-
-    private void copyFrom(RPGPlayer other) {
-        this.orbProgress = other.orbProgress;
-        this.orbs = other.orbs;
-        this.level = other.level;
-        this.exp = other.exp;
-        this.campsDefeated = other.campsDefeated;
-        this.coins = other.coins;
-        this.firstSkilLvl = other.firstSkilLvl;
-        this.secondSkilLvl = other.secondSkilLvl;
-        this.thirdSkillLvl = other.thirdSkillLvl;
-        this.classKey = other.classKey;
-        this.playerName = other.playerName;
-        this.gachaopen = other.gachaopen;
-        this.texturePack = other.texturePack;
-        this.hasChosenTextures = other.hasChosenTextures;
-        this.isChoosing = other.isChoosing;
-        this.racoonPetName  = other.racoonPetName;
-        this.minerPetName  = other.minerPetName;
-        this.sakuraPetName  = other.sakuraPetName;
-
-    }
-
-    private void defaults() {
-        this.orbProgress = 0;
-        this.orbs = 0;
-        this.level = 1;
-        this.exp = 0;
-        this.campsDefeated = 0;
-        this.coins = 0;
-        this.firstSkilLvl = 1;
-        this.secondSkilLvl = 1;
-        this.thirdSkillLvl = 1;
-        this.classKey = "";
-        this.playerName = "";
-        this.gachaopen = 0;
-        this.texturePack = false;
-        this.hasChosenTextures = false;
-        this.isChoosing = false;
-        this.racoonPetName  = "";
-        this.minerPetName  = "";
-        this.sakuraPetName  = "";
-    }
-
     public String getMinerPetName() {
         return minerPetName;
     }
@@ -575,19 +561,19 @@ public class RPGPlayer {
 
     public void setMinerPetName(String minerPetName) {
         this.minerPetName = minerPetName;
-        save(this);
+        save();
         update();
     }
 
     public void setRacoonPetName(String racoonPetName) {
         this.racoonPetName = racoonPetName;
-        save(this);
+        save();
         update();
     }
 
     public void setSakuraPetName(String sakuraPetName) {
         this.sakuraPetName = sakuraPetName;
-        save(this);
+        save();
         update();
     }
 
@@ -599,12 +585,12 @@ public class RPGPlayer {
     public void setClassKey(String classKey) {
         this.classKey = classKey;
         changeClass(classKey);
-        save(this);
+        save();
     }
 
     public void removeCoins(int toRemove){
         coins -= toRemove;
-        save(this);
+        save();
         update();
     }
 
@@ -620,7 +606,7 @@ public class RPGPlayer {
     public void setLevel(int level) {
 
         this.level = level;
-        save(this);
+        save();
     }
 
     public int getExp() {
@@ -631,7 +617,7 @@ public class RPGPlayer {
     public void setExp(int exp) {
 
         this.exp = exp;
-        save(this);
+        save();
     }
 
     public int getCampsDefeated() {
@@ -642,7 +628,7 @@ public class RPGPlayer {
     public void setCampsDefeated(int campsDefeated) {
 
         this.campsDefeated = campsDefeated;
-        save(this);
+        save();
     }
 
     public int getCoins() {
@@ -653,7 +639,7 @@ public class RPGPlayer {
     public void setCoins(int coins) {
 
         this.coins = coins;
-        save(this);
+        save();
     }
 
     public UUID getPlayerUUID() {
@@ -663,13 +649,13 @@ public class RPGPlayer {
     public void setPlayerUUID(UUID player) {
 
         this.player = player;
-        save(this);
+        save();
     }
 
     public void setPlayer(Player player) {
 
         this.player = player.getUniqueId();
-        save(this);
+        save();
     }
 
     public Player getPlayer() {
@@ -685,7 +671,7 @@ public class RPGPlayer {
     public void setFirstSkilLvl(int firstSkilLvl) {
 
         this.firstSkilLvl = firstSkilLvl;
-        save(this);
+        save();
     }
 
     public int getSecondSkilLvl() {
@@ -696,7 +682,7 @@ public class RPGPlayer {
     public void setSecondSkilLvl(int secondSkilLvl) {
 
         this.secondSkilLvl = secondSkilLvl;
-        save(this);
+        save();
     }
 
     public int getThirdSkillLvl() {
@@ -706,21 +692,20 @@ public class RPGPlayer {
 
     public void addCamp(int toAdd){
         campsDefeated += toAdd;
-        save(this);
+        save();
         update();
     }
 
     public void setThirdSkillLvl(int thirdSkillLvl) {
 
         this.thirdSkillLvl = thirdSkillLvl;
-        save(this);
+        save();
     }
     public String toDecoratedString(String player) {
         ClassRPG classRPG = getClassRpg();
         return ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + player + ChatColor.DARK_PURPLE + " Info§r\n" +
                 "§eLevel: §b" + level + "§r\n" +
                 "§eExp: §b" + exp + "§r\n" +
-                //"§eCamps Defeated: §b" + campsDefeated + "§r\n" +
                 "☃: " + ChatColor.GOLD + coins + "§r\n" +
                 "§eOrbes de mejora: §b" + orbs + "§r\n" +
                 "§e" + classRPG.getFirstSkill().getName() + ": §b" + firstSkilLvl + "§r\n" +
@@ -735,7 +720,6 @@ public class RPGPlayer {
         return ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + player.getName() + ChatColor.DARK_PURPLE + " Info§r\n" +
                 "§eLevel: §b" + level + "§r\n" +
                 "§eExp: §b" + exp + "§r\n" +
-                //"§eCamps Defeated: §b" + campsDefeated + "§r\n" +
                 "☃: " + ChatColor.GOLD + coins + "§r\n" +
                 "§eOrbes de mejora: §b" + orbs + "§r\n" +
                 "§e" + classRPG.getFirstSkill().getName() + ": §b" + firstSkilLvl + "§r\n" +
@@ -744,15 +728,7 @@ public class RPGPlayer {
                 "§eClass Key: §b" + classRPG.getName() + "§r\n";
     }
 
-
-    public void load(){
-        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
-        if(loaded != null){
-            copyFrom(loaded);
-        }
-    }
-
-    public void save(RPGPlayer rpgPlayer){
-        plugin.rpgPlayerDataManager.save(rpgPlayer);
+    public void save(){
+        plugin.rpgPlayerDataManager.save(this);
     }
 }

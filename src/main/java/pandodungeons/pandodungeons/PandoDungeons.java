@@ -1,16 +1,12 @@
 package pandodungeons.pandodungeons;
 
 import battlePass.BattlePassEventHandler;
-import battlePass.premium.PremiumBattlePass;
 import battlePass.premium.PremiumRewardManager;
 import battlePass.regular.DefaultRewardManager;
-import com.ticxo.modelengine.api.ModelEngineAPI;
 import controlledEntities.modeled.pets.PetCommand;
 import controlledEntities.modeled.pets.PetGachaCommand;
 import controlledEntities.modeled.pets.PetsListener;
 import controlledEntities.modeled.pets.PetsManager;
-import net.minecraft.world.item.crafting.CampfireCookingRecipe;
-import net.minecraft.world.level.chunk.BulkSectionAccess;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -20,13 +16,10 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.C;
-import org.jetbrains.annotations.NotNull;
 import pandoClass.*;
 import pandoClass.campsListener.CampsListener;
 import pandoClass.classes.ClassCommand;
 import pandoClass.classes.farmer.skils.GolemHandler;
-import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.classes.mage.skills.orb.OrbsManager;
 import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.gachaPon.GachaCommand;
@@ -41,7 +34,6 @@ import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
-import pandodungeons.pandodungeons.Utils.ItemUtils;
 import pandodungeons.pandodungeons.Utils.PlayerPartyList;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
@@ -67,7 +59,7 @@ import static pandodungeons.pandodungeons.Utils.ItemUtils.*;
 public final class PandoDungeons extends JavaPlugin {
     private CommandManager commandManager;
     public PlayerPartyList playerPartyList = new PlayerPartyList();
-    public Map<Player, ClassRPG> rpgPlayersList = new HashMap<>();
+    public Map<Player, ClassRPG> playerAndClassAssosiation = new HashMap<>();
     public PrizeManager prizeManager = new PrizeManager(this);
     public Camp camp = new Camp(this);
     private BukkitRunnable runnable;
@@ -96,7 +88,7 @@ public final class PandoDungeons extends JavaPlugin {
         premiumRewardManager.InitRewards();
         startGamble(this);
         removeAllGachaHolosOnStart(this);
-        rpgPlayersList = rpgPlayerDataManager.getRPGPlayerMap();
+        playerAndClassAssosiation = rpgPlayerDataManager.getRPGPlayerMap();
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
