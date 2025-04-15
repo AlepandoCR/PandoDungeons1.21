@@ -79,14 +79,14 @@ public class PastureAnimalsGoal extends Goal {
         // Actualizar centro dinámicamente (opcional)
         center = calculateCenter(herdedAnimals);
 
-        // 1. Movimiento circular continuo del mob
+    
         circleTick++;
         double angle = (circleTick * 4 % 360) * (Math.PI / 180); // velocidad angular ajustable
         double x = center.x + radius * Math.cos(angle);
         double z = center.z + radius * Math.sin(angle);
         mob.getNavigation().moveTo(x, center.y, z, speed);
 
-        // 2. Empujar animales suavemente hacia el centro
+       
         boolean allCentered = true;
         boolean allDeath = true;
         for (LivingEntity animal : herdedAnimals) {
@@ -103,13 +103,13 @@ public class PastureAnimalsGoal extends Goal {
             }
         }
 
-        // 3. Cuando estén todos pastoreados
+       
         if (allCentered || allDeath) {
             for (LivingEntity animal : herdedAnimals){
                 animal.kill((ServerLevel) animal.level());
             }
             returnToOwner();
-            stop(); // opcional si quieres reiniciar el goal
+            stop();
         }
     }
 

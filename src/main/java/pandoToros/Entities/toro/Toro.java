@@ -22,21 +22,20 @@ public class Toro extends Ravager {
 
     @Override
     protected void registerGoals() {
-        // Agrega comportamientos personalizados
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Evitar ahogarse
         this.goalSelector.addGoal(1, new ChargePlayerGoal(this, 2)); // Comportamiento de embestida
         this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Mira al jugador
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 0.4)); // Camina aleatoriamente
 
-        // Objetivos de ataque
+    
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
-    // Otros métodos relevantes para personalizar comportamiento
+
     @Override
     public void aiStep() {
         super.aiStep();
-        // Aquí puedes personalizar la lógica del toro durante cada tick
+
     }
 
     public static boolean summonToro(Location location) {
@@ -47,10 +46,10 @@ public class Toro extends Ravager {
             return false;
         }
 
-        // Convert Bukkit world to NMS world
+     
         ServerLevel nmsWorld = ((CraftWorld) bukkitWorld).getHandle();
 
-        // Create and configure the Toro
+
         Toro toro = new Toro(EntityType.RAVAGER, nmsWorld);
         toro.setPos(location.getX(), location.getY(), location.getZ());
         toro.setCustomName(net.minecraft.network.chat.Component.literal("Toro"));

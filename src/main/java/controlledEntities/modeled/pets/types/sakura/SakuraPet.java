@@ -44,7 +44,7 @@ public class SakuraPet extends Pet {
 
     @Override
     public List<Goal> setGoals() {
-        // Asegúrate de que 'mob' no sea null y tenga un handle válido
+       
         if (mob != null && mob instanceof CraftMob) {
             return List.of(
                     new FollowOwnerGoal(((CraftMob) mob).getHandle(), ((CraftPlayer) owner).getHandle(), 1.4,0.6, 3, 0.5f),
@@ -52,7 +52,7 @@ public class SakuraPet extends Pet {
 
             );
         }
-        return List.of(); // Retorna una lista vacía si 'mob' es null
+        return List.of(); 
     }
 
 
