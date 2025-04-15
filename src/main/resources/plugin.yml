@@ -47,6 +47,12 @@ commands:
   petoken:
     description: dar petokens
     usage: /<command>
+  topmonedas:
+    description: ver top de monedas
+    usage: /<command>
+  cobrar:
+    description: cobrar a un jugador
+    usage: /<command>
 
 
 permissions:

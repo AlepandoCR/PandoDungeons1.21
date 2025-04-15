@@ -16,9 +16,12 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.checker.units.qual.C;
 import pandoClass.*;
 import pandoClass.campsListener.CampsListener;
 import pandoClass.classes.ClassCommand;
+import pandoClass.classes.CobrarCommand;
+import pandoClass.classes.TopCoinsCommand;
 import pandoClass.classes.farmer.skils.GolemHandler;
 import pandoClass.classes.mage.skills.orb.OrbsManager;
 import pandoClass.files.RPGPlayerDataManager;
@@ -50,6 +53,7 @@ import java.util.*;
 
 
 import static controlledEntities.ControlledEntity.startMonitoringControlledEntities;
+import static controlledEntities.modeled.pets.PetNameTagHandler.startGlobalUpdater;
 import static pandoClass.classes.mage.skills.TimeRewindSkill.startTracking;
 import static pandoClass.classes.mage.skills.orb.Orb.handleStands;
 import static pandoClass.gachaPon.GachaHolo.*;
@@ -77,6 +81,7 @@ public final class PandoDungeons extends JavaPlugin {
     @Override
     public void onEnable() {
         handleStandsHere();
+        startGlobalUpdater(this);
         rpgManager = new RpgManager(this);
         petsManager = new PetsManager(this);
         rpgPlayerDataManager = new RPGPlayerDataManager(this);
@@ -112,7 +117,6 @@ public final class PandoDungeons extends JavaPlugin {
         }
 
 
-        // Register events and commands
         getServer().getPluginManager().registerEvents(new BattlePassEventHandler(this),this);
 
         getServer().getPluginManager().registerEvents(new GolemHandler(this),this);
@@ -128,6 +132,8 @@ public final class PandoDungeons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MissionListener(this),this);
         getServer().getPluginManager().registerEvents(new PetsListener(this),this);
 
+        this.getCommand("topmonedas").setExecutor(new TopCoinsCommand(this));
+        this.getCommand("cobrar").setExecutor(new CobrarCommand(this));
         this.getCommand("mascotas").setExecutor(new PetCommand(this));
         this.getCommand("gachatoken").setExecutor(new GachaCommand(this));
         this.getCommand("texturas").setExecutor(new TextureCommand(this));

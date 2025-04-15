@@ -84,6 +84,19 @@ public class RPGPlayer {
         }
     }
 
+    public RPGPlayer(UUID player, PandoDungeons plugin) {
+        this.player = player;
+        this.plugin = plugin;
+        RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
+        if (loaded != null) {
+            copyFrom(loaded);
+        } else {
+            if (getPlayerDataFile().exists()) {
+                plugin.getLogger().severe("El archivo de datos del jugador " + getPlayer() + " está corrupto. No se pudo cargar.");
+            }
+        }
+    }
+
     private void copyFrom(RPGPlayer other) {
         this.orbProgress = other.orbProgress;
         this.orbs = other.orbs;

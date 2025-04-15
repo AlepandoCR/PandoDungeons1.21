@@ -1,5 +1,7 @@
 package pandoClass.classes;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -221,12 +223,21 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
         }
 
         // Flechas de navegación en el chat
-        String prevPage = (page > 1) ? ChatColor.GREEN + "[⬅ Página Anterior]" : "";
-        String nextPage = (page < totalPages) ? ChatColor.GREEN + "[Página Siguiente ➡]" : "";
+        TextComponent navigationMessage = new TextComponent();
 
-        executingPlayer.spigot().sendMessage(
-                net.md_5.bungee.api.chat.TextComponent.fromLegacyText(prevPage + " " + nextPage)
-        );
+        if (page > 1) {
+            TextComponent previousPage = new TextComponent(ChatColor.GREEN + "[⬅ Página Anterior] ");
+            previousPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/stats top " + (page - 1)));
+            navigationMessage.addExtra(previousPage);
+        }
+
+        if (page < totalPages) {
+            TextComponent nextPage = new TextComponent(ChatColor.GREEN + "[Página Siguiente ➡]");
+            nextPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/stats top " + (page + 1)));
+            navigationMessage.addExtra(nextPage);
+        }
+
+        executingPlayer.spigot().sendMessage(navigationMessage);
         return false;
     }
 
