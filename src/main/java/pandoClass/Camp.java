@@ -83,6 +83,7 @@ public class Camp {
             Location loc = center.clone().add(randomOffset(3), 0, randomOffset(3));
             // Suponiendo que getRandomArcherType() devuelve un EntityType de un arqueros válido
             LivingEntity archer = (LivingEntity) world.spawnEntity(loc, getRandomArcherType(), CreatureSpawnEvent.SpawnReason.NATURAL);
+            archer.setRemoveWhenFarAway(false);
             entities.add(archer);
         }
 
@@ -90,12 +91,14 @@ public class Camp {
         for (int i = 0; i < numMelees; i++) {
             Location loc = center.clone().add(randomOffset(3), 0, randomOffset(3));
             LivingEntity melee = (LivingEntity) world.spawnEntity(loc, getRandomMeleeType(), CreatureSpawnEvent.SpawnReason.NATURAL);
+            melee.setRemoveWhenFarAway(false);
             entities.add(melee);
         }
 
         // Spawnea un jefe de la horda en el centro (o ligeramente desplazado)
         Location bossLoc = center.clone().add(0, 0, 0);
         LivingEntity boss = (LivingEntity) world.spawnEntity(bossLoc, getBossType(), CreatureSpawnEvent.SpawnReason.NATURAL);
+        boss.setRemoveWhenFarAway(false);
         entities.add(boss);
     }
 

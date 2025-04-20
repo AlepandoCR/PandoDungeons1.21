@@ -74,6 +74,9 @@ permissions:
   mascota.sakura:
     description: Permiso para mascota sakura
     default: op
+  mascota.jojo:
+    description: Permiso para mascota sakura
+    default: op
   mascota.nombres:
     description: Permiso para cambiar nombre de mascotas
     default: op

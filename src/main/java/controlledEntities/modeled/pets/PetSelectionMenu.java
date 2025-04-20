@@ -39,6 +39,7 @@ public class PetSelectionMenu {
         registerPetInMenu("Mapache", "37bd204512728130b7f65ff2714b98d48735ff0288b6e9a50270002290fa58d7", "mascota.mapache");
         registerPetInMenu("Minero", "7d915e395587c5cd4a7e6416195575f5bfdb6c476398fe8e3a87e3c7fbb894eb", "mascota.minero");
         registerPetInMenu("Sakura", "db61521259c6c3402f9cae3b6867ddb481fd7a834674f26bf4fcf11c978e0051", "mascota.sakura");
+        registerPetInMenu("Jojo", "a60e246bdfd263e545a90913e6f00e9b4156f1a8fa8711b439c124f30f3945c4", "mascota.jojo");
     }
 
     private static void registerPetInMenu(String name, String display, String permission) {

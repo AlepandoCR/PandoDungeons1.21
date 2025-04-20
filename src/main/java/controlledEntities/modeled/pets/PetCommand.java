@@ -29,11 +29,10 @@ public class PetCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if(args.length == 2){
-            if(args[1].equalsIgnoreCase("quitar")){
-                plugin.petsManager.destroyPets(executingPlayer);
-                executingPlayer.sendMessage( ChatColor.YELLOW + "[" + ChatColor.GOLD + "Macotas" + ChatColor.YELLOW + "]" + "Haz quitado tu mascota");
-            }
+        if (args.length == 1 && args[0].equalsIgnoreCase("quitar")) {
+            plugin.petsManager.destroyPets(executingPlayer);
+            executingPlayer.sendMessage(ChatColor.YELLOW + "[" + ChatColor.GOLD + "Mascotas" + ChatColor.YELLOW + "] Has quitado tu mascota");
+            return true;
         }else{
             PetSelectionMenu.openMenu(executingPlayer);
         }

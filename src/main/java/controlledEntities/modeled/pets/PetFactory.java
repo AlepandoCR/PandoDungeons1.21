@@ -1,5 +1,6 @@
 package controlledEntities.modeled.pets;
 
+import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import controlledEntities.modeled.pets.types.sakura.SakuraPet;
@@ -17,6 +18,7 @@ public class PetFactory {
             case MAPACHE -> new RacoonPet(player, plugin); // Retorna un Mapache
             case MINERO -> new MinerPet(player, plugin); // Retorna un Minero
             case SAKURA -> new SakuraPet(player,plugin);
+            case JOJO -> new JojoPet(player,plugin);
         };
     }
 
@@ -27,6 +29,7 @@ public class PetFactory {
             case MAPACHE ->  rpgPlayer.setRacoonPetName(name);
             case MINERO -> rpgPlayer.setMinerPetName(name);
             case SAKURA -> rpgPlayer.setSakuraPetName(name); // En caso de que no se reconozca el tipo de mascota
+            case JOJO -> rpgPlayer.setJojoPetName(name);
         };
     }
 
@@ -37,6 +40,7 @@ public class PetFactory {
             case MAPACHE ->  rpgPlayer.getRacoonPetName();
             case MINERO -> rpgPlayer.getMinerPetName();
             case SAKURA -> rpgPlayer.getSakuraPetName();
+            case JOJO -> rpgPlayer.getJojoPetName();
         };
     }
 }

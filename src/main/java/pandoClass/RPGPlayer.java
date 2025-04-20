@@ -56,6 +56,7 @@ public class RPGPlayer {
     private String racoonPetName  = "";
     private String minerPetName  = "";
     private String sakuraPetName  = "";
+    private String jojoPetName = "";
 
     private final transient PandoDungeons plugin;
 
@@ -116,7 +117,7 @@ public class RPGPlayer {
         this.racoonPetName  = other.racoonPetName;
         this.minerPetName  = other.minerPetName;
         this.sakuraPetName  = other.sakuraPetName;
-
+        this.jojoPetName  = other.jojoPetName;
     }
 
     private void defaults() {
@@ -138,6 +139,7 @@ public class RPGPlayer {
         this.racoonPetName  = "";
         this.minerPetName  = "";
         this.sakuraPetName  = "";
+        this.jojoPetName  = "";
     }
 
     public File getPlayerDataFile(){
@@ -593,6 +595,16 @@ public class RPGPlayer {
     public String getClassKey() {
 
         return classKey;
+    }
+
+    public String getJojoPetName() {
+        return jojoPetName;
+    }
+
+    public void setJojoPetName(String jojoPetName) {
+        this.jojoPetName = jojoPetName;
+        save();
+        update();
     }
 
     public void setClassKey(String classKey) {

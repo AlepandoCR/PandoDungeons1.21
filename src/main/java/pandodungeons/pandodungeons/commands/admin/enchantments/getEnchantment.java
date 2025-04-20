@@ -1,5 +1,6 @@
 package pandodungeons.pandodungeons.commands.admin.enchantments;
 
+import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import org.bukkit.ChatColor;
@@ -200,6 +201,8 @@ public class getEnchantment implements CommandExecutor {
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
+        }else if(args[1].equalsIgnoreCase("jojo")){
+            new JojoPet(player,plugin);
         }
 
         return false;

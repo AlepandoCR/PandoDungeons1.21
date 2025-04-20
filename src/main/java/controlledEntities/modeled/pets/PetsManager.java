@@ -1,5 +1,6 @@
 package controlledEntities.modeled.pets;
 
+import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import controlledEntities.modeled.pets.types.sakura.SakuraPet;
@@ -85,14 +86,12 @@ public class PetsManager {
         destroyPet(pet);
 
         // Volver a crear la mascota después de 1 segundo para asegurar que el cambio de mundo se complete
-        if(pet instanceof RacoonPet){
-          new RacoonPet(player,plugin);
-        }else if(pet instanceof MinerPet){
-            new MinerPet(player,plugin);
-        }else if(pet instanceof SakuraPet){
-            new SakuraPet(player,plugin);
-        }else{
-            player.sendMessage("No es pet");
+        switch (pet) {
+            case RacoonPet ignored -> new RacoonPet(player, plugin);
+            case MinerPet ignored -> new MinerPet(player, plugin);
+            case SakuraPet ignored -> new SakuraPet(player, plugin);
+            case JojoPet ignored -> new JojoPet(player, plugin);
+            default -> player.sendMessage("No es pet");
         }
 
     }
