@@ -5,7 +5,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Game.Stats;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -35,26 +34,26 @@ public class DungeonsTopCommand implements CommandExecutor {
         List<Stats> allStats = PlayerStatsManager.loadAllPlayerStatsList();
 
         if(allStats != null){
-            allStats.sort(Comparator.comparingInt(Stats::getPrestige)
-                    .thenComparingInt(Stats::getDungeonLevel)
-                    .thenComparingInt(Stats::getLevelProgress)
-                    .thenComparingInt(Stats::getDungeonsCompleted)
+            allStats.sort(Comparator.comparingInt(Stats::prestige)
+                    .thenComparingInt(Stats::dungeonLevel)
+                    .thenComparingInt(Stats::levelProgress)
+                    .thenComparingInt(Stats::dungeonsCompleted)
                     .reversed());
 
             player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Top 3 Jugadores de Mazmorras:");
             for (int i = 0; i < Math.min(3, allStats.size()); i++) {
                 Stats stats = allStats.get(i);
                 player.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + (i + 1) + ". " +
-                        ChatColor.AQUA + "" + ChatColor.BOLD + stats.getPlayerName() +
+                        ChatColor.AQUA + "" + ChatColor.BOLD + stats.playerName() +
                         ChatColor.WHITE + "\n" +
                         ChatColor.GOLD + "" + ChatColor.BOLD + "Prestigio: " +
-                        ChatColor.WHITE + stats.getPrestige() + "\n" +
+                        ChatColor.WHITE + stats.prestige() + "\n" +
                         ChatColor.GOLD + "" + ChatColor.BOLD + "Nivel: " +
-                        ChatColor.WHITE + stats.getDungeonLevel() + "\n" +
+                        ChatColor.WHITE + stats.dungeonLevel() + "\n" +
                         ChatColor.GOLD + "" + ChatColor.BOLD + "Progreso de Nivel: " +
-                        ChatColor.WHITE + stats.getLevelProgress() + "\n" +
+                        ChatColor.WHITE + stats.levelProgress() + "\n" +
                         ChatColor.GOLD + "" + ChatColor.BOLD + "Mazmorras Completadas: " +
-                        ChatColor.WHITE + stats.getDungeonsCompleted() + "\n" +
+                        ChatColor.WHITE + stats.dungeonsCompleted() + "\n" +
                         ChatColor.GRAY + "------------------------------");
             }
         }

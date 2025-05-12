@@ -7,6 +7,7 @@ import controlledEntities.modeled.pets.PetCommand;
 import controlledEntities.modeled.pets.PetGachaCommand;
 import controlledEntities.modeled.pets.PetsListener;
 import controlledEntities.modeled.pets.PetsManager;
+import displays.DisplayManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -37,6 +38,7 @@ import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
+import pandodungeons.pandodungeons.Utils.DisplayModels;
 import pandodungeons.pandodungeons.Utils.PlayerPartyList;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
@@ -65,7 +67,6 @@ public final class PandoDungeons extends JavaPlugin {
     public PlayerPartyList playerPartyList = new PlayerPartyList();
     public Map<Player, ClassRPG> playerAndClassAssosiation = new HashMap<>();
     public PrizeManager prizeManager = new PrizeManager(this);
-    public Camp camp = new Camp(this);
     private BukkitRunnable runnable;
     public MissionManager missionManager = new MissionManager();
     public DefaultRewardManager defaultRewardManager;
@@ -75,6 +76,7 @@ public final class PandoDungeons extends JavaPlugin {
     public InitMenu initMenu;
     public PetsManager petsManager;
     public RpgManager rpgManager;
+    public DisplayManager displayManager;
 
     public GamblingSession gamblingSession;
 
@@ -117,34 +119,11 @@ public final class PandoDungeons extends JavaPlugin {
         }
 
 
-        getServer().getPluginManager().registerEvents(new BattlePassEventHandler(this),this);
+        PrizeListener prizeListener = new PrizeListener(this);
 
-        getServer().getPluginManager().registerEvents(new GolemHandler(this),this);
+        registerListeners(prizeListener);
 
-        getServer().getPluginManager().registerEvents(new ExpandableClassMenuListener(this),this);
-
-        getServer().getPluginManager().registerEvents(new PrizeListener(this), this);
-        getServer().getPluginManager().registerEvents(new CampsListener(this), this);
-        getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
-        getServer().getPluginManager().registerEvents(new ToroGameListener(), this);
-        getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
-        getServer().getPluginManager().registerEvents(new RPGListener(this), this);
-        getServer().getPluginManager().registerEvents(new MissionListener(this),this);
-        getServer().getPluginManager().registerEvents(new PetsListener(this),this);
-
-        this.getCommand("topmonedas").setExecutor(new TopCoinsCommand(this));
-        this.getCommand("cobrar").setExecutor(new CobrarCommand(this));
-        this.getCommand("mascotas").setExecutor(new PetCommand(this));
-        this.getCommand("gachatoken").setExecutor(new GachaCommand(this));
-        this.getCommand("texturas").setExecutor(new TextureCommand(this));
-        this.getCommand("dungeons").setExecutor(new CommandManager(this));
-        this.getCommand("redondel").setExecutor(new RedondelCommand(this));
-        this.getCommand("party").setExecutor(new PartyCommand(this));
-        this.getCommand("stats").setExecutor(new ClassCommand(this));
-        this.getCommand("bet").setExecutor(new GambleCommand(this));
-        this.getCommand("encargo").setExecutor(new QuestCommand(this));
-        this.getCommand("pagar").setExecutor(new PayCommand(this));
-        this.getCommand("petoken").setExecutor(new PetGachaCommand(this));
+        registerCommands();
 
         // Ensure player data folder exists
         File playerDataFolder = new File(getDataFolder(), "PlayerData");
@@ -159,29 +138,22 @@ public final class PandoDungeons extends JavaPlugin {
 
         startHordeLookout(this);
 
+        prizeListener.tickChoneteStacks();
 
         startMonitoringControlledEntities(this);
 
-        breezeCompanionCustomRecipe();
-        armadilloCompanionCustomRecipe();
-        allayCompanionCustomRecipe();
-        osoCompanionCustomRecipe();
-        snifferCompanionCustomRecipe();
-        pufferFishCompanionCustomRecipe();
-        copperGumRecipe();
-        soccerBallRecipe();
+        loadRecipes();
 
-        unlockRecipeForAllPlayers(getPufferFishCompanionCustomRecipe());
-        unlockRecipeForAllPlayers(getOsoCompanionCustomRecipe());
-        unlockRecipeForAllPlayers(getArmadilloCompanionCustomRecipe());
-        unlockRecipeForAllPlayers(getBreezeCompanionCustomRecipe());
-        unlockRecipeForAllPlayers(getAllayCompanionCustomRecipe());
-        unlockRecipeForAllPlayers(getSnifferCompanionCustomRecipe());
-        unlockRecipeForAllPlayers(getCopperGumRecipe());
-        unlockRecipeForAllPlayers(getSoccerBallRecipe());
+        unlockRecipes();
+
         loadAllCompanions();
 
-        // Create or load player stats files
+        loadData(playerDataFolder);
+
+        displayManager = new DisplayManager(this);
+    }
+
+    private void loadData(File playerDataFolder) {
         getServer().getOnlinePlayers().forEach(player -> {
             try {
                 File playerFile = new File(playerDataFolder, player.getUniqueId() + ".yml");
@@ -207,6 +179,62 @@ public final class PandoDungeons extends JavaPlugin {
             }
         });
         ToroStatManager.loadAllToroPlayerStats();
+    }
+
+    public DisplayManager getDisplayManager() {
+        return displayManager;
+    }
+
+    private void unlockRecipes() {
+        unlockRecipeForAllPlayers(getPufferFishCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getOsoCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getArmadilloCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getBreezeCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getAllayCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getSnifferCompanionCustomRecipe());
+        unlockRecipeForAllPlayers(getCopperGumRecipe());
+        unlockRecipeForAllPlayers(getSoccerBallRecipe());
+    }
+
+    private static void loadRecipes() {
+        breezeCompanionCustomRecipe();
+        armadilloCompanionCustomRecipe();
+        allayCompanionCustomRecipe();
+        osoCompanionCustomRecipe();
+        snifferCompanionCustomRecipe();
+        pufferFishCompanionCustomRecipe();
+        copperGumRecipe();
+        soccerBallRecipe();
+    }
+
+    private void registerCommands() {
+        this.getCommand("topmonedas").setExecutor(new TopCoinsCommand(this));
+        this.getCommand("cobrar").setExecutor(new CobrarCommand(this));
+        this.getCommand("mascotas").setExecutor(new PetCommand(this));
+        this.getCommand("gachatoken").setExecutor(new GachaCommand(this));
+        this.getCommand("texturas").setExecutor(new TextureCommand(this));
+        this.getCommand("dungeons").setExecutor(new CommandManager(this));
+        this.getCommand("redondel").setExecutor(new RedondelCommand(this));
+        this.getCommand("party").setExecutor(new PartyCommand(this));
+        this.getCommand("stats").setExecutor(new ClassCommand(this));
+        this.getCommand("bet").setExecutor(new GambleCommand(this));
+        this.getCommand("encargo").setExecutor(new QuestCommand(this));
+        this.getCommand("pagar").setExecutor(new PayCommand(this));
+        this.getCommand("petoken").setExecutor(new PetGachaCommand(this));
+    }
+
+    private void registerListeners(PrizeListener prizeListener) {
+        getServer().getPluginManager().registerEvents(new BattlePassEventHandler(this),this);
+        getServer().getPluginManager().registerEvents(new GolemHandler(this),this);
+        getServer().getPluginManager().registerEvents(new ExpandableClassMenuListener(this),this);
+        getServer().getPluginManager().registerEvents(prizeListener, this);
+        getServer().getPluginManager().registerEvents(new CampsListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
+        getServer().getPluginManager().registerEvents(new ToroGameListener(), this);
+        getServer().getPluginManager().registerEvents(new BallEventHandler(this), this);
+        getServer().getPluginManager().registerEvents(new RPGListener(this), this);
+        getServer().getPluginManager().registerEvents(new MissionListener(this),this);
+        getServer().getPluginManager().registerEvents(new PetsListener(this),this);
     }
 
 
@@ -242,6 +270,7 @@ public final class PandoDungeons extends JavaPlugin {
         removePlayersFromDungeons();
         removeDungeons();
         petsManager.destroyAllPets();
+        displayManager.removeAllDisplays();
     }
 
     private void removePlayersFromDungeons() {
@@ -327,13 +356,15 @@ public final class PandoDungeons extends JavaPlugin {
                         Player randomPlayer = onlinePlayers.get(random.nextInt(onlinePlayers.size()));
                         String worldName = randomPlayer.getWorld().getName();
 
+                        if(plugin.rpgManager.getPlayer(randomPlayer).getLevel() < 25) return;
+
                         if (worldName.equalsIgnoreCase("world") || worldName.equalsIgnoreCase("recursos") || worldName.equalsIgnoreCase("world_the_end") || worldName.equalsIgnoreCase("world_nether") || worldName.equalsIgnoreCase("masmo")) {
                             randomPlayer.sendMessage(ChatColor.RED + "¡Ha aparecido una horda a tus alrededores, ten cuidado!");
 
                             Location spawnLoc = getValidHordeSpawnLocation(randomPlayer);
                             if (spawnLoc != null) {
-                                camp = new Camp(plugin);
-                                camp.startHorde(spawnLoc, plugin);
+                                Camp horde = new Camp(plugin);
+                                horde.startHorde(spawnLoc, plugin);
                             } else {
                                 randomPlayer.sendMessage(ChatColor.YELLOW + "No se encontró una ubicación válida para la horda, te salvaste...");
                             }

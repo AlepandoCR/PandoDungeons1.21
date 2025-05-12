@@ -3,6 +3,10 @@ package pandodungeons.pandodungeons.commands.admin.enchantments;
 import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
+import displays.tops.CoinsTopDisplay;
+import displays.tops.DungeonsTopDisplay;
+import displays.tops.RpgTopDisplay;
+import net.minecraft.core.component.DataComponents;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,25 +14,21 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.Camp;
 import pandoClass.ExpandableClassMenu;
 import pandoClass.InitMenu;
 import pandoClass.classes.mage.skills.orb.Orb;
-import pandoClass.gachaPon.prizes.epic.InstaUpgradeShard;
-import pandoClass.gachaPon.prizes.epic.PuertoViejoPipePrize;
-import pandoClass.gachaPon.prizes.epic.ReparationShardPrize;
-import pandoClass.gachaPon.prizes.epic.RocketBootsPrize;
-import pandoClass.gachaPon.prizes.legendary.EscudoReflectantePrize;
-import pandoClass.gachaPon.prizes.legendary.SlingShotPrize;
-import pandoClass.gachaPon.prizes.legendary.StormSwordPrize;
-import pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize;
+import pandoClass.gachaPon.prizes.epic.*;
+import pandoClass.gachaPon.prizes.legendary.*;
 import pandoClass.gachaPon.prizes.mithic.*;
 import pandoClass.gambling.GamblingSession;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -203,9 +203,58 @@ public class getEnchantment implements CommandExecutor {
             }
         }else if(args[1].equalsIgnoreCase("jojo")){
             new JojoPet(player,plugin);
+        }else if(args[1].equalsIgnoreCase("combine")){
+            spawnItemCombineVil(player.getLocation());
+        }else if(args[1].equalsIgnoreCase("nbt")){
+            nbt(player.getInventory().getItemInMainHand());
+        }else if(args[1].equalsIgnoreCase("tanks")){
+            player.getInventory().addItem(new TankSword(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("chonete")){
+            player.getInventory().addItem(new ChonetePrize(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("topD")){
+            new DungeonsTopDisplay(plugin,player.getLocation());
+        }else if(args[1].equalsIgnoreCase("topR")){
+            new RpgTopDisplay(plugin,player.getLocation());
+        }else if(args[1].equalsIgnoreCase("topM")){
+            new CoinsTopDisplay(plugin,player.getLocation());
+        }else if(args[1].equalsIgnoreCase("katana")){
+            player.getInventory().addItem(new KatanaPrize(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("machete")){
+            player.getInventory().addItem(new BoomerangAxePrize(plugin).getItem());
         }
-
         return false;
+    }
+
+
+    public void nbt(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return;
+
+        ItemMeta meta = item.getItemMeta();
+        plugin.getLogger().warning(meta.getAsComponentString());
+
+        plugin.getLogger().info(String.valueOf(hasNoFusion(item)));
+
+    }
+
+    public boolean hasNoFusion(ItemStack item) {
+        if (item == null || item.getType().isAir()) return false;
+
+        // Convertir a NMS
+        net.minecraft.world.item.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+
+        if(!nmsItem.getComponents().has(DataComponents.CUSTOM_DATA)) return false;
+
+        return nmsItem.getComponents().get(DataComponents.CUSTOM_DATA).contains("nofusion");
+    }
+
+    public void spawnItemCombineVil(Location location) {
+        Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
+        villager.setAI(false);
+        villager.setVillagerType(Villager.Type.JUNGLE);
+        villager.setPersistent(true);
+        villager.setInvulnerable(true);
+        NamespacedKey key = new NamespacedKey(plugin, "ItemCombine");
+        villager.getPersistentDataContainer().set(key, PersistentDataType.BOOLEAN, true);
     }
 
     public void spawnItemUpgradeVil(Location location) {

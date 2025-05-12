@@ -16,17 +16,17 @@ public class PlayerStatsBook {
         assert meta != null;
 
         meta.setTitle(ChatColor.GOLD + "Dungeon Stats");
-        meta.setAuthor(ChatColor.AQUA + playerStats.getPlayerName());
+        meta.setAuthor(ChatColor.AQUA + playerStats.playerName());
 
         // Página 1: Información general
         meta.addPage(
                 ChatColor.BOLD + "" + ChatColor.GOLD + "Dungeons Stats\n\n" +
                         ChatColor.RESET + ChatColor.AQUA + "Player: " + ChatColor.RESET + ChatColor.WHITE + player.getName() + "\n" +
-                        ChatColor.AQUA + "Mobs Killed: " + ChatColor.RESET + ChatColor.GREEN + playerStats.getMobsKilled() + "\n" +
-                        ChatColor.AQUA + "Dungeons Completed: " + ChatColor.RESET + ChatColor.GREEN + playerStats.getDungeonsCompleted() + "\n" +
-                        ChatColor.AQUA + "Dungeon Level: " + ChatColor.RESET + ChatColor.GREEN + playerStats.getDungeonLevel() + "\n" +
-                        ChatColor.AQUA + "Level Progress: " + ChatColor.RESET + ChatColor.GREEN + playerStats.getLevelProgress() + "\n" +
-                        ChatColor.AQUA + "Prestige: " + ChatColor.RESET + ChatColor.GREEN + playerStats.getPrestige() + ChatColor.RESET + ChatColor.GOLD + " ✦"
+                        ChatColor.AQUA + "Mobs Killed: " + ChatColor.RESET + ChatColor.GREEN + playerStats.mobsKilled() + "\n" +
+                        ChatColor.AQUA + "Dungeons Completed: " + ChatColor.RESET + ChatColor.GREEN + playerStats.dungeonsCompleted() + "\n" +
+                        ChatColor.AQUA + "Dungeon Level: " + ChatColor.RESET + ChatColor.GREEN + playerStats.dungeonLevel() + "\n" +
+                        ChatColor.AQUA + "Level Progress: " + ChatColor.RESET + ChatColor.GREEN + playerStats.levelProgress() + "\n" +
+                        ChatColor.AQUA + "Prestige: " + ChatColor.RESET + ChatColor.GREEN + playerStats.prestige() + ChatColor.RESET + ChatColor.GOLD + " ✦"
         );
 
         // Página 2: Promedios y gráfico de progreso
@@ -34,8 +34,8 @@ public class PlayerStatsBook {
                 ChatColor.BOLD.toString() + ChatColor.GOLD + "Stats Details\n\n" +
                         ChatColor.RESET + ChatColor.GOLD + "Kills per Dungeon ≈ " + ChatColor.GREEN + formatDouble(getAverageKillsPerDungeon(playerStats)) + "\n" +
                         ChatColor.RESET + ChatColor.GOLD + "Dungeons per Level ≈ " + ChatColor.GREEN + formatDouble(getAverageDungeonsPerLevel(playerStats)) + "\n\n" +
-                        ChatColor.BOLD + ChatColor.GOLD + "Level Progress\n\n" + getGraph(playerStats.getLevelProgress(), 3, 20) + "\n\n" +
-                        ChatColor.BOLD + ChatColor.GOLD + "Prestige \n\n" + getGraph(playerStats.getDungeonLevel(), 5, 20)
+                        ChatColor.BOLD + ChatColor.GOLD + "Level Progress\n\n" + getGraph(playerStats.levelProgress(), 3, 20) + "\n\n" +
+                        ChatColor.BOLD + ChatColor.GOLD + "Prestige \n\n" + getGraph(playerStats.dungeonLevel(), 5, 20)
 
 
         );
@@ -47,17 +47,17 @@ public class PlayerStatsBook {
     }
 
     private static double getAverageKillsPerDungeon(Stats stats) {
-        if (stats.getDungeonsCompleted() == 0) {
+        if (stats.dungeonsCompleted() == 0) {
             return 0;
         }
-        return (double) stats.getMobsKilled() / stats.getDungeonsCompleted();
+        return (double) stats.mobsKilled() / stats.dungeonsCompleted();
     }
 
     private static double getAverageDungeonsPerLevel(Stats stats) {
-        if (stats.getDungeonLevel() == 0) {
+        if (stats.dungeonLevel() == 0) {
             return 0;
         }
-        return (double) stats.getDungeonsCompleted() / (stats.getDungeonLevel() + (stats.getPrestige() * 4));
+        return (double) stats.dungeonsCompleted() / (stats.dungeonLevel() + (stats.prestige() * 4));
     }
 
     private static String formatDouble(double value) {

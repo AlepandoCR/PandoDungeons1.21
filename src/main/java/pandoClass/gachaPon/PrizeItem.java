@@ -1,5 +1,9 @@
 package pandoClass.gachaPon;
 
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.component.CustomData;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import pandodungeons.pandodungeons.PandoDungeons;
 

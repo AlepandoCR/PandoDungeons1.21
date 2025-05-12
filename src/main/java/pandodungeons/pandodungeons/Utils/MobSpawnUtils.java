@@ -30,7 +30,7 @@ public class MobSpawnUtils {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (worldName.contains(player.getName().toLowerCase(Locale.ROOT))) {
-                playerLvl = Stats.fromPlayer(player).getDungeonLevel();
+                playerLvl = Stats.fromPlayer(player).dungeonLevel();
                 if(plugin.playerPartyList.isOwner(player)){
                     party = plugin.playerPartyList.getPartyByOwner(player);
                 }
@@ -217,8 +217,8 @@ public class MobSpawnUtils {
         for(Player player : Bukkit.getOnlinePlayers()){
             if(location.getWorld().getName().contains(player.getName().toLowerCase(Locale.ROOT))){
                 Stats playerStats = Stats.fromPlayer(player);
-                playerPrestige = playerStats.getPrestige();
-                playerLvl = playerStats.getDungeonLevel();
+                playerPrestige = playerStats.prestige();
+                playerLvl = playerStats.dungeonLevel();
             }
         }
         if(playerLvl > 1){

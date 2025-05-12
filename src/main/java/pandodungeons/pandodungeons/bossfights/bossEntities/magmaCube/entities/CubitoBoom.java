@@ -19,7 +19,7 @@ public class CubitoBoom {
         this.plugin = plugin;
         Player target = LocationUtils.findNearestPlayer(location.getWorld(), location);
         Stats targetStats = Stats.fromPlayer(target);
-        int targetPrestige = targetStats.getPrestige();
+        int targetPrestige = targetStats.prestige();
         World world = location.getWorld();
         if (world == null) {
             throw new IllegalArgumentException("La ubicación proporcionada no es válida");

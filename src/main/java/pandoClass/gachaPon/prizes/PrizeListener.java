@@ -1,5 +1,7 @@
 package pandoClass.gachaPon.prizes;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
@@ -26,6 +28,8 @@ import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
 import pandoClass.gachaPon.GachaHolo;
 import pandoClass.gachaPon.Gachapon;
+import pandoClass.gachaPon.prizes.legendary.BoomerangAxePrize;
+import pandoClass.gachaPon.prizes.mithic.KatanaPrize;
 import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
 import pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize;
 import pandodungeons.pandodungeons.PandoDungeons;
@@ -40,7 +44,7 @@ import static pandoClass.gachaPon.prizes.epic.PuertoViejoPipePrize.isPuertoViejo
 import static pandoClass.gachaPon.prizes.epic.ReparationShardPrize.isReparationShardItem;
 import static pandoClass.gachaPon.prizes.legendary.EscudoReflectantePrize.isReflectShield;
 import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
-import static pandoClass.gachaPon.prizes.legendary.TeleportationHeartPrize.*;
+import static pandoClass.gachaPon.prizes.epic.TeleportationHeartPrize.*;
 import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.chargeStar;
 import static pandoClass.gachaPon.prizes.mithic.InmortalityStar.useStar;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
@@ -52,15 +56,201 @@ public class PrizeListener implements Listener {
     private final PandoDungeons plugin;
     private final NamespacedKey shieldEffect;
     private final NamespacedKey usosKey;
+    private final NamespacedKey katanaKey;
+    private final Map<UUID, Integer> comboMap = new HashMap<>();
+    private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private final Map<Player, BukkitRunnable> activeJetPackRunnables = new HashMap<>();
     private final Map<Player, BukkitRunnable> activeBootRunnables = new HashMap<>();
+
+
+    private final Map<UUID, Integer> stacks = new HashMap<>();
+    private final Map<UUID, Long> lastMoveTime = new HashMap<>();
+    private final Map<UUID, Long> lastStackTime = new HashMap<>();
+    private final NamespacedKey CHONETE_KEY;
 
 
     public PrizeListener(PandoDungeons plugin) {
         this.plugin = plugin;
         this.usosKey = new NamespacedKey(plugin, "puertoViejoPipeUsos") ;
         shieldEffect = new NamespacedKey(plugin,"shieldEffect");
+        this.CHONETE_KEY = new NamespacedKey(plugin, "choneteViento");
+        this.katanaKey = new NamespacedKey(plugin, "katana");
+
+        katanaComboDecay();
     }
+
+    private boolean isWearingChonete(Player player) {
+        ItemStack helmet = player.getInventory().getHelmet();
+        if (helmet == null) return false;
+        ItemMeta meta = helmet.getItemMeta();
+        return meta != null && meta.getPersistentDataContainer().has(CHONETE_KEY);
+    }
+
+    // Katana [--------------------------------------------------------------------------------------------------------------]
+
+
+    public void katanaComboDecay(){
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            long now = System.currentTimeMillis();
+            for (UUID uuid : new HashSet<>(lastHitTime.keySet())) {
+                if (now - lastHitTime.get(uuid) >= 5000) {
+                    comboMap.put(uuid, 0);
+                    lastHitTime.remove(uuid);
+                }
+            }
+        }, 20L, 20L);
+    }
+
+    @EventHandler
+    public void onKatanaDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)) return;
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (!isKatana(item)) return;
+
+        UUID uuid = player.getUniqueId();
+        int combo = comboMap.getOrDefault(uuid, 0);
+        combo = Math.min(combo + 1, 100); // max combo x5
+        comboMap.put(uuid, combo);
+        lastHitTime.put(uuid, System.currentTimeMillis());
+
+        double bonusMultiplier = 1.0 + (combo * 0.1); // 10% por combo
+        event.setDamage(event.getDamage() * bonusMultiplier);
+
+        player.sendActionBar(
+                ChatColor.DARK_RED + "⚔ Combo " + ChatColor.RED + "x" + combo +
+                        ChatColor.GRAY + " | " + ChatColor.GOLD + "+" + (int)((bonusMultiplier - 1) * 100) + "%" + ChatColor.YELLOW + " Daño"
+        );
+
+    }
+
+    @EventHandler
+    public void onRightClick(PlayerInteractEvent event) {
+        BoomerangAxePrize.handleRightClick(event,plugin); // Machete Volador [-----------------------------------------------------------------------------------------------------------------]
+
+        if (event.getHand() != EquipmentSlot.HAND) return;
+
+        Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (!isKatana(item)) return;
+
+        UUID uuid = player.getUniqueId();
+        int combo = comboMap.getOrDefault(uuid, 0);
+
+        if (!player.isSneaking()) return;
+        if (combo < 5) return;
+
+        event.setCancelled(true);
+        comboMap.put(uuid, 0);
+        lastHitTime.remove(uuid);
+
+        launchSpectralSlash(player, combo);
+        player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1f, 1.2f);
+    }
+
+    private void launchSpectralSlash(Player player, int combo) {
+        Location loc = player.getEyeLocation();
+        Vector direction = loc.getDirection().normalize();
+
+        for (int i = 1; i <= 10; i++) {
+            Location checkLoc = loc.clone().add(direction.clone().multiply(i));
+            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, checkLoc, 1);
+
+            for (Entity entity : player.getWorld().getNearbyEntities(checkLoc, 5, 5, 5)) {
+                if (entity instanceof Enemy target && !entity.equals(player)) {
+
+                    target.damage(combo * 10, player);
+                }
+            }
+        }
+    }
+
+    private boolean isKatana(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        ItemMeta meta = item.getItemMeta();
+        return meta.getPersistentDataContainer().has(katanaKey, PersistentDataType.BYTE);
+    }
+
+
+    // Katana [--------------------------------------------------------------------------------------------------------------]
+
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        if (!isWearingChonete(player)) return;
+
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+
+        boolean moved = event.getFrom().distance(event.getTo()) > 0.05; // filtramos micro-movimientos
+        if (!moved) return;
+
+        lastMoveTime.put(uuid, now);
+
+        // Carga stack si pasó suficiente tiempo desde el último
+        long lastStack = lastStackTime.getOrDefault(uuid, 0L);
+        if (now - lastStack >= 2000) {
+            int current = stacks.getOrDefault(uuid, 0);
+            if (current < 10) {
+                stacks.put(uuid, current + 1);
+                lastStackTime.put(uuid, now);
+            }
+        }
+
+        updatePlayerSpeedAndUI(player);
+    }
+
+    @EventHandler
+    public void onPlayerDamaged(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!isWearingChonete(player)) return;
+
+        stacks.put(player.getUniqueId(), 0);
+        updatePlayerSpeedAndUI(player);
+    }
+
+    public void tickChoneteStacks() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                long now = System.currentTimeMillis();
+
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (!isWearingChonete(player)) continue;
+                    UUID uuid = player.getUniqueId();
+
+                    long lastMoved = lastMoveTime.getOrDefault(uuid, 0L);
+                    int current = stacks.getOrDefault(uuid, 0);
+
+                    if (now - lastMoved > 3000 && current > 0) {
+                        stacks.put(uuid, current - 1);
+                        updatePlayerSpeedAndUI(player);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 20, 20);
+    }
+
+    private void updatePlayerSpeedAndUI(Player player) {
+        UUID uuid = player.getUniqueId();
+        int stack = stacks.getOrDefault(uuid, 0);
+
+        float baseSpeed = 0.2f;
+        float bonusSpeed = 0.02f * stack; // 0.2 -> 0.4 máx (más notable)
+        player.setWalkSpeed(baseSpeed + bonusSpeed);
+
+        // Acción en barra
+        String bar = "\uD83D\uDCA8".repeat(stack);
+        player.sendActionBar(Component.text("Viento acumulado: ")
+                .append(Component.text(bar).color(TextColor.color(0x00CFFF))));
+
+        // Efecto especial al llegar al máximo
+        if (stack == 10) {
+            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, player.getLocation().add(0, 1, 0), 1);
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1.2f);
+        }
+    }
+
 
     @EventHandler
     public void onPlayerUsePipe(PlayerInteractEvent event) {
@@ -87,6 +277,31 @@ public class PrizeListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)) return;
+        if (player.getInventory().getItemInMainHand().getType() != Material.NETHERITE_SWORD) return;
+
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (!item.hasItemMeta()) return;
+
+        ItemMeta meta = item.getItemMeta();
+        NamespacedKey swordKey = new NamespacedKey(plugin, "tankSword");
+
+        if (meta.getPersistentDataContainer().has(swordKey, PersistentDataType.BYTE)) {
+            double currentHealth = player.getHealth();
+            double originalDamage = event.getDamage();
+
+            // Multiplicador: Por ejemplo, vida 20 → ×2, vida 10 → ×1.5, etc.
+            double multiplier = 1.0 + (currentHealth / 20.0);
+
+            double newDamage = originalDamage * multiplier;
+            event.setDamage(newDamage);
+        }
+    }
+
+
 
 
     private int getRemaningUses(ItemStack item) {

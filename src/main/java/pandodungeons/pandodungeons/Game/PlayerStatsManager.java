@@ -34,6 +34,10 @@ public class PlayerStatsManager {
         return playerNames;
     }
 
+    public File getPlayerFile() {
+        return playerFile;
+    }
+
     public PlayerStatsManager(Player player) {
         this.playerFile = new File("plugins/PandoDungeons/PlayerData", player.getUniqueId() + ".yml");
         this.config = YamlConfiguration.loadConfiguration(playerFile);

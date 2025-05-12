@@ -30,6 +30,8 @@ import pandoClass.classes.farmer.skils.ExtraHarvestSkill;
 import pandoClass.classes.farmer.skils.TameSkill;
 import pandoClass.classes.mage.Mage;
 import pandoClass.classes.tank.Tank;
+import pandoClass.gambling.combiner.ItemCombiner;
+import pandoClass.gambling.combiner.ItemFusionAnimator;
 import pandoClass.upgrade.ItemUpgrade;
 import pandodungeons.pandodungeons.PandoDungeons;
 import pandodungeons.pandodungeons.Utils.ItemUtils;
@@ -485,21 +487,45 @@ public class RPGListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
         if (entity.getType() == EntityType.VILLAGER) {
             Villager villager = (Villager) entity;
             NamespacedKey key = new NamespacedKey(plugin, "ItemUpgrade");
+            NamespacedKey keyC = new NamespacedKey(plugin, "ItemCombine");
             PersistentDataContainer dataContainer = villager.getPersistentDataContainer();
+
+            if(dataContainer.has(keyC,PersistentDataType.BOOLEAN)){
+                Boolean customTag = dataContainer.get(keyC, PersistentDataType.BOOLEAN);
+                if(Boolean.TRUE.equals(customTag)){
+                    combineItem(player);
+                }
+            }
             if (dataContainer.has(key, PersistentDataType.BOOLEAN)) {
                 Boolean customTag = dataContainer.get(key, PersistentDataType.BOOLEAN);
                 if(Boolean.TRUE.equals(customTag)){
-                    Player player = event.getPlayer();
                     new ItemUpgrade(plugin).upgradeItem(player.getInventory().getItem(EquipmentSlot.HAND),player,villager.getLocation(),villager);
                 }
 
             }
         }
     }
+
+
+    private void combineItem(Player player) {
+        ItemStack item1 = player.getInventory().getItemInMainHand().clone();
+        ItemStack item2 = player.getInventory().getItemInOffHand().clone();
+
+        ItemCombiner combiner = new ItemCombiner(item1, item2, plugin);
+
+        ItemStack combined = combiner.combine(player);
+
+        if (combined != null) {
+            new ItemFusionAnimator(plugin, player.getWorld(), item1, item2, player.getLocation());
+            player.getInventory().addItem(combined);
+        }
+    }
+
 
     public void applyPack(Player player, String url){
         // Opcional: crea un mensaje usando Component (si usas la API Adventure)
@@ -624,28 +650,43 @@ public class RPGListener implements Listener {
         if (rpgPlayer == null) {
             return;
         }
-        int level = rpgPlayer.getThirdSkillLvl();
 
-        if(explosiveAmmo.contains(player)){
 
-            // Calcular el radio de la explosión según el nivel.
-            // Ejemplo: radio base de 2 bloques + 0.1 por cada nivel
-            float explosionRadius = 1.0f + level * 0.1f;
+        if (explosiveAmmo.contains(player)) {
+            int level = rpgPlayer.getThirdSkillLvl();
 
-            // Obtener la ubicación de impacto de la flecha
+            // Control visual: radio reducido
+            float explosionRadiusVisual = 2.5f; // Mantén esto fijo para evitar lag
+            // Control de daño: usa nivel para ajustar cuánto daño aplicar
+            double explosionDamage = 4.0 + level * 1.2; // Escala de daño personalizable
+
             Location explosionLocation = arrow.getLocation();
             World world = explosionLocation.getWorld();
 
-            // Crear efecto de explosión sin daño automático a entidades ni destrucción de bloques.
-            world.createExplosion(explosionLocation, explosionRadius, false, false, player);
+            // Crear solo efecto visual, sin dañar ni destruir nada
+            world.createExplosion(explosionLocation, explosionRadiusVisual, false, false, player);
 
-            // Reproducir efectos visuales y de sonido de explosión
+            // Efectos visuales
             world.spawnParticle(Particle.EXPLOSION, explosionLocation, 1);
             world.playSound(explosionLocation, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 
-            // Remover la flecha, si aún existe
+            // Aplicar daño manualmente a entidades cercanas
+            double damageRadius = 4.0 + level * 0.05;
+            for (Entity entity : world.getNearbyEntities(explosionLocation, damageRadius, damageRadius, damageRadius)) {
+                if (!player.hasLineOfSight(entity)) continue;
+                if (entity instanceof Enemy && !(entity instanceof Player)) {
+                    double distance = entity.getLocation().distance(explosionLocation);
+                    double damageMultiplier = 1.0 - (distance / damageRadius); // Daño disminuye con la distancia
+                    double finalDamage = explosionDamage * damageMultiplier;
+
+                    if (finalDamage > 0) {
+                        ((Enemy) entity).damage(finalDamage, player);
+                    }
+                }
+            }
             arrow.remove();
         }
+
     }
 
     // Listener para eliminar el holograma inmediatamente cuando el jugador se desconecta

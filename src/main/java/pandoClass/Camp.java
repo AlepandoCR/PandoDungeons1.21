@@ -260,7 +260,7 @@ public class Camp {
 
     private EntityType getBossType() {
         // Un tipo de mob grande como jefe; puede ser por ejemplo, un vindicator o un pillager
-        EntityType[] bosses = {EntityType.RAVAGER, EntityType.ILLUSIONER, EntityType.CREAKING};
+        EntityType[] bosses = {EntityType.PIGLIN_BRUTE, EntityType.CREAKING};
         return bosses[random.nextInt(bosses.length)];
     }
 

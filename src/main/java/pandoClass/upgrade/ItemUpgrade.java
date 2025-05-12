@@ -93,19 +93,23 @@ public class ItemUpgrade {
         // **Actualizar mejoras en el item**
         data.set(upgradeKey, PersistentDataType.INTEGER, upgradeCount + 1);
 
+        updateUpgrade(meta, upgradeCount + 1);
+
+        item.setItemMeta(meta);
+        new UpgradeAnim(plugin, player, villagerLocation, villager).animateItem(item);
+
+        sendMessage(player, "Mejoraste " + ChatColor.LIGHT_PURPLE + chosenEnchant.getKey().getKey() + ChatColor.RESET + " a nivel " + ChatColor.DARK_PURPLE + newLevel + ChatColor.RESET + "!");
+    }
+
+    public static void updateUpgrade(ItemMeta meta, int upgradeCount) {
         List<String> lore = meta.getLore() != null ? meta.getLore() : new ArrayList<>();
 
         // **Eliminar la línea anterior de mejoras antes de agregar la nueva**
         lore.removeIf(line -> ChatColor.stripColor(line).startsWith("Mejora #"));
 
         // **Agregar la nueva línea de mejora**
-        lore.add(ChatColor.GREEN + "Mejora " + ChatColor.YELLOW + "#" + (upgradeCount + 1));
+        lore.add(ChatColor.GREEN + "Mejora " + ChatColor.YELLOW + "#" + (upgradeCount));
         meta.setLore(lore);
-
-        item.setItemMeta(meta);
-        new UpgradeAnim(plugin, player, villagerLocation, villager).animateItem(item);
-
-        sendMessage(player, "Mejoraste " + ChatColor.LIGHT_PURPLE + chosenEnchant.getKey().getKey() + ChatColor.RESET + " a nivel " + ChatColor.DARK_PURPLE + newLevel + ChatColor.RESET + "!");
     }
 
 

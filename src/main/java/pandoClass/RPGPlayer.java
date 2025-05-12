@@ -11,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.geysermc.floodgate.api.FloodgateApi;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.farmer.Farmer;
@@ -65,8 +66,12 @@ public class RPGPlayer {
     private static final Map<Player, BukkitRunnable> expBarTasks = new HashMap<>();
 
     public RPGPlayer(Player player, PandoDungeons plugin) {
-        this.player = player.getUniqueId();
+
         this.plugin = plugin;
+
+        if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) return;
+
+        this.player = player.getUniqueId();
         RPGPlayer loaded = plugin.rpgPlayerDataManager.load(getPlayer());
 
         if (loaded != null) {

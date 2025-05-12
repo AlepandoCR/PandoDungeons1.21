@@ -50,10 +50,10 @@ public class DungeonsStatsCommand implements CommandExecutor, Listener {
         List<Stats> allStats = PlayerStatsManager.loadAllPlayerStatsList();
 
         if(allStats != null){
-            allStats.sort(Comparator.comparingInt(Stats::getPrestige)
-                    .thenComparingInt(Stats::getDungeonLevel)
-                    .thenComparingInt(Stats::getLevelProgress)
-                    .thenComparingInt(Stats::getDungeonsCompleted)
+            allStats.sort(Comparator.comparingInt(Stats::prestige)
+                    .thenComparingInt(Stats::dungeonLevel)
+                    .thenComparingInt(Stats::levelProgress)
+                    .thenComparingInt(Stats::dungeonsCompleted)
                     .reversed());
 
             PlayerStatsManager statsManager = PlayerStatsManager.getPlayerStatsManager(targetPlayer);
@@ -61,7 +61,7 @@ public class DungeonsStatsCommand implements CommandExecutor, Listener {
 
             int position = -1;
             for (int i = 0; i < allStats.size(); i++) {
-                if (allStats.get(i).getPlayerName().equals(targetPlayer.getName())) {
+                if (allStats.get(i).playerName().equals(targetPlayer.getName())) {
                     position = i + 1;
                     break;
                 }

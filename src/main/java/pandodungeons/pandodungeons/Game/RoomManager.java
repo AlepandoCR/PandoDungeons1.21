@@ -164,7 +164,7 @@ public class RoomManager {
                 }
 
                 if(allRoomsCompleted){
-                    if (playerStats.getLevelProgress() < 2) {
+                    if (playerStats.levelProgress() < 2) {
                         this.cancel();
                         player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "¡Has completado todas las habitaciones de la dungeon!");
                         if(isPartyDungeon){
@@ -175,7 +175,7 @@ public class RoomManager {
                             statsManager.addDungeonCompletion();
                         }
                     }
-                    if((playerStats.getLevelProgress() + 1) >= 3 && !bossSummoned){
+                    if((playerStats.levelProgress() + 1) >= 3 && !bossSummoned){
                         killVillagers(player.getLocation(), 50);
                         if(isPartyDungeon){
                             int i = 1;
@@ -199,7 +199,7 @@ public class RoomManager {
                 if(bossDeath && bossSummoned){
                     Location villagerLocation = StructureUtils.findDriedKelpBlock(player.getLocation(),50);
                     spawnVillager(villagerLocation);
-                    player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "¡Has matado al jefe, ahora subes a nivel: " + (playerStats.getDungeonLevel() + 1) + "!");
+                    player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "¡Has matado al jefe, ahora subes a nivel: " + (playerStats.dungeonLevel() + 1) + "!");
                     if(isPartyDungeon){
                         for(Player player1 : finalPlayerParty.getMembers()){
                             if(!finalPlayerParty.isOwner(player1)){

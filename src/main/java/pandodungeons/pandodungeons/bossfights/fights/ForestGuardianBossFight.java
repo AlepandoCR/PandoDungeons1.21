@@ -43,7 +43,7 @@ public class ForestGuardianBossFight {
             int earthquakeTicks = 0;
             int naturesWrathTicks = 0;
             int healed = 0;
-            final int healChances = 2 + Stats.fromPlayer(LocationUtils.findNearestPlayer(location.getWorld(), location)).getPrestige();
+            final int healChances = 2 + Stats.fromPlayer(LocationUtils.findNearestPlayer(location.getWorld(), location)).prestige();
             final VinesStrike vinesStrike = new VinesStrike(forestGuardian, plugin);
             final Earthquake earthquake = new Earthquake(forestGuardian, plugin);
             final NaturesWrath naturesWrath = new NaturesWrath(forestGuardian, plugin);

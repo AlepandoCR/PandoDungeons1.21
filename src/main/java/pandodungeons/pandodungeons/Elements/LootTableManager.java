@@ -13,7 +13,6 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.aether.util.listener.ChainedTransferListener;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pandodungeons.pandodungeons.Game.Stats;
@@ -71,8 +70,8 @@ public class LootTableManager {
         addItemToLootTable(createCustomGacha(1), 1);
         addItemToLootTable(createItem(Material.TNT, "Tnt", 37), 10);
         addItemToLootTable(createItem(Material.WITHER_SKELETON_SKULL, "Cabeza de Wither", 2), 5);
-        addItemToLootTable(createItem(Material.NAME_TAG, "NameTag", 1), 15);
         addItemToLootTable(createItemNoName(Material.OMINOUS_TRIAL_KEY, 1), 11);
+        addItemToLootTable(createItemNoName(Material.OMINOUS_TRIAL_KEY, 1), 15);
     }
 
     // Método para crear un ítem con un nombre personalizado y una cantidad específica
@@ -241,7 +240,7 @@ public class LootTableManager {
                 // Llenar el cofre con ítems aleatorios de la loot table
                 // Un premio + cada prestigio
                 Stats playerStats = Stats.fromPlayer(player);
-                int playerPrestige = playerStats.getPrestige();
+                int playerPrestige = playerStats.prestige();
                 int prestigeLeft = 0;
                 if(playerPrestige >= chest.getInventory().getSize()){
                     prestigeLeft = playerPrestige - chest.getInventory().getSize();

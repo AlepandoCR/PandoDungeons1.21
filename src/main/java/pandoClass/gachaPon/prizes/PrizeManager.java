@@ -74,6 +74,10 @@ public class PrizeManager {
         prizeItems.add(new StormSwordPrize(plugin));
         prizeItems.add(new InmortalityStar(plugin));
         prizeItems.add(new SlingShotPrize(plugin));
+        prizeItems.add(new TankSword(plugin));
+        prizeItems.add(new ChonetePrize(plugin));
+        prizeItems.add(new KatanaPrize(plugin));
+        prizeItems.add(new BoomerangAxePrize(plugin));
     }
 
     public List<PrizeItem> getPrizeItems(){

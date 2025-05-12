@@ -1,4 +1,4 @@
-package pandoClass.gachaPon.prizes.legendary;
+package pandoClass.gachaPon.prizes.epic;
 
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -44,7 +44,7 @@ public class TeleportationHeartPrize extends PrizeItem {
 
     @Override
     protected Quality selectQuality() {
-        return Quality.LEGENDARIO;
+        return Quality.EPICO;
     }
 
     private ItemStack teleporterItem(int amount) {

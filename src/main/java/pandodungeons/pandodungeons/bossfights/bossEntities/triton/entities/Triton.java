@@ -21,7 +21,7 @@ public class Triton {
     public Triton(JavaPlugin plugin, Location location) {
         Player target = LocationUtils.findNearestPlayer(location.getWorld(), location);
         Stats targetStats = Stats.fromPlayer(target);
-        targetPrestige = targetStats.getPrestige();
+        targetPrestige = targetStats.prestige();
         World world = location.getWorld();
         if (world == null) {
             throw new IllegalArgumentException("La ubicación proporcionada no es válida");

@@ -70,13 +70,15 @@ public class CampsListener implements Listener {
                         Bukkit.getScheduler().runTaskLater(plugin, () -> enemyTransformation(enemy), 1L);
                     }
                 }
+            }else if(isDungeonWorld(worldName)){
+                Bukkit.getScheduler().runTaskLater(plugin, () -> transformDungeon(enemy), 1L);
             }
         }
     }
 
 
     private void transformNoName(Enemy enemy) {
-        List<Entity> near = enemy.getNearbyEntities(100,100,100).stream().filter(entity -> entity instanceof Player).limit(10).toList();
+        List<Entity> near = enemy.getNearbyEntities(40,40,40).stream().filter(entity -> entity instanceof Player).limit(3).toList();
         int avrgLvl = getAvrgLevel(near);
         int exp = calculateExpFromLvl(avrgLvl, enemy);
         double finalHp = (int) calculateHpFromLvlAndApply(avrgLvl, enemy);
@@ -84,6 +86,18 @@ public class CampsListener implements Listener {
         addKey(lvlKey,PersistentDataType.INTEGER,enemy,avrgLvl);
         addKey(coinsKey, PersistentDataType.INTEGER, enemy, Math.max(1, (int) (avrgLvl/2.5)));
     }
+
+    private void transformDungeon(Enemy enemy) {
+        List<Entity> near = enemy.getNearbyEntities(40,40,40).stream().filter(entity -> entity instanceof Player).limit(3).toList();
+        int avrgLvl = getAvrgLevel(near);
+        if(avrgLvl < 50)return;
+        int exp = calculateExpFromLvl(avrgLvl, enemy);
+        double finalHp = (int) calculateHpFromLvlAndApply(avrgLvl, enemy);
+        addKey(expKey, PersistentDataType.INTEGER, enemy, exp);
+        addKey(lvlKey,PersistentDataType.INTEGER,enemy,avrgLvl);
+        addKey(coinsKey, PersistentDataType.INTEGER, enemy, Math.max(1, (int) (avrgLvl/2.5)));
+    }
+
 
     @EventHandler
     public void onEnemyHit(EntityDamageByEntityEvent event) {
@@ -136,9 +150,9 @@ public class CampsListener implements Listener {
 
         Integer currentExp = data.get(expKey, PersistentDataType.INTEGER);
         Integer currentLevel = data.get(lvlKey, PersistentDataType.INTEGER);
-        Integer coins = data.getOrDefault(coinsKey, PersistentDataType.INTEGER, 0);
+        Integer coins = data.get(coinsKey, PersistentDataType.INTEGER);
 
-        if (currentExp == null || currentLevel == null) return;
+        if (currentExp == null || currentLevel == null || coins == null) return;
 
         double health = enemy.getHealth();
 
@@ -148,10 +162,10 @@ public class CampsListener implements Listener {
         // Moneda al jugador si el mob tiene
         if (coins > 0) {
             int finalCoins = (int) damage;
-            data.set(coinsKey, PersistentDataType.INTEGER, coins - 1);
             if(damage > coins){
                 finalCoins = coins;
             }
+            data.set(coinsKey, PersistentDataType.INTEGER, coins - finalCoins);
             plugin.rpgManager.getPlayer(player).addCoins(finalCoins);
         }
 
@@ -159,7 +173,7 @@ public class CampsListener implements Listener {
         if (currentExp > 0) {
             int newExp = Math.max(0, currentExp - (int) damage);
             data.set(expKey, PersistentDataType.INTEGER, newExp);
-            plugin.rpgManager.getPlayer(player).addExp((int) damage);
+            plugin.rpgManager.getPlayer(player).addExp(newExp);
         }
     }
 
@@ -174,7 +188,7 @@ public class CampsListener implements Listener {
 
 
     private void enemyTransformation(LivingEntity entity){
-        List<Entity> near = entity.getNearbyEntities(100,100,100).stream().filter(e -> e instanceof Player).limit(10).toList();
+        List<Entity> near = entity.getNearbyEntities(40,40,40).stream().filter(e -> e instanceof Player).limit(10).toList();
         int avrgLvl = getAvrgLevel(near);
         double finalHp = (int) calculateHpFromLvlAndApply(avrgLvl, entity);
         int exp = calculateExpFromLvl((int) finalHp,entity);
