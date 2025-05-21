@@ -204,7 +204,7 @@ public class DungeonBuilder {
         });
     }
 
-    public static void spawnMobsLater(Location roomLocation) {
+    public static void spawnMobsLater(Location roomLocation, String subclassKey) {
         int radius = 50;
         World world = roomLocation.getWorld();
 
@@ -222,7 +222,7 @@ public class DungeonBuilder {
                     Block block = loc.getBlock();
                     if (isValidBlock(block)) {
                         // Pass the subclassKey to the overloaded spawnMobs method
-                        MobSpawnUtils.spawnMobs(loc, block.getType(), world, this.subclassKey);
+                        MobSpawnUtils.spawnMobs(loc, block.getType(), world, subclassKey);
                     }
                 }
             }

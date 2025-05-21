@@ -258,7 +258,7 @@ public class RoomManager {
         Location location = room.getLocation();
         if(isAllHostileMobsCleared(location)){
             if(!room.isEntered()){
-                DungeonBuilder.spawnMobsLater(location);
+                DungeonBuilder.spawnMobsLater(location,"");
                 player.sendMessage(ChatColor.RED + "No hay mobs, spawneando...");
                 room.enter();
             }

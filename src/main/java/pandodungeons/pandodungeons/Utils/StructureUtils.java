@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 public class StructureUtils {
@@ -303,23 +304,26 @@ public class StructureUtils {
         creator.type(WorldType.FLAT); // Tipo de mundo flat
         creator.generator(new EmptyChunkGenerator()); // Generador de chunks vacío
 
-        org.bukkit.World world = Bukkit.createWorld(creator);
+        AtomicReference<World> world = new AtomicReference<>();
 
-        if (world != null) {
+        world.set(Bukkit.createWorld(creator));
+
+
+        if (world.get() != null) {
             // Configurar propiedades adicionales del mundo
-            setupWorldBorder(world);
-            world.setKeepSpawnInMemory(false); // No mantener el spawn en memoria
-            world.setGameRule(GameRule.KEEP_INVENTORY, true); // Mantener inventario al morir
-            world.setGameRule(GameRule.DO_MOB_SPAWNING, false); // Deshabilitar la generación de mobs
-            world.setDifficulty(Difficulty.HARD);
-            world.setSpawnLimit(SpawnCategory.MONSTER, 10000);
-            world.setTime(18000);
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-            world.setGameRule(GameRule.MOB_GRIEFING, false);
-            world.setGameRule(GameRule.DO_FIRE_TICK, false);
+            setupWorldBorder(world.get());
+            world.get().setKeepSpawnInMemory(false); // No mantener el spawn en memoria
+            world.get().setGameRule(GameRule.KEEP_INVENTORY, true); // Mantener inventario al morir
+            world.get().setGameRule(GameRule.DO_MOB_SPAWNING, false); // Deshabilitar la generación de mobs
+            world.get().setDifficulty(Difficulty.HARD);
+            world.get().setSpawnLimit(SpawnCategory.MONSTER, 10000);
+            world.get().setTime(18000);
+            world.get().setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            world.get().setGameRule(GameRule.MOB_GRIEFING, false);
+            world.get().setGameRule(GameRule.DO_FIRE_TICK, false);
         }
 
-        return world;
+        return world.get();
     }
 
 

@@ -17,10 +17,8 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.C;
 import pandoClass.*;
 import pandoClass.campsListener.CampsListener;
-import pandoClass.commands.MageSkillCommand;
 import pandoClass.classes.ClassCommand;
 import pandoClass.classes.CobrarCommand;
 import pandoClass.classes.TopCoinsCommand;
@@ -39,7 +37,6 @@ import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
-import pandodungeons.pandodungeons.Utils.DisplayModels;
 import pandodungeons.pandodungeons.Utils.PlayerPartyList;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
@@ -222,7 +219,6 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("encargo").setExecutor(new QuestCommand(this));
         this.getCommand("pagar").setExecutor(new PayCommand(this));
         this.getCommand("petoken").setExecutor(new PetGachaCommand(this));
-        this.getCommand("mageskills").setExecutor(new MageSkillCommand(this));
     }
 
     private void registerListeners(PrizeListener prizeListener) {

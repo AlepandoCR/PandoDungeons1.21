@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -159,7 +160,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                     + ChatColor.RESET + ChatColor.DARK_PURPLE + "Recomendación: Esperar 30 segundos ");
             //quitarlo pa que funque
             queue.dequeue();
-            return true;
+            return;
         }
 
         // Establecer el tiempo de uso del comando
@@ -173,13 +174,13 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         if (availableThemes.isEmpty()) {
             player.sendMessage("No hay temas disponibles para crear una dungeon.");
             queue.dequeue(); // Remover al jugador de la cola si no hay temas disponibles
-            return true;
+            return;
         }
 
         for(World world : Bukkit.getWorlds()){
             if(world.getName().contains(playerNameLower)){
                 player.sendMessage("No puedes crear mundos ya existentes");
-                return true;
+                return;
             }
         }
 
@@ -195,7 +196,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
             playerDced = true;
             //quitarlo pa que funque
             queue.dequeue();
-            return true;
+            return;
         }
 
         // Crear una nueva ubicación para teleportar al jugador al mundo de la dungeon
@@ -425,7 +426,6 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         queue.dequeue();
         playerSubclassChoices.remove(playerUUID); // Clean up after dungeon creation starts
         awaitingSubclassConfirmation.remove(playerUUID);
-        return true;
     }
 
     private void displaySubclassSelection(Player player) {
@@ -441,7 +441,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
     }
 
     @EventHandler
-    public void onPlayerChat(org.bukkit.event.player.AsyncPlayerChatEvent event) {
+    public void onPlayerChat(PlayerChatEvent event) {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
         String message = event.getMessage().trim().toLowerCase();

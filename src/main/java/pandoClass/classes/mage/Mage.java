@@ -4,7 +4,6 @@ import org.bukkit.ChatColor;
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
 import pandoClass.Skill;
-import pandoClass.classes.mage.skills.FrostNovaSkill;
 import pandoClass.classes.mage.skills.GravityAlterationSkill;
 import pandoClass.classes.mage.skills.OrbFriendSkill;
 import pandoClass.classes.mage.skills.TimeRewindSkill;
@@ -19,9 +18,7 @@ public class Mage extends ClassRPG {
     public static final List<Class<? extends Skill>> AVAILABLE_MAGE_SKILLS = Arrays.asList(
             OrbFriendSkill.class,
             TimeRewindSkill.class,
-            GravityAlterationSkill.class,
-            FrostNovaSkill.class
-            // Add other Mage skills here as they are created
+            GravityAlterationSkill.class
     );
 
     public Mage(RPGPlayer player, PandoDungeons plugin) {
