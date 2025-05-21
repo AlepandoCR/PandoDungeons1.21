@@ -34,7 +34,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     private final PrestigeWithdraw prestigeWithdraw;
     private final PandoDungeons plugin;
     public CommandManager(PandoDungeons plugin) {
-        this.playCommand = new DungeonsPlayCommand(plugin);
+        this.playCommand = new DungeonsPlayCommand(plugin, plugin.rpgManager);
         this.leaveCommand = new DungeonsLeaveCommand(plugin);
         this.statsCommand = new DungeonsStatsCommand(plugin);
         this.resetStatsCommand = new ResetStatsCommand(plugin);

@@ -8,6 +8,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
@@ -168,6 +169,11 @@ public class CampsListener implements Listener {
 
             data.set(expKey, PersistentDataType.INTEGER, currentExp - expReward);
         }
+    }
+
+    @EventHandler
+    public void onDisable(PluginDisableEvent event){
+        plugin.getDisplayManager().removeAllDisplays();
     }
 
 

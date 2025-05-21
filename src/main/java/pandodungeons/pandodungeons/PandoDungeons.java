@@ -17,7 +17,6 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.C;
 import pandoClass.*;
 import pandoClass.campsListener.CampsListener;
 import pandoClass.classes.ClassCommand;
@@ -38,7 +37,6 @@ import pandoToros.game.ToroStatManager;
 import pandoToros.listeners.ToroGameListener;
 import pandoToros.utils.RedondelCommand;
 import pandodungeons.pandodungeons.CustomEntities.Ball.BallEventHandler;
-import pandodungeons.pandodungeons.Utils.DisplayModels;
 import pandodungeons.pandodungeons.Utils.PlayerPartyList;
 import pandodungeons.pandodungeons.commands.Management.CommandManager;
 import pandodungeons.pandodungeons.Listeners.PlayerEventListener;
@@ -260,6 +258,7 @@ public final class PandoDungeons extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        displayManager.removeAllDisplays();
         runnable.cancel();
         removeOrbs();
         handleStands(PandoDungeons.this);
@@ -270,7 +269,6 @@ public final class PandoDungeons extends JavaPlugin {
         removePlayersFromDungeons();
         removeDungeons();
         petsManager.destroyAllPets();
-        displayManager.removeAllDisplays();
     }
 
     private void removePlayersFromDungeons() {

@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -23,8 +24,11 @@ import pandodungeons.pandodungeons.Elements.LootTableManager;
 import pandodungeons.pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.pandodungeons.Elements.Room;
 import pandodungeons.pandodungeons.Game.RoomManager;
+import pandoClass.RPGPlayer;
+import pandoClass.RpgManager;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static pandoToros.game.RedondelGame.hasActiveRedondel;
 import static pandodungeons.pandodungeons.Elements.LootTableManager.giveLootToPlayerList;
@@ -43,9 +47,13 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
     private boolean playerDced = false;
     private boolean isPartyDungeon = false;
     private PlayerParty playerParty;
+    private final RpgManager rpgManager;
+    private final Map<UUID, String> playerSubclassChoices = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> awaitingSubclassConfirmation = new ConcurrentHashMap<>();
 
-    public DungeonsPlayCommand(PandoDungeons plugin) {
+    public DungeonsPlayCommand(PandoDungeons plugin, RpgManager rpgManager) {
         this.plugin = plugin;
+        this.rpgManager = rpgManager;
         Bukkit.getPluginManager().registerEvents(this, plugin); // Registrar este comando como listener
     }
 
@@ -102,6 +110,48 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
             return true;
         }
 
+        RPGPlayer rpgPlayer = rpgManager.getPlayer(player);
+
+        if (rpgPlayer != null && rpgPlayer.getClassKey() != null && !rpgPlayer.getClassKey().isEmpty()) {
+            awaitingSubclassConfirmation.put(playerUUID, true);
+            String currentSubclass = rpgPlayer.getClassKey();
+            player.sendMessage(ChatColor.GOLD + "Tienes la subclase " + ChatColor.AQUA + currentSubclass + ChatColor.GOLD + " activa.");
+            player.sendMessage(ChatColor.YELLOW + "Tu subclase puede influenciar los enemigos y desafíos en la dungeon.");
+            if ("MageClass".equalsIgnoreCase(currentSubclass)) {
+                player.sendMessage(ChatColor.LIGHT_PURPLE + "Como Mago, puedes personalizar tus habilidades con " + ChatColor.WHITE + "/mageskills.");
+            }
+            player.sendMessage(ChatColor.GOLD + "Escribe " + ChatColor.GREEN + "'confirmar'" + ChatColor.GOLD + " para usarla o " + ChatColor.YELLOW + "'cambiar'" + ChatColor.GOLD + " para seleccionar una nueva.");
+            return true;
+        } else {
+            // If no subclass or wants to change, proceed to selection
+            displaySubclassSelection(player);
+            return true;
+        }
+    }
+
+    private void proceedWithDungeonCreation(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        String playerName = playerUUID.toString();
+        String playerNameLower = player.getName().toLowerCase(Locale.ROOT);
+        String subclassKey = playerSubclassChoices.get(playerUUID);
+
+        if (subclassKey == null || subclassKey.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "No has seleccionado una subclase. Por favor, selecciona una para continuar.");
+            displaySubclassSelection(player); // Re-prompt for selection
+            return;
+        }
+
+        RPGPlayer rpgPlayer = rpgManager.getPlayer(player);
+        if (rpgPlayer != null) {
+            rpgPlayer.setClassKey(subclassKey); // This also calls save() and update() in RPGPlayer
+            // Message about selection is now handled in onPlayerChat or if already confirmed.
+            // player.sendMessage(ChatColor.GREEN + "Has seleccionado la subclase: " + ChatColor.AQUA + subclassKey);
+        } else {
+            player.sendMessage(ChatColor.RED + "Error al obtener tus datos de jugador RPG.");
+            return;
+        }
+
+
         // Añadir el jugador a la cola de espera
         CommandQueue queue = CommandQueue.getInstance();
         queue.enqueue(playerName);
@@ -110,7 +160,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                     + ChatColor.RESET + ChatColor.DARK_PURPLE + "Recomendación: Esperar 30 segundos ");
             //quitarlo pa que funque
             queue.dequeue();
-            return true;
+            return;
         }
 
         // Establecer el tiempo de uso del comando
@@ -124,13 +174,13 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         if (availableThemes.isEmpty()) {
             player.sendMessage("No hay temas disponibles para crear una dungeon.");
             queue.dequeue(); // Remover al jugador de la cola si no hay temas disponibles
-            return true;
+            return;
         }
 
         for(World world : Bukkit.getWorlds()){
             if(world.getName().contains(playerNameLower)){
                 player.sendMessage("No puedes crear mundos ya existentes");
-                return true;
+                return;
             }
         }
 
@@ -141,10 +191,12 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
         if(!player.isOnline()){
             removeDungeon(playerName, plugin);
+            playerSubclassChoices.remove(playerUUID);
+            awaitingSubclassConfirmation.remove(playerUUID);
             playerDced = true;
             //quitarlo pa que funque
             queue.dequeue();
-            return true;
+            return;
         }
 
         // Crear una nueva ubicación para teleportar al jugador al mundo de la dungeon
@@ -163,6 +215,10 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                 if(!player.isOnline() || playerDced){
                     playerDced = true;
                     removeDungeon(playerName, plugin);
+                    playerSubclassChoices.remove(playerUUID);
+                    awaitingSubclassConfirmation.remove(playerUUID);
+                    playerSubclassChoices.remove(playerUUID);
+                    awaitingSubclassConfirmation.remove(playerUUID);
                     //quitarlo pa que funque
                     queue.dequeue();
                     this.cancel();
@@ -189,7 +245,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                 // Construir la dungeon dentro del mundo generado
                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                 player.sendMessage(ChatColor.AQUA + "Generando estructuras...");
-                DungeonBuilder dungeonBuilder = new DungeonBuilder(plugin, dungeonWorld, player);
+                DungeonBuilder dungeonBuilder = new DungeonBuilder(plugin, dungeonWorld, player, subclassKey); // Pass subclassKey
                 dungeonBuilder.buildDungeon(dungeonSpawnLocation, theme, playerName);
 
                 BukkitRunnable Warn1 = new BukkitRunnable() {
@@ -198,6 +254,8 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
                             removeDungeon(playerName, plugin);
+                            playerSubclassChoices.remove(playerUUID);
+                            awaitingSubclassConfirmation.remove(playerUUID);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -214,6 +272,8 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
                             removeDungeon(playerName, plugin);
+                            playerSubclassChoices.remove(playerUUID);
+                            awaitingSubclassConfirmation.remove(playerUUID);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -231,6 +291,8 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
                             removeDungeon(playerName, plugin);
+                            playerSubclassChoices.remove(playerUUID);
+                            awaitingSubclassConfirmation.remove(playerUUID);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -248,6 +310,8 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
                             removeDungeon(playerName, plugin);
+                            playerSubclassChoices.remove(playerUUID);
+                            awaitingSubclassConfirmation.remove(playerUUID);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -266,6 +330,8 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                         if(!player.isOnline() || playerDced){
                             playerDced = true;
                             removeDungeon(playerName, plugin);
+                            playerSubclassChoices.remove(playerUUID);
+                            awaitingSubclassConfirmation.remove(playerUUID);
                             //quitarlo pa que funque
                             queue.dequeue();
                             this.cancel();
@@ -278,6 +344,8 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                                 if(!player.isOnline() || playerDced){
                                     playerDced = true;
                                     removeDungeon(playerName, plugin);
+                                    playerSubclassChoices.remove(playerUUID);
+                                    awaitingSubclassConfirmation.remove(playerUUID);
                                     //quitarlo pa que funque
                                     queue.dequeue();
                                     this.cancel();
@@ -296,6 +364,8 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                                 if(!player.isOnline() || playerDced){
                                     playerDced = true;
                                     removeDungeon(playerName, plugin);
+                                    playerSubclassChoices.remove(playerUUID);
+                                    awaitingSubclassConfirmation.remove(playerUUID);
                                     //quitarlo pa que funque
                                     queue.dequeue();
                                     this.cancel();
@@ -354,8 +424,89 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         crearMundo.runTaskLater(plugin, 80);
         // Remover al jugador de la cola una vez que se haya creado la dungeon
         queue.dequeue();
-        return true;
+        playerSubclassChoices.remove(playerUUID); // Clean up after dungeon creation starts
+        awaitingSubclassConfirmation.remove(playerUUID);
     }
+
+    private void displaySubclassSelection(Player player) {
+        player.sendMessage(ChatColor.GOLD + "Por favor, elige una subclase para tu dungeon.");
+        player.sendMessage(ChatColor.YELLOW + "Tu subclase puede influenciar los enemigos y desafíos en la dungeon.");
+        player.sendMessage(ChatColor.AQUA + " - Tank");
+        player.sendMessage(ChatColor.AQUA + " - Archer");
+        player.sendMessage(ChatColor.AQUA + " - Assassin");
+        player.sendMessage(ChatColor.AQUA + " - Mage"); // Assuming Mage is an option
+        // Add more subclasses as needed from a configurable list or RpgManager if possible
+        player.sendMessage(ChatColor.GOLD + "Escribe el nombre de la subclase que quieres usar (ej. 'Tank').");
+        playerSubclassChoices.put(player.getUniqueId(), ""); // Mark that player is choosing
+    }
+
+    @EventHandler
+    public void onPlayerChat(PlayerChatEvent event) {
+        Player player = event.getPlayer();
+        UUID playerUUID = player.getUniqueId();
+        String message = event.getMessage().trim().toLowerCase();
+
+        if (awaitingSubclassConfirmation.containsKey(playerUUID)) {
+            event.setCancelled(true);
+            awaitingSubclassConfirmation.remove(playerUUID); // Consume the state
+
+            if (message.equals("confirmar")) {
+                RPGPlayer rpgPlayer = rpgManager.getPlayer(player);
+                String confirmedSubclass = rpgPlayer.getClassKey();
+                if (rpgPlayer != null && confirmedSubclass != null && !confirmedSubclass.isEmpty()) {
+                    playerSubclassChoices.put(playerUUID, confirmedSubclass);
+                    player.sendMessage(ChatColor.GREEN + "Subclase " + ChatColor.AQUA + confirmedSubclass + ChatColor.GREEN + " confirmada.");
+                    // proceedWithDungeonCreation will be called, which sets the subclass again, but it's fine.
+                    proceedWithDungeonCreation(player);
+                } else {
+                    player.sendMessage(ChatColor.RED + "No se encontró tu subclase activa. Por favor, elige una.");
+                    displaySubclassSelection(player);
+                }
+            } else if (message.equals("cambiar")) {
+                displaySubclassSelection(player);
+            } else {
+                player.sendMessage(ChatColor.RED + "Respuesta no válida. Escribe 'confirmar' o 'cambiar'.");
+                awaitingSubclassConfirmation.put(playerUUID, true); // Re-set state
+            }
+            return;
+        }
+
+        if (playerSubclassChoices.containsKey(playerUUID) && playerSubclassChoices.get(playerUUID).isEmpty()) {
+            event.setCancelled(true);
+            String chosenSubclassKey = "";
+            String chosenSubclassFriendlyName = "";
+
+            if (message.equalsIgnoreCase("tank")) {
+                chosenSubclassKey = "TankClass";
+                chosenSubclassFriendlyName = "Tank";
+            } else if (message.equalsIgnoreCase("archer")) {
+                chosenSubclassKey = "ArcherClass";
+                chosenSubclassFriendlyName = "Archer";
+            } else if (message.equalsIgnoreCase("assassin")) {
+                chosenSubclassKey = "AssassinClass";
+                chosenSubclassFriendlyName = "Assassin";
+            } else if (message.equalsIgnoreCase("mage")) {
+                chosenSubclassKey = "MageClass";
+                chosenSubclassFriendlyName = "Mage";
+            } // Add more else if blocks for other subclasses
+
+            if (!chosenSubclassKey.isEmpty()) {
+                playerSubclassChoices.put(playerUUID, chosenSubclassKey);
+                player.sendMessage(ChatColor.GREEN + "Has seleccionado la subclase: " + ChatColor.AQUA + chosenSubclassFriendlyName + ChatColor.GREEN + ".");
+                player.sendMessage(ChatColor.YELLOW + "Esta elección influenciará los enemigos y desafíos en la dungeon.");
+                if ("MageClass".equalsIgnoreCase(chosenSubclassKey)) {
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + "Como Mago, puedes personalizar tus habilidades con " + ChatColor.WHITE + "/mageskills.");
+                }
+                // Directly proceed to dungeon creation
+                proceedWithDungeonCreation(player);
+            } else {
+                player.sendMessage(ChatColor.RED + "Subclase no válida. Por favor, elige una de la lista.");
+                displaySubclassSelection(player); // Re-prompt
+            }
+        }
+    }
+
+
     private void spawnVillager(World dungeonWorld, Location spawnNetheriteBlockLocation){
         Villager villager = (Villager) dungeonWorld.spawnEntity(spawnNetheriteBlockLocation.add(0.5, 1, 0.5), EntityType.VILLAGER);
         villager.setCustomName(ChatColor.GREEN + "" + ChatColor.BOLD + "Click to start");

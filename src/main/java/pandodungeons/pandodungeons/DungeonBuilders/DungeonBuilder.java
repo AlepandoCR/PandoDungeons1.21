@@ -27,16 +27,18 @@ public class DungeonBuilder {
     private final List<Room> rooms;
     private final Player player;
     private final List<Location> placedLocations;
+    private final String subclassKey;
 
     private static final Set<Material> validMaterials = new HashSet<>();
 
-    public DungeonBuilder(PandoDungeons plugin, World world, Player player) {
+    public DungeonBuilder(PandoDungeons plugin, World world, Player player, String subclassKey) {
         this.plugin = plugin;
         this.world = world;
         this.random = new Random();
         this.player = player;
         this.rooms = new ArrayList<>();
         this.placedLocations = new ArrayList<>();
+        this.subclassKey = subclassKey;
     }
 
     static  {
@@ -195,13 +197,14 @@ public class DungeonBuilder {
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 for (Location loc : mobSpawnLocations) {
-                    MobSpawnUtils.spawnMobs(loc, loc.getBlock().getType(), world);
+                    // Pass the subclassKey to the overloaded spawnMobs method
+                    MobSpawnUtils.spawnMobs(loc, loc.getBlock().getType(), world, this.subclassKey);
                 }
             });
         });
     }
 
-    public static void spawnMobsLater(Location roomLocation) {
+    public static void spawnMobsLater(Location roomLocation, String subclassKey) {
         int radius = 50;
         World world = roomLocation.getWorld();
 
@@ -218,7 +221,8 @@ public class DungeonBuilder {
                     Location loc = new Location(world, x, y, z);
                     Block block = loc.getBlock();
                     if (isValidBlock(block)) {
-                        MobSpawnUtils.spawnMobs(loc, block.getType(), world);
+                        // Pass the subclassKey to the overloaded spawnMobs method
+                        MobSpawnUtils.spawnMobs(loc, block.getType(), world, subclassKey);
                     }
                 }
             }

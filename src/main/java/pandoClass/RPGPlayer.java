@@ -20,6 +20,7 @@ import pandoClass.classes.tank.Tank;
 import pandoClass.gachaPon.GachaHolo;
 import pandodungeons.pandodungeons.PandoDungeons;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -688,9 +689,10 @@ public class RPGPlayer {
         save();
     }
 
+    @Nullable
     public Player getPlayer() {
-
-        return Bukkit.getPlayer(player);
+        if(player != null)return Bukkit.getPlayer(player);
+        return null;
     }
 
     public int getFirstSkilLvl() {
