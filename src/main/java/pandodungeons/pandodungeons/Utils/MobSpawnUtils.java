@@ -23,6 +23,11 @@ public class MobSpawnUtils {
     private static final Random random = new Random();
 
     public static void spawnMobs(Location location, Material blockType, World world) {
+        // Calls the new method with a null subclassKey for default behavior
+        spawnMobs(location, blockType, world, null);
+    }
+
+    public static void spawnMobs(Location location, Material blockType, World world, String subclassKey) {
         int playerLvl = 0;
         String worldName = location.getWorld().getName().toLowerCase(Locale.ROOT);
 
@@ -62,6 +67,88 @@ public class MobSpawnUtils {
         location.setY(location.getY() + 1);
         int numMobs = minMobs + random.nextInt(maxMobs - minMobs + 1);
 
+        // Default behavior if no subclassKey is provided or it's an unknown key
+        if (subclassKey == null || subclassKey.isEmpty()) {
+            switch (blockType) {
+                case IRON_BLOCK -> spawnZombies(location, numMobs, world);
+                case REDSTONE_BLOCK -> spawnSkeletons(location, numMobs, world);
+                case COAL_BLOCK -> spawnWitherSkeletons(location, numMobs, world);
+                case EMERALD_BLOCK -> spawnPillagersAndVindicators(location, numMobs, world);
+                case GOLD_BLOCK -> spawnHuzk(location, numMobs, world);
+                case DIAMOND_BLOCK -> spawnStray(location, numMobs, world);
+                case MAGENTA_GLAZED_TERRACOTTA -> spawnBlaze(location, numMobs, world);
+                case BLACK_GLAZED_TERRACOTTA -> spawnPiglinsAndBrutes(location, numMobs, world);
+                case GRAY_GLAZED_TERRACOTTA -> spawnSpider(location, numMobs, world);
+                case PURPLE_GLAZED_TERRACOTTA -> spawnBruja(location, numMobs, world);
+                default -> {
+                }
+            }
+            return;
+        }
+
+        // Subclass-specific mob spawning logic
+        switch (subclassKey) {
+            case "ArcherClass":
+                // Archer: Prefers ranged, avoids too many weak melee
+                if (blockType == Material.REDSTONE_BLOCK || blockType == Material.DIAMOND_BLOCK) { // Skeletons, Strays
+                    spawnSkeletons(location, numMobs + 1, world); // More skeletons/strays
+                } else if (blockType == Material.EMERALD_BLOCK) { // Pillagers/Vindicators
+                    spawnPillagersAndVindicators(location, numMobs, world);
+                } else if (blockType == Material.IRON_BLOCK) { // Zombies
+                    spawnSkeletons(location, numMobs, world); // Change Zombies to Skeletons
+                } else { // Default for other block types for Archer
+                    spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                }
+                break;
+            case "TankClass":
+                // Tank: Prefers more melee, can handle groups
+                if (blockType == Material.IRON_BLOCK || blockType == Material.GOLD_BLOCK) { // Zombies, Husks
+                    spawnZombies(location, numMobs + 2, world); // More zombies/husks
+                } else if (blockType == Material.COAL_BLOCK) { // Wither Skeletons
+                    spawnWitherSkeletons(location, numMobs, world);
+                } else if (blockType == Material.REDSTONE_BLOCK) { // Skeletons
+                    spawnZombies(location, numMobs, world); // Change Skeletons to Zombies
+                } else { // Default for other block types for Tank
+                    spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                }
+                break;
+            case "AssassinClass":
+                // Assassin: Fewer but potentially more dangerous mobs, or mobs that fit stealth theme
+                if (blockType == Material.COAL_BLOCK) { // Wither Skeletons
+                    spawnWitherSkeletons(location, Math.max(1, numMobs -1), world); // Fewer, but still dangerous
+                } else if (blockType == Material.EMERALD_BLOCK) { // Pillagers/Vindicators
+                    spawnVindicators(location, numMobs, world); // Focus on Vindicators
+                } else if (blockType == Material.GRAY_GLAZED_TERRACOTTA){ //Spiders
+                    spawnCaveSpiders(location, numMobs, world); // Cave spiders are more assassin-like
+                } else { // Default for other block types for Assassin
+                    spawnMobsBasedOnBlock(location, blockType, world, Math.max(1, numMobs - 1)); // Generally fewer mobs
+                }
+                break;
+            case "MageClass":
+                 // Mage: Prefers magic-using or elemental mobs
+                if (blockType == Material.MAGENTA_GLAZED_TERRACOTTA) { // Blaze
+                    spawnBlaze(location, numMobs + 1, world);
+                } else if (blockType == Material.PURPLE_GLAZED_TERRACOTTA) { // Witch
+                    spawnBruja(location, numMobs + 1, world);
+                } else if (blockType == Material.DIAMOND_BLOCK) { // Stray (ice magic)
+                    spawnStray(location, numMobs, world);
+                } else if (blockType == Material.REDSTONE_BLOCK && random.nextDouble() < 0.3) { // 30% chance for Skeletons to become Witches
+                    spawnBruja(location, numMobs, world);
+                }
+                else { // Default for other block types for Mage
+                    spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                }
+                break;
+            // Add cases for FarmerClass, etc.
+            default:
+                // Fallback to default logic if subclassKey is not recognized
+                spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                break;
+        }
+    }
+
+    // Helper method to avoid code duplication for default spawning logic
+    private static void spawnMobsBasedOnBlock(Location location, Material blockType, World world, int numMobs) {
         switch (blockType) {
             case IRON_BLOCK -> spawnZombies(location, numMobs, world);
             case REDSTONE_BLOCK -> spawnSkeletons(location, numMobs, world);
@@ -78,6 +165,20 @@ public class MobSpawnUtils {
         }
     }
 
+    private static void spawnVindicators(Location location, int numMobs, World world) {
+        for (int i = 0; i < numMobs; i++) {
+            Vindicator vindicator = (Vindicator) world.spawnEntity(location, EntityType.VINDICATOR);
+            vindicator.setPatrolLeader(false);
+            customizeMob(vindicator);
+        }
+    }
+
+    private static void spawnCaveSpiders(Location location, int numMobs, World world) {
+        for (int i = 0; i < numMobs; i++) {
+            CaveSpider spider = (CaveSpider) world.spawnEntity(location, EntityType.CAVE_SPIDER);
+            customizeMob(spider);
+        }
+    }
 
     private static void spawnPiglinsAndBrutes(Location location, int numMobs, World world) {
         for (int i = 0; i < numMobs; i++) {

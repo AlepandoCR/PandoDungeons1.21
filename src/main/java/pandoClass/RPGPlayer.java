@@ -58,6 +58,12 @@ public class RPGPlayer {
     private String minerPetName  = "";
     private String sakuraPetName  = "";
     private String jojoPetName = "";
+    private String subclassKey = "";
+
+    // Mage skill selection
+    private String mageSkill1 = "pandoClass.classes.mage.skills.OrbFriendSkill";
+    private String mageSkill2 = "pandoClass.classes.mage.skills.TimeRewindSkill";
+    private String mageSkill3 = "pandoClass.classes.mage.skills.GravityAlterationSkill";
 
     private final transient PandoDungeons plugin;
 
@@ -123,6 +129,10 @@ public class RPGPlayer {
         this.minerPetName  = other.minerPetName;
         this.sakuraPetName  = other.sakuraPetName;
         this.jojoPetName  = other.jojoPetName;
+        this.subclassKey = other.subclassKey;
+        this.mageSkill1 = other.mageSkill1;
+        this.mageSkill2 = other.mageSkill2;
+        this.mageSkill3 = other.mageSkill3;
     }
 
     private void defaults() {
@@ -145,6 +155,10 @@ public class RPGPlayer {
         this.minerPetName  = "";
         this.sakuraPetName  = "";
         this.jojoPetName  = "";
+        this.subclassKey = "";
+        this.mageSkill1 = "pandoClass.classes.mage.skills.OrbFriendSkill";
+        this.mageSkill2 = "pandoClass.classes.mage.skills.TimeRewindSkill";
+        this.mageSkill3 = "pandoClass.classes.mage.skills.GravityAlterationSkill";
     }
 
     public File getPlayerDataFile(){
@@ -760,5 +774,45 @@ public class RPGPlayer {
 
     public void save(){
         plugin.rpgPlayerDataManager.save(this);
+    }
+
+    public String getSubclassKey() {
+        return subclassKey;
+    }
+
+    public void setSubclassKey(String subclassKey) {
+        this.subclassKey = subclassKey;
+        save();
+        update();
+    }
+
+    public String getMageSkill1() {
+        return mageSkill1;
+    }
+
+    public void setMageSkill1(String mageSkill1) {
+        this.mageSkill1 = mageSkill1;
+        save();
+        update();
+    }
+
+    public String getMageSkill2() {
+        return mageSkill2;
+    }
+
+    public void setMageSkill2(String mageSkill2) {
+        this.mageSkill2 = mageSkill2;
+        save();
+        update();
+    }
+
+    public String getMageSkill3() {
+        return mageSkill3;
+    }
+
+    public void setMageSkill3(String mageSkill3) {
+        this.mageSkill3 = mageSkill3;
+        save();
+        update();
     }
 }

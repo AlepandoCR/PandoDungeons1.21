@@ -20,6 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.units.qual.C;
 import pandoClass.*;
 import pandoClass.campsListener.CampsListener;
+import pandoClass.commands.MageSkillCommand;
 import pandoClass.classes.ClassCommand;
 import pandoClass.classes.CobrarCommand;
 import pandoClass.classes.TopCoinsCommand;
@@ -221,6 +222,7 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("encargo").setExecutor(new QuestCommand(this));
         this.getCommand("pagar").setExecutor(new PayCommand(this));
         this.getCommand("petoken").setExecutor(new PetGachaCommand(this));
+        this.getCommand("mageskills").setExecutor(new MageSkillCommand(this));
     }
 
     private void registerListeners(PrizeListener prizeListener) {
