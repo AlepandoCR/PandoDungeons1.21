@@ -435,6 +435,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         player.sendMessage(ChatColor.AQUA + " - Archer");
         player.sendMessage(ChatColor.AQUA + " - Assassin");
         player.sendMessage(ChatColor.AQUA + " - Mage"); // Assuming Mage is an option
+        player.sendMessage(ChatColor.AQUA + " - Farmer");
         // Add more subclasses as needed from a configurable list or RpgManager if possible
         player.sendMessage(ChatColor.GOLD + "Escribe el nombre de la subclase que quieres usar (ej. 'Tank').");
         playerSubclassChoices.put(player.getUniqueId(), ""); // Mark that player is choosing
@@ -488,16 +489,16 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
             } else if (message.equalsIgnoreCase("mage")) {
                 chosenSubclassKey = "MageClass";
                 chosenSubclassFriendlyName = "Mage";
-            } // Add more else if blocks for other subclasses
+            } else if (message.equalsIgnoreCase("farmer")) {
+                chosenSubclassKey = "FarmerClass";
+                chosenSubclassFriendlyName = "Farmer";
+            }
 
             if (!chosenSubclassKey.isEmpty()) {
                 playerSubclassChoices.put(playerUUID, chosenSubclassKey);
                 player.sendMessage(ChatColor.GREEN + "Has seleccionado la subclase: " + ChatColor.AQUA + chosenSubclassFriendlyName + ChatColor.GREEN + ".");
                 player.sendMessage(ChatColor.YELLOW + "Esta elección influenciará los enemigos y desafíos en la dungeon.");
-                if ("MageClass".equalsIgnoreCase(chosenSubclassKey)) {
-                    player.sendMessage(ChatColor.LIGHT_PURPLE + "Como Mago, puedes personalizar tus habilidades con " + ChatColor.WHITE + "/mageskills.");
-                }
-                // Directly proceed to dungeon creation
+
                 proceedWithDungeonCreation(player);
             } else {
                 player.sendMessage(ChatColor.RED + "Subclase no válida. Por favor, elige una de la lista.");
