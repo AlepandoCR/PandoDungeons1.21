@@ -134,18 +134,16 @@ public class CampsListener implements Listener {
      * @param damage El daño recibido.
      */
     private void handleEnemyDamage(Enemy enemy, double damage, Player player) {
-
         UUID enemyId = enemy.getUniqueId();
         long now = System.currentTimeMillis();
 
         // Throttle por mob
         Long lastUpdate = lastUpdateTime.get(enemyId);
         if (lastUpdate != null && (now - lastUpdate) < UPDATE_COOLDOWN_MS) {
-            return; // Saltar actualización si fue hace muy poco
+            return;
         }
         lastUpdateTime.put(enemyId, now);
 
-        // Pre-cache datos del mob para evitar múltiples llamadas a PersistentDataContainer
         var data = enemy.getPersistentDataContainer();
 
         Integer currentExp = data.get(expKey, PersistentDataType.INTEGER);
@@ -154,28 +152,24 @@ public class CampsListener implements Listener {
 
         if (currentExp == null || currentLevel == null || coins == null) return;
 
-        double health = enemy.getHealth();
 
-        // Asegurar que el daño no sea más alto que la vida
-        damage = Math.min(damage, health);
+        double actualDamage = Math.min(damage, enemy.getHealth());
 
-        // Moneda al jugador si el mob tiene
         if (coins > 0) {
-            int finalCoins = (int) damage;
-            if(damage > coins){
-                finalCoins = coins;
-            }
-            data.set(coinsKey, PersistentDataType.INTEGER, coins - finalCoins);
-            plugin.rpgManager.getPlayer(player).addCoins(finalCoins);
+            int coinReward = (int) Math.min(actualDamage, coins);
+            plugin.rpgManager.getPlayer(player).addCoins(coinReward);
+
+            data.set(coinsKey, PersistentDataType.INTEGER, coins - coinReward);
         }
 
-        // Restar daño a "exp" del mob, si aún le queda
         if (currentExp > 0) {
-            int newExp = Math.max(0, currentExp - (int) damage);
-            data.set(expKey, PersistentDataType.INTEGER, newExp);
-            plugin.rpgManager.getPlayer(player).addExp(newExp);
+            int expReward = (int) Math.min(actualDamage, currentExp);
+            plugin.rpgManager.getPlayer(player).addExp(expReward);
+
+            data.set(expKey, PersistentDataType.INTEGER, currentExp - expReward);
         }
     }
+
 
     public String getEmojiForLevel(int level) {
         return switch (level / 25) { // Divide el nivel entre 20 para agrupar en rangos

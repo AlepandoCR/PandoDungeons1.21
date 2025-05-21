@@ -165,7 +165,7 @@ public class BoomerangAxePrize extends PrizeItem {
             int level = entry.getValue();
             switch (ench.getKey().getKey()) {
                 case "sharpness":
-                    baseDamage += 1 + 0.5 * level;
+                    baseDamage += 1 + 2.5 * level;
                     break;
                 case "smite":
                     if (target instanceof Zombie || target instanceof Skeleton || target instanceof Wither || target instanceof Stray || target instanceof WitherSkeleton) {

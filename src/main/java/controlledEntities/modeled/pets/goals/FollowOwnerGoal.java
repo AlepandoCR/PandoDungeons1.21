@@ -72,10 +72,12 @@ public class FollowOwnerGoal extends Goal {
             ).normalize().scale(airSpeed);
             this.mob.setDeltaMovement(direction);
 
-            // Generar partículas de vuelo
-            this.mob.getBukkitEntity().getWorld().spawnParticle(Particle.CLOUD,
-                    this.mob.getX(), this.mob.getY() + 0.5, this.mob.getZ(),
-                    5, 0.2, 0.2, 0.2, 0.02);
+             if(mob.distanceTo(targetPlayer) > 5){
+                 // Generar partículas de vuelo
+                 this.mob.getBukkitEntity().getWorld().spawnParticle(Particle.CLOUD,
+                         this.mob.getX(), this.mob.getY() + 0.5, this.mob.getZ(),
+                         5, 0.2, 0.2, 0.2, 0.02);
+             }
         } else {
             // Restablecer gravedad si el jugador no está volando
             this.mob.setNoGravity(false);
