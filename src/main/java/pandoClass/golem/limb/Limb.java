@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.EntityType;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

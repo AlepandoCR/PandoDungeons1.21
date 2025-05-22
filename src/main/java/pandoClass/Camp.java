@@ -9,7 +9,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.classes.tank.Tank;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.*;
 

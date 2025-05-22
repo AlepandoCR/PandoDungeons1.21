@@ -11,7 +11,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.Skill;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.HashMap;
 import java.util.List;

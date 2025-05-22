@@ -7,7 +7,7 @@ import org.bukkit.util.Vector;
 import org.bukkit.block.Block;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.golem.limb.Limb;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class Leg extends Limb {
     private Display foot, knee, muslo;

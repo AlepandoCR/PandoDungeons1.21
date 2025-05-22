@@ -3,9 +3,8 @@ package battlePass;
 import battlePass.premium.PremiumBattlePass;
 import battlePass.regular.DefaultBattlePass;
 import battlePass.rewards.Reward;
-import com.fastasyncworldedit.bukkit.util.image.BukkitImageViewer;
 import org.bukkit.entity.Player;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.*;
 

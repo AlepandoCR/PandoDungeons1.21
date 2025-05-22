@@ -4,9 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import displays.DisplayData;
-import org.eclipse.aether.util.listener.ChainedTransferListener;
 import pandoClass.RPGPlayer;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.*;
 import java.util.function.Supplier;

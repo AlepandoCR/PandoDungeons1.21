@@ -1,12 +1,11 @@
 package displays;
 
-import displays.handlers.RPGTopProvider;
 import displays.tops.CoinsTopDisplay;
 import displays.tops.DungeonsTopDisplay;
 import displays.tops.RpgTopDisplay;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

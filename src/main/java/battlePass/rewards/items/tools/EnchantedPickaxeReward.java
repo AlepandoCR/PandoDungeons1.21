@@ -5,9 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import pandodungeons.pandodungeons.PandoDungeons;
-
-import java.util.List;
+import pandodungeons.PandoDungeons;
 
 public class EnchantedPickaxeReward extends RewardCreator {
     public EnchantedPickaxeReward(PandoDungeons plugin) {

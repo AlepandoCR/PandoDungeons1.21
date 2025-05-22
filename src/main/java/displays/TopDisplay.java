@@ -2,8 +2,7 @@ package displays;
 
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.codehaus.plexus.util.Scanner;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.*;
 

@@ -33,8 +33,8 @@ import pandoClass.classes.tank.Tank;
 import pandoClass.gambling.combiner.ItemCombiner;
 import pandoClass.gambling.combiner.ItemFusionAnimator;
 import pandoClass.upgrade.ItemUpgrade;
-import pandodungeons.pandodungeons.PandoDungeons;
-import pandodungeons.pandodungeons.Utils.ItemUtils;
+import pandodungeons.PandoDungeons;
+import pandodungeons.Utils.ItemUtils;
 
 import java.net.MalformedURLException;
 import java.util.*;

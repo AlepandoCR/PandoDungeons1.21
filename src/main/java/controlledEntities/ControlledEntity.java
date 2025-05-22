@@ -7,7 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftMob;
 import org.bukkit.entity.Mob;
 import org.bukkit.scheduler.BukkitRunnable;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.HashMap;
 import java.util.List;

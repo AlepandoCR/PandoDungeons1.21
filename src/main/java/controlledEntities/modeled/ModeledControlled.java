@@ -1,56 +1,52 @@
 package controlledEntities.modeled;
 
-import com.ticxo.modelengine.api.entity.Hitbox;
-import com.ticxo.modelengine.api.generator.assets.ItemModel;
-import com.ticxo.modelengine.api.model.ModeledEntity;
 import controlledEntities.ControlledEntity;
+import kr.toxicity.model.api.tracker.EntityTracker;
+import model.builder.ModelBuilder;
 import org.bukkit.Location;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public abstract class ModeledControlled extends ControlledEntity {
 
-    protected ModeledEntity modeledEntity;
-    protected final Hitbox hitbox;
+    protected EntityTracker modeledEntity;
     protected final String modelName;
     protected ModelBuilder builder;
 
     public ModeledControlled(PandoDungeons plugin, Location spawnLoc, boolean applyGoals, String modelName) {
         super(plugin,spawnLoc,applyGoals);
         this.modelName = modelName;
-        this.hitbox = setHitbox();
-        this.builder = new ModelBuilder(modelName,this.mob).setHitbox(hitbox);
+        this.builder = new ModelBuilder(modelName,this.mob);
         this.modeledEntity = setModeledEntity();
     }
 
-    public abstract ModeledEntity setModeledEntity();
+    public abstract EntityTracker setModeledEntity();
 
-    public abstract Hitbox setHitbox();
 
     public String getModelName() {
         return modelName;
     }
 
-    public ModeledEntity getModeledEntity() {
+    public EntityTracker getModeledEntity() {
         return modeledEntity;
     }
 
     @Override
     public void extraRestore(){
-        modeledEntity.destroy();
+        modeledEntity.despawn();
 
-        builder = new ModelBuilder(modelName,mob).setHitbox(hitbox);
+        builder = new ModelBuilder(modelName,mob);
 
-        modeledEntity = builder.apply().getModeledEntity();
+        modeledEntity = builder.apply();
 
-        modeledEntity.save();
+        modeledEntity.forRemoval(false);
 
-        modeledEntity.getBase().save();
+        modeledEntity.updateBaseEntity();
     }
 
     public void respawn(Location location) {
         // Destruir el modelo si existe
         if (modeledEntity != null) {
-            modeledEntity.destroy();
+            modeledEntity.despawn();
         }
 
         // Eliminar la entidad si existe
@@ -64,11 +60,9 @@ public abstract class ModeledControlled extends ControlledEntity {
         applyGoalsMain();
 
         // Volver a crear el modelo
-        this.builder = new ModelBuilder(modelName, mob).setHitbox(hitbox);
-        this.modeledEntity = builder.apply().getModeledEntity();
+        this.builder = new ModelBuilder(modelName, mob);
+        this.modeledEntity = builder.apply();
 
-        // Hacer invisible la base
-        modeledEntity.getBase().setVisible(false);
-        modeledEntity.getBase().save();
+        modeledEntity.updateBaseEntity();
     }
 }

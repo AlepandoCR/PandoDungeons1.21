@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.*;
 import pandoClass.RPGPlayer;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class CobrarCommand implements CommandExecutor {
 

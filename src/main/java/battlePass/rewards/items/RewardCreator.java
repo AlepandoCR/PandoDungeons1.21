@@ -2,7 +2,7 @@ package battlePass.rewards.items;
 
 import battlePass.rewards.Reward;
 import org.bukkit.inventory.ItemStack;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public abstract class RewardCreator {
     public final Reward reward;

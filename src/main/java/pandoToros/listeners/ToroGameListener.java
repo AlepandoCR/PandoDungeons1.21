@@ -3,10 +3,7 @@ package pandoToros.listeners;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.alchemy.Potion;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,21 +18,15 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import pandoToros.Entities.toro.Toro;
 import pandoToros.game.ToroStatManager;
-import pandodungeons.pandodungeons.Game.PlayerStatsManager;
-import pandodungeons.pandodungeons.PandoDungeons;
-
-import java.util.Locale;
+import pandodungeons.PandoDungeons;
 
 import static pandoToros.game.ArenaMaker.extractUsername;
 import static pandoToros.game.ArenaMaker.isRedondelWorld;
 import static pandoToros.game.RandomBox.isProtectedPlayer;
 import static pandoToros.game.RandomBox.unProtectPlayer;
-import static pandoToros.game.RedondelGame.activeRedondel;
 import static pandoToros.game.RedondelGame.hasActiveRedondel;
 import static pandoToros.game.modes.PlatformMode.platformPlayers;
-import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 
 
 public class ToroGameListener implements Listener {

@@ -1,12 +1,10 @@
 package controlledEntities.modeled.pets;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.scheduler.BukkitRunnable;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -64,13 +62,13 @@ public class PetNameTagHandler {
     }
 
     private boolean isValid() {
-        return pet.getModeledEntity().getBase().isAlive() &&
+        return !pet.getModeledEntity().getAdapter().entity().isValid() &&
                 pet.getMob().isValid() &&
                 !nameTag.isDead();
     }
 
     private void updateNameTagPosition() {
-        Location loc = pet.getModeledEntity().getBase().getLocation();
+        Location loc = pet.getModeledEntity().getAdapter().entity().getLocation();
         nameTag.teleport(loc.add(0, 0.5, 0));
     }
 }

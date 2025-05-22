@@ -4,15 +4,12 @@ import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import controlledEntities.modeled.pets.types.sakura.SakuraPet;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 public class PetsManager {
     private final List<Pet> pets = new ArrayList<>();

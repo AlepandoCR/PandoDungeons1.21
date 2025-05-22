@@ -1,10 +1,9 @@
 package controlledEntities.modeled.pets.types.jojo;
 
-import com.ticxo.modelengine.api.entity.Hitbox;
-import com.ticxo.modelengine.api.model.ModeledEntity;
 import controlledEntities.modeled.pets.Pet;
 import controlledEntities.modeled.pets.PetType;
 import controlledEntities.modeled.pets.goals.FollowOwnerGoal;
+import kr.toxicity.model.api.tracker.EntityTracker;
 import net.minecraft.world.entity.ai.goal.Goal;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,7 +13,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.PolarBear;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.List;
 
@@ -26,16 +25,12 @@ public class JojoPet extends Pet {
     }
 
     @Override
-    public ModeledEntity setModeledEntity() {
-        ModeledEntity modeled = builder.apply().getModeledEntity();
+    public EntityTracker setModeledEntity() {
+        EntityTracker modeled = builder.apply();
 
-        modeled.save();
+        modeled.refresh();
 
-        modeled.setBaseEntityVisible(false);
-
-        modeled.getBase().setVisible(false);
-
-        modeled.getBase().save();
+        modeled.updateBaseEntity();
 
         return modeled;
     }
@@ -66,15 +61,9 @@ public class JojoPet extends Pet {
 
         bear.setPersistent(true); // Para que no desaparezca
         bear.setSilent(true); // Sin sonidos
-        bear.setInvisible(true);
 
 
         return bear;
-    }
-
-    @Override
-    public Hitbox setHitbox() {
-       return new Hitbox(0.5,1,0.7,0.2);
     }
 
     @Override

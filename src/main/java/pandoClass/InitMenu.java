@@ -8,13 +8,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.tank.Tank;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import javax.annotation.Nullable;
 import java.net.MalformedURLException;

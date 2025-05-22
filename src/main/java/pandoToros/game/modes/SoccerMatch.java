@@ -14,8 +14,8 @@ import pandoToros.game.modes.cosmetic.CosmeticGoal;
 import pandoToros.game.modes.cosmetic.base.effects.CosmeticDefaults;
 import pandoToros.game.modes.teamScoreboard.Scoreboard;
 import pandoToros.game.modes.teamScoreboard.TeamPoints;
-import pandodungeons.pandodungeons.CustomEntities.Ball.BallArmadillo;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.CustomEntities.Ball.BallArmadillo;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

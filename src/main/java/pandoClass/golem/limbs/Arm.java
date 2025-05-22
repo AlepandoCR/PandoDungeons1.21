@@ -6,7 +6,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.util.Vector;
 import pandoClass.golem.limb.Limb;
 import org.bukkit.scheduler.BukkitRunnable;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class Arm extends Limb {
     private Display mano, codo, hombro;

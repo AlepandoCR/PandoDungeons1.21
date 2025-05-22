@@ -1,10 +1,7 @@
 package battlePass.regular;
 
-import battlePass.rewards.Reward;
 import battlePass.rewards.RewardManager;
-import pandodungeons.pandodungeons.PandoDungeons;
-
-import java.util.List;
+import pandodungeons.PandoDungeons;
 
 public class DefaultRewardManager extends RewardManager {
     public DefaultRewardManager(PandoDungeons plugin) {

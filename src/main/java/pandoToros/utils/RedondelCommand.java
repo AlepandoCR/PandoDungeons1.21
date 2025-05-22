@@ -8,11 +8,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pandoToros.Commands.PlayRedondelCommand;
-import pandoToros.Commands.ToroStatsCommand;
-import pandodungeons.pandodungeons.Game.Stats;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
-import javax.swing.*;
 import java.util.List;
 
 import static pandoToros.Commands.ToroStatsCommand.ToroCommandStats;

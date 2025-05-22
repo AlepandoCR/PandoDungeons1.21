@@ -3,7 +3,7 @@ package pandoClass.classes.mage.skills.orb.skills;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.classes.mage.skills.orb.Orb;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public abstract class OrbSkill {
     protected final PandoDungeons plugin;

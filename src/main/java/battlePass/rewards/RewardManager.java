@@ -1,6 +1,6 @@
 package battlePass.rewards;
 
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

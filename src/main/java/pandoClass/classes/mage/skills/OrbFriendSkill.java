@@ -3,7 +3,7 @@ package pandoClass.classes.mage.skills;
 import org.bukkit.entity.Player;
 import pandoClass.Skill;
 import pandoClass.classes.mage.skills.orb.Orb;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 

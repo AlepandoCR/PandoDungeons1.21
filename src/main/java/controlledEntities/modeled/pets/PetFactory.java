@@ -6,10 +6,7 @@ import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import controlledEntities.modeled.pets.types.sakura.SakuraPet;
 import org.bukkit.entity.Player;
 import pandoClass.RPGPlayer;
-import pandodungeons.pandodungeons.PandoDungeons;
-
-import static controlledEntities.modeled.pets.PetType.MAPACHE;
-import static controlledEntities.modeled.pets.PetType.MINERO;
+import pandodungeons.PandoDungeons;
 
 public class PetFactory {
 

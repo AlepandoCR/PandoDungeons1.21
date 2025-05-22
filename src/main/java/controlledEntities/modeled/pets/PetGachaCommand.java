@@ -9,8 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pandodungeons.pandodungeons.PandoDungeons;
-import pandodungeons.pandodungeons.Utils.EmptyChunkGenerator;
+import pandodungeons.PandoDungeons;
 
 import java.util.Collections;
 import java.util.List;

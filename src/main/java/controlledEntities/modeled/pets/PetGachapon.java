@@ -17,7 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.RPGPlayer;
 import pandoClass.gachaPon.Quality;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.net.URL;

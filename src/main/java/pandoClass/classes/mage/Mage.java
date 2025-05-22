@@ -5,7 +5,7 @@ import pandoClass.RPGPlayer;
 import pandoClass.classes.mage.skills.GravityAlterationSkill;
 import pandoClass.classes.mage.skills.OrbFriendSkill;
 import pandoClass.classes.mage.skills.TimeRewindSkill;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class Mage extends ClassRPG {
     public Mage(RPGPlayer player, PandoDungeons plugin) {

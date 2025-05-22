@@ -1,14 +1,12 @@
 package pandoToros.game;
 
 import org.bukkit.*;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.RPGPlayer;
 import pandoToros.game.modes.cosmetic.base.effects.team.TeamPlayerEffect;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.util.*;

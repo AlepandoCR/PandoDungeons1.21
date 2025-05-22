@@ -3,7 +3,7 @@ package pandoClass.quests;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import pandoClass.RPGPlayer;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.*;
 

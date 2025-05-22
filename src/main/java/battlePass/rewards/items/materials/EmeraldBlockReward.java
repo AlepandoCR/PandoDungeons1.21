@@ -4,9 +4,7 @@ import battlePass.rewards.items.RewardCreator;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import pandodungeons.pandodungeons.PandoDungeons;
-
-import java.util.List;
+import pandodungeons.PandoDungeons;
 
 public class EmeraldBlockReward extends RewardCreator {
     public EmeraldBlockReward(PandoDungeons plugin) {

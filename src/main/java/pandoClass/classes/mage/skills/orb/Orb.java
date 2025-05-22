@@ -9,12 +9,11 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
-import pandoClass.RPGPlayer;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkill;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillAttack;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillDefense;
 import pandoClass.classes.mage.skills.orb.skills.OrbSkillSlowfall;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.net.URL;

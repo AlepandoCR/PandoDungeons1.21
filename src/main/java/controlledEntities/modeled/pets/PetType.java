@@ -8,7 +8,7 @@ public enum PetType {
         try {
             return PetType.valueOf(input.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            return null; // O lanza una excepción personalizada si prefieres
+            return null;
         }
     }
 }

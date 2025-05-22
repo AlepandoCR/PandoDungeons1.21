@@ -1,21 +1,17 @@
 package pandoToros.Commands;
 
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import pandoToros.game.RedondelGame;
-import pandodungeons.pandodungeons.PandoDungeons;
-import pandodungeons.pandodungeons.Utils.PlayerParty;
-import pandodungeons.pandodungeons.Utils.PlayerPartyList;
+import pandodungeons.PandoDungeons;
+import pandodungeons.Utils.PlayerPartyList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static pandoToros.game.ArenaMaker.extractUsername;
 import static pandoToros.game.RedondelGame.hasActiveRedondel;
-import static pandodungeons.pandodungeons.Utils.LocationUtils.hasActiveDungeon;
+import static pandodungeons.Utils.LocationUtils.hasActiveDungeon;
 
 public class PlayRedondelCommand {
     public static void playRedondel(Player player, PandoDungeons plugin, String[] args){

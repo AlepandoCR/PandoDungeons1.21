@@ -4,9 +4,8 @@ package displays.handlers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import pandodungeons.pandodungeons.Game.PlayerStatsManager;
-import pandodungeons.pandodungeons.Game.Stats;
+import pandodungeons.Game.PlayerStatsManager;
+import pandodungeons.Game.Stats;
 
 import java.io.File;
 import java.util.*;

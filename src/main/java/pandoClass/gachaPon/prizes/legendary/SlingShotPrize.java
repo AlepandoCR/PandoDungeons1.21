@@ -13,7 +13,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 import java.util.ArrayList;
 import java.util.List;
 

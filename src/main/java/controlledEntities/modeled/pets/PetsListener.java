@@ -1,40 +1,28 @@
 package controlledEntities.modeled.pets;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
-import pandoClass.gachaPon.Gachapon;
-import pandoClass.quests.Mission;
-import pandoClass.quests.questTypes.KillQuest;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
-import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Set;
 
-import static com.fastasyncworldedit.core.util.Permission.hasPermission;
 import static controlledEntities.modeled.pets.PetGachapon.activePetGachapon;
 import static controlledEntities.modeled.pets.PetRename.*;
 import static controlledEntities.modeled.pets.PetSelectionMenu.petMenuListener;
-import static controlledEntities.modeled.pets.PetSelectionMenu.petPermissions;
-import static pandoClass.gachaPon.Gachapon.activeGachapon;
 
 public class PetsListener implements Listener {
 
     PandoDungeons plugin;
-    // Constructor que recibe la lista de misiones
     public PetsListener(PandoDungeons plugin) {
         this.plugin = plugin;
     }

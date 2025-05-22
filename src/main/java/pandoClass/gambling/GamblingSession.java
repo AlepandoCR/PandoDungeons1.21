@@ -9,13 +9,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import pandoClass.RPGPlayer;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.util.*;
 
-import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.createHead;
+import static pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.createHead;
 
 public class GamblingSession {
 

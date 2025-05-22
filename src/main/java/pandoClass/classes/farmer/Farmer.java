@@ -5,7 +5,7 @@ import pandoClass.RPGPlayer;
 import pandoClass.classes.farmer.skils.ExtraHarvestSkill;
 import pandoClass.classes.farmer.skils.GolemSkill;
 import pandoClass.classes.farmer.skils.TameSkill;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class Farmer extends ClassRPG {
     public Farmer(RPGPlayer player, PandoDungeons plugin) {

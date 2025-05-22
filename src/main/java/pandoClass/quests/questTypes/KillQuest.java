@@ -1,16 +1,13 @@
 package pandoClass.quests.questTypes;
 
-import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import pandoClass.RPGPlayer;
 import pandoClass.quests.Mission;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.List;
 import java.util.Random;

@@ -16,14 +16,14 @@ import org.jetbrains.annotations.NotNull;
 import pandoClass.ExpandableClassMenu;
 import pandoClass.InitMenu;
 import pandoClass.RPGPlayer;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.util.*;
 
 import static pandoClass.classes.archer.skills.DoubleJumSkill.doubleJumping;
 import static pandoToros.game.ArenaMaker.isRedondelWorld;
-import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
+import static pandodungeons.Utils.LocationUtils.isDungeonWorld;
 
 public class CampsListener implements Listener {
 

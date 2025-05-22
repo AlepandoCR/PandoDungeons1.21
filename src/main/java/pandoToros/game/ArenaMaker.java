@@ -1,8 +1,6 @@
 package pandoToros.game;
 
 import org.bukkit.*;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,12 +8,10 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import static pandoToros.utils.PlayerArmorChecker.hasArmor;
-import static pandodungeons.pandodungeons.Utils.StructureUtils.deleteWorld;
+import static pandodungeons.Utils.StructureUtils.deleteWorld;
 
 public class ArenaMaker {
 

@@ -4,7 +4,7 @@ import battlePass.rewards.items.RewardCreator;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class TotemReward extends RewardCreator {
     public TotemReward(PandoDungeons plugin) {

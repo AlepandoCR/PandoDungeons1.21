@@ -5,7 +5,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.classes.mage.skills.orb.OrbEmotion;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class OrbSkillSlowfall extends OrbSkill {
     public OrbSkillSlowfall(PandoDungeons plugin, Orb orb) {

@@ -1,13 +1,9 @@
 package pandoClass.gambling.combiner;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.component.CustomData;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.inventory.tags.DeprecatedItemTagType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -16,9 +12,8 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 import pandoClass.RPGPlayer;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.*;
 
@@ -28,7 +23,7 @@ import static pandoClass.gachaPon.prizes.legendary.StormSwordPrize.isStormSword;
 import static pandoClass.gachaPon.prizes.mithic.JetPackPrize.isJetPack;
 import static pandoClass.gachaPon.prizes.mithic.MapachoBladePrize.isMapachoBlade;
 import static pandoClass.upgrade.ItemUpgrade.updateUpgrade;
-import static pandodungeons.pandodungeons.Utils.ItemUtils.isGarabiThor;
+import static pandodungeons.Utils.ItemUtils.isGarabiThor;
 
 public class ItemCombiner {
 

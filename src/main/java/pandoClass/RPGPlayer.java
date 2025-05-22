@@ -18,7 +18,7 @@ import pandoClass.classes.farmer.Farmer;
 import pandoClass.classes.mage.Mage;
 import pandoClass.classes.tank.Tank;
 import pandoClass.gachaPon.GachaHolo;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import javax.annotation.Nullable;
 import java.io.File;

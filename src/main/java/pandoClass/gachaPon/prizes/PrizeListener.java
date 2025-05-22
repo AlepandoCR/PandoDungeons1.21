@@ -29,10 +29,9 @@ import pandoClass.RPGPlayer;
 import pandoClass.gachaPon.GachaHolo;
 import pandoClass.gachaPon.Gachapon;
 import pandoClass.gachaPon.prizes.legendary.BoomerangAxePrize;
-import pandoClass.gachaPon.prizes.mithic.KatanaPrize;
 import pandoClass.gachaPon.prizes.mithic.TeleShardPrize;
 import pandoClass.gachaPon.prizes.mithic.TeleVillagerShardPrize;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.util.*;

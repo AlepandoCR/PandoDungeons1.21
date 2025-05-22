@@ -16,7 +16,7 @@ import pandoClass.gachaPon.prizes.legendary.*;
 import pandoClass.gachaPon.prizes.mithic.*;
 import pandoClass.gachaPon.prizes.rare.*;
 import pandoClass.gachaPon.prizes.trash.*;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

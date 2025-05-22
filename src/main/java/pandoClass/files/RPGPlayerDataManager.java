@@ -2,15 +2,13 @@ package pandoClass.files;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import pandoClass.ClassRPG;
 import pandoClass.RPGPlayer;
 import pandoClass.classes.archer.Archer;
 import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.tank.Tank;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.io.File;
 import java.io.FileReader;
@@ -20,7 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
-import static pandodungeons.pandodungeons.Utils.FileUtils.getRpgPlayersFile;
+import static pandodungeons.Utils.FileUtils.getRpgPlayersFile;
 
 public class RPGPlayerDataManager {
     private final Gson GSON;

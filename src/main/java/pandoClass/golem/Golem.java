@@ -5,7 +5,7 @@ import pandoClass.golem.limb.Limb;
 import pandoClass.golem.limbs.Arm;
 import pandoClass.golem.limbs.Chest;
 import pandoClass.golem.limbs.Leg;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

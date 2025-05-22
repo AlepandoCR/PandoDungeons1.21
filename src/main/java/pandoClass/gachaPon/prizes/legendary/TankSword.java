@@ -9,7 +9,7 @@ import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.Arrays;
 import java.util.List;

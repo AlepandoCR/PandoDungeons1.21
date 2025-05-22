@@ -9,13 +9,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static pandoToros.game.ArenaMaker.isRedondelWorld;
-import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
+import static pandodungeons.Utils.LocationUtils.isDungeonWorld;
 
 public class TeleportationHeartPrize extends PrizeItem {
 

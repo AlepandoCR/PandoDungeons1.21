@@ -6,7 +6,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.util.Vector;
 import org.bukkit.scheduler.BukkitRunnable;
 import pandoClass.golem.limb.Limb;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class Chest extends Limb {
     private Display lowerTorso, middleTorso, upperTorso, neck;

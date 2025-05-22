@@ -5,14 +5,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.checkerframework.checker.units.qual.K;
-import pandoClass.quests.Mission;
 import pandoClass.quests.questTypes.KillQuest;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MissionListener implements Listener {
 

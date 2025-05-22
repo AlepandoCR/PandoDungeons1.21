@@ -5,7 +5,7 @@ import pandoClass.RPGPlayer;
 import pandoClass.classes.tank.skills.ExtraHeartsSkill;
 import pandoClass.classes.tank.skills.HealTeammatesSkill;
 import pandoClass.classes.tank.skills.MagicShieldSkill;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class Tank extends ClassRPG {
     public Tank(RPGPlayer player, PandoDungeons plugin) {

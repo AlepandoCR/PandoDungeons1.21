@@ -1,7 +1,7 @@
 package pandoClass;
 
 import org.bukkit.entity.Player;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

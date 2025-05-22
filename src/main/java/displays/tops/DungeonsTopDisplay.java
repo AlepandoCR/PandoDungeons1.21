@@ -4,7 +4,7 @@ import displays.DisplayData;
 import displays.TopDisplay;
 import displays.handlers.DungeonsTopHandler;
 import org.bukkit.Location;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;

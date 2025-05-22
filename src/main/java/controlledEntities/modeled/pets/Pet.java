@@ -1,16 +1,8 @@
 package controlledEntities.modeled.pets;
 
-import com.ticxo.modelengine.api.generator.assets.ItemModel;
-import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.bone.ModelBone;
 import controlledEntities.modeled.ModeledControlled;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
-import pandodungeons.pandodungeons.PandoDungeons;
-
-import javax.swing.text.LabelView;
-import java.util.Map;
+import pandodungeons.PandoDungeons;
 
 import static controlledEntities.modeled.pets.PetFactory.getPetName;
 
@@ -23,7 +15,6 @@ public abstract class Pet extends ModeledControlled {
     public Pet(Player owner, PandoDungeons plugin, boolean applygoals, String modelName){
         super(plugin, owner.getLocation(),applygoals, modelName);
         this.mob.setInvulnerable(true);
-        this.mob.setInvisible(true);
         this.owner = owner;
         this.permission = setPermission();
         this.type = setType();
@@ -56,7 +47,7 @@ public abstract class Pet extends ModeledControlled {
     public void destroy(){
         if(mob.isDead() || !mob.isValid()) return;
 
-        modeledEntity.destroy();
+        modeledEntity.despawn();
 
         mob.remove();
 

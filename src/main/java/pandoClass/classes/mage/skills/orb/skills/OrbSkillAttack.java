@@ -6,7 +6,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.classes.mage.skills.orb.OrbEmotion;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.atomic.AtomicBoolean;

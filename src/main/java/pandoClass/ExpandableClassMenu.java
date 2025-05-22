@@ -14,7 +14,7 @@ import pandoClass.classes.assasin.Assasin;
 import pandoClass.classes.farmer.Farmer;
 import pandoClass.classes.mage.Mage;
 import pandoClass.classes.tank.Tank;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.net.URL;

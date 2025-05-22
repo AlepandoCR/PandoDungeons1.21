@@ -1,12 +1,11 @@
 package pandoClass.classes.mage.skills.orb.skills;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.classes.mage.skills.orb.OrbEmotion;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 public class OrbSkillDefense extends OrbSkill {
     public OrbSkillDefense(PandoDungeons plugin, Orb orb) {

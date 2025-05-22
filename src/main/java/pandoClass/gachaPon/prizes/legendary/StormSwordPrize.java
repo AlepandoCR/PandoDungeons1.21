@@ -1,24 +1,15 @@
 package pandoClass.gachaPon.prizes.legendary;
 
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 import pandoClass.gachaPon.PrizeItem;
 import pandoClass.gachaPon.Quality;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static pandoToros.game.ArenaMaker.isRedondelWorld;
-import static pandodungeons.pandodungeons.Utils.LocationUtils.isDungeonWorld;
 
 public class StormSwordPrize extends PrizeItem {
 

@@ -1,7 +1,7 @@
 package pandoClass.classes.mage.skills.orb;
 
 import org.bukkit.entity.Player;
-import pandodungeons.pandodungeons.PandoDungeons;
+import pandodungeons.PandoDungeons;
 
 import java.util.HashMap;
 import java.util.Map;

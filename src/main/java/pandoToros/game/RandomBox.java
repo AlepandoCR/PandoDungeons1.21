@@ -1,7 +1,6 @@
 package pandoToros.game;
 
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -12,14 +11,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import pandoToros.Entities.toro.Toro;
-import pandodungeons.pandodungeons.PandoDungeons;
-import pandodungeons.pandodungeons.Utils.LocationUtils;
+import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
 import java.util.*;
 
-import static pandodungeons.pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.createHead;
+import static pandodungeons.Game.enchantments.souleater.SoulEaterEnchantment.createHead;
 
 public class RandomBox {
 
