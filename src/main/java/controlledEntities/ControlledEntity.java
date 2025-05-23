@@ -90,6 +90,10 @@ public abstract class ControlledEntity {
     public void restoreIfNeeded() {
         net.minecraft.world.entity.Mob nmsMob = ((CraftMob) mob).getHandle();
 
+        if(goals == null){
+            return;
+        }
+
         if (goals.isEmpty()) return;
 
         boolean missingGoals = goals.stream()

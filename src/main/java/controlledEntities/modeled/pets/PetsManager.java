@@ -1,9 +1,11 @@
 package controlledEntities.modeled.pets;
 
+import controlledEntities.modeled.pets.types.graywolf.GrayWolfPet;
 import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import controlledEntities.modeled.pets.types.sakura.SakuraPet;
+import controlledEntities.modeled.pets.types.spectralwolf.SpectralWolfPet;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import pandodungeons.PandoDungeons;
@@ -36,7 +38,7 @@ public class PetsManager {
     }
 
     public void destroyPet(Pet pet){
-        pets.remove(pet);
+        removePet(pet);
         pet.destroy();
     }
 
@@ -88,6 +90,8 @@ public class PetsManager {
             case MinerPet ignored -> new MinerPet(player, plugin);
             case SakuraPet ignored -> new SakuraPet(player, plugin);
             case JojoPet ignored -> new JojoPet(player, plugin);
+            case GrayWolfPet ignored -> new GrayWolfPet(player,plugin);
+            case SpectralWolfPet ignored -> new SpectralWolfPet(player,plugin);
             default -> player.sendMessage("No es pet");
         }
 

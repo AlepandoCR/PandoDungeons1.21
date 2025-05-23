@@ -1,8 +1,10 @@
 package pandodungeons.commands.admin.enchantments;
 
+import controlledEntities.modeled.pets.types.graywolf.GrayWolfPet;
 import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
+import controlledEntities.modeled.pets.types.spectralwolf.SpectralWolfPet;
 import displays.tops.CoinsTopDisplay;
 import displays.tops.DungeonsTopDisplay;
 import displays.tops.RpgTopDisplay;
@@ -221,6 +223,10 @@ public class getEnchantment implements CommandExecutor {
             player.getInventory().addItem(new KatanaPrize(plugin).getItem());
         }else if(args[1].equalsIgnoreCase("machete")){
             player.getInventory().addItem(new BoomerangAxePrize(plugin).getItem());
+        }else if(args[1].equalsIgnoreCase("graywolf")){
+            new GrayWolfPet(player,plugin);
+        }else if(args[1].equalsIgnoreCase("spectralwolf")){
+            new SpectralWolfPet(player,plugin);
         }
         return false;
     }

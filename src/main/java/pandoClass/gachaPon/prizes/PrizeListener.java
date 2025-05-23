@@ -246,7 +246,6 @@ public class PrizeListener implements Listener {
         // Efecto especial al llegar al máximo
         if (stack == 10) {
             player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, player.getLocation().add(0, 1, 0), 1);
-            player.getWorld().playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1.2f);
         }
     }
 

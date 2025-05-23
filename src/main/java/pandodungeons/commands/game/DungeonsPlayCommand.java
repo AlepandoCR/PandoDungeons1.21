@@ -142,7 +142,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
         RPGPlayer rpgPlayer = rpgManager.getPlayer(player);
         if (rpgPlayer != null) {
-            rpgPlayer.setClassKey(subclassKey); // This also calls save() and update() in RPGPlayer
+            rpgPlayer.changeClass(subclassKey); // This also calls save() and update() in RPGPlayer
             // Message about selection is now handled in onPlayerChat or if already confirmed.
             // player.sendMessage(ChatColor.GREEN + "Has seleccionado la subclase: " + ChatColor.AQUA + subclassKey);
         } else {

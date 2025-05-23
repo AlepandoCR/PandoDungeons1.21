@@ -71,6 +71,12 @@ permissions:
   mascota.mapache:
     decription: Permiso para mascota mapache
     default: op
+  mascota.graywolf:
+    decription: Permiso para mascota mapache
+    default: op
+  mascota.spectralwolf:
+    decription: Permiso para mascota mapache
+    default: op
   mascota.sakura:
     description: Permiso para mascota sakura
     default: op

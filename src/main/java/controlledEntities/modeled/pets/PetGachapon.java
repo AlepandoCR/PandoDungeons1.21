@@ -1,10 +1,12 @@
 package controlledEntities.modeled.pets;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import controlledEntities.modeled.pets.types.graywolf.GrayWolfPet;
 import controlledEntities.modeled.pets.types.jojo.JojoPet;
 import controlledEntities.modeled.pets.types.miner.MinerPet;
 import controlledEntities.modeled.pets.types.racoon.RacoonPet;
 import controlledEntities.modeled.pets.types.sakura.SakuraPet;
+import controlledEntities.modeled.pets.types.spectralwolf.SpectralWolfPet;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -52,10 +54,12 @@ public class PetGachapon {
     public void init(){
         // Definir mascotas por calidad
         addPet(new RacoonPet(player, plugin), Quality.INFERIOR);
-        addPet(new RacoonPet(player, plugin), Quality.RARO);
+        addPet(new GrayWolfPet(player,plugin), Quality.RARO);
         addPet(new JojoPet(player, plugin), Quality.EPICO);
         addPet(new MinerPet(player, plugin), Quality.LEGENDARIO);
         addPet(new SakuraPet(player, plugin), Quality.MITICO);
+        addPet(new SpectralWolfPet(player,plugin), Quality.MITICO);
+
 
         // Probabilidades de cada calidad
         qualityProbabilities.put(Quality.INFERIOR, 30.0);

@@ -59,6 +59,8 @@ public class RPGPlayer {
     private String minerPetName  = "";
     private String sakuraPetName  = "";
     private String jojoPetName = "";
+    private String grayWolfPetName = "";
+    private String spectralWolfPetName = "";
 
     private final transient PandoDungeons plugin;
 
@@ -124,6 +126,8 @@ public class RPGPlayer {
         this.minerPetName  = other.minerPetName;
         this.sakuraPetName  = other.sakuraPetName;
         this.jojoPetName  = other.jojoPetName;
+        this.grayWolfPetName = other.grayWolfPetName;
+        this.spectralWolfPetName = other.spectralWolfPetName;
     }
 
     private void defaults() {
@@ -146,6 +150,24 @@ public class RPGPlayer {
         this.minerPetName  = "";
         this.sakuraPetName  = "";
         this.jojoPetName  = "";
+        this.grayWolfPetName = "";
+        this.spectralWolfPetName = "";
+    }
+
+    public void setSpectralWolfPetName(String spectralWolfPetName) {
+        this.spectralWolfPetName = spectralWolfPetName;
+    }
+
+    public String getSpectralWolfPetName() {
+        return spectralWolfPetName;
+    }
+
+    public void setGrayWolfPetName(String grayWolfPetName) {
+        this.grayWolfPetName = grayWolfPetName;
+    }
+
+    public String getGrayWolfPetName() {
+        return grayWolfPetName;
     }
 
     public File getPlayerDataFile(){

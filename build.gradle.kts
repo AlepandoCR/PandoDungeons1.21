@@ -40,6 +40,14 @@ java {
 }
 
 tasks {
+    shadowJar {
+        archiveClassifier.set("")
+        mergeServiceFiles()
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
     runServer {
         minecraftVersion("1.21.5")
     }
