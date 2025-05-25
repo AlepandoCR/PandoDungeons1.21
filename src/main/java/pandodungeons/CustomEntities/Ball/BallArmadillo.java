@@ -13,6 +13,7 @@ import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -88,31 +89,7 @@ public class BallArmadillo extends Armadillo {
 
         // Detecta colisiones y maneja rebote horizontal
         if (this.horizontalCollision) {
-            double xSpeed;
-            double zSpeed;
-            if(previousDeltaMovement.getX() > previousDeltaMovement.getZ()){
-                xSpeed = previousDeltaMovement.getX() * 0.4;
-                zSpeed = -previousDeltaMovement.getZ() * 0.4;
-            }else{
-                xSpeed = -previousDeltaMovement.getX() * 0.4;
-                zSpeed = previousDeltaMovement.getZ() * 0.4;
-            }
-
-
-            // Asegura una velocidad mínima para que el rebote sea efectivo
-            if (Math.abs(xSpeed) < 0.1) {
-                xSpeed = -0.1;
-            }
-
-            if (Math.abs(zSpeed) < 0.1) {
-                zSpeed = -0.1;
-            }
-
-            Vec3 newMovement = new Vec3(
-                    xSpeed, // Invertir la velocidad horizontal
-                    this.getDeltaMovement().y, // Mantener la velocidad vertical
-                    zSpeed // Invertir la velocidad horizontal
-            );
+            Vec3 newMovement = getVec3();
             this.setDeltaMovement(newMovement);
             this.move(MoverType.SELF, this.getDeltaMovement());
         }
@@ -143,5 +120,36 @@ public class BallArmadillo extends Armadillo {
             Vec3 reducedMovement = this.getDeltaMovement().multiply(0.9, 0.98, 0.9);
             this.setDeltaMovement(reducedMovement);
         }
+    }
+
+    private @NotNull Vec3 getVec3() {
+        double xSpeed;
+        double zSpeed;
+        if(previousDeltaMovement.getX() > previousDeltaMovement.getZ()){
+            xSpeed = previousDeltaMovement.getX() * 0.4;
+            zSpeed = -previousDeltaMovement.getZ() * 0.4;
+        }else{
+            xSpeed = -previousDeltaMovement.getX() * 0.4;
+            zSpeed = previousDeltaMovement.getZ() * 0.4;
+        }
+
+
+        // Asegura una velocidad mínima para que el rebote sea efectivo
+        if (Math.abs(xSpeed) < 0.1) {
+            xSpeed = -0.1;
+        }
+
+        if (Math.abs(zSpeed) < 0.1) {
+            zSpeed = -0.1;
+        }
+
+        // Invertir la velocidad horizontal
+        // Mantener la velocidad vertical
+        // Invertir la velocidad horizontal
+        return new Vec3(
+                xSpeed, // Invertir la velocidad horizontal
+                this.getDeltaMovement().y, // Mantener la velocidad vertical
+                zSpeed // Invertir la velocidad horizontal
+        );
     }
 }

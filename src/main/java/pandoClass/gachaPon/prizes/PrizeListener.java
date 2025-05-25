@@ -235,15 +235,13 @@ public class PrizeListener implements Listener {
         int stack = stacks.getOrDefault(uuid, 0);
 
         float baseSpeed = 0.2f;
-        float bonusSpeed = 0.02f * stack; // 0.2 -> 0.4 máx (más notable)
+        float bonusSpeed = 0.02f * stack;
         player.setWalkSpeed(baseSpeed + bonusSpeed);
 
-        // Acción en barra
         String bar = "\uD83D\uDCA8".repeat(stack);
         player.sendActionBar(Component.text("Viento acumulado: ")
                 .append(Component.text(bar).color(TextColor.color(0x00CFFF))));
 
-        // Efecto especial al llegar al máximo
         if (stack == 10) {
             player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, player.getLocation().add(0, 1, 0), 1);
         }
