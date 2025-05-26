@@ -5,6 +5,7 @@ import pandodungeons.PandoDungeons;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class RpgManager {
 
@@ -31,6 +32,23 @@ public class RpgManager {
 
         for(RPGPlayer rpgPlayer : players){
             if(rpgPlayer.getPlayerUUID().equals(player.getUniqueId())){
+                returned = rpgPlayer;
+            }
+        }
+
+        if(returned == null){
+            returned = new RPGPlayer(player,plugin);
+        }
+
+        return returned;
+    }
+
+    public RPGPlayer getPlayer(UUID player){
+
+        RPGPlayer returned = null;
+
+        for(RPGPlayer rpgPlayer : players){
+            if(rpgPlayer.getPlayerUUID().equals(player)){
                 returned = rpgPlayer;
             }
         }

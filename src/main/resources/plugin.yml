@@ -1,5 +1,5 @@
 name: PandoDungeons
-version: 9.8
+version: 1.1.27
 main: pandodungeons.PandoDungeons
 api-version: 1.21
 authors: [Alepando]
@@ -30,8 +30,12 @@ commands:
     description: Para ver las stats de clase
     usage: /<command>
 
-  bet:
+  apostar:
     description: Comando para apostar
+    usage: /<command>
+
+  gamblingadmin:
+    description: Comando para admins
     usage: /<command>
 
   encargo:
@@ -85,4 +89,7 @@ permissions:
     default: op
   mascota.nombres:
     description: Permiso para cambiar nombre de mascotas
+    default: op
+  gambling.admin:
+    description: Permiso para gambling
     default: op

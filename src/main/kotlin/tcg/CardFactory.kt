@@ -1,0 +1,4 @@
+package tcg
+
+class CardFactory {
+}

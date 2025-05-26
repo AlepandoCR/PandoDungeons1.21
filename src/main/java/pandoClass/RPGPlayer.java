@@ -22,6 +22,7 @@ import pandodungeons.PandoDungeons;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.math.MathContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -643,6 +644,7 @@ public class RPGPlayer {
 
     public void removeCoins(int toRemove){
         coins -= toRemove;
+        coins = Math.max(coins,0);
         save();
         update();
     }

@@ -8,11 +8,16 @@ import controlledEntities.modeled.pets.PetGachaCommand;
 import controlledEntities.modeled.pets.PetsListener;
 import controlledEntities.modeled.pets.PetsManager;
 import displays.DisplayManager;
+import gambling.commands.GambleCommand;
+import gambling.core.GamblingManager;
+import gambling.listener.HorseRaceInitListener;
+import gambling.services.PlayerBalanceManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,8 +33,6 @@ import pandoClass.files.RPGPlayerDataManager;
 import pandoClass.gachaPon.GachaCommand;
 import pandoClass.gachaPon.prizes.PrizeListener;
 import pandoClass.gachaPon.prizes.PrizeManager;
-import pandoClass.gambling.GambleCommand;
-import pandoClass.gambling.GamblingSession;
 import pandoClass.quests.MissionListener;
 import pandoClass.quests.MissionManager;
 import pandoClass.quests.QuestCommand;
@@ -48,7 +51,6 @@ import textures.TextureCommand;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.*;
 
 
@@ -75,8 +77,7 @@ public final class PandoDungeons extends JavaPlugin {
     public PetsManager petsManager;
     public RpgManager rpgManager;
     public DisplayManager displayManager;
-
-    public GamblingSession gamblingSession;
+    public GamblingManager gamblingManager;
 
     @Override
     public void onEnable() {
@@ -91,13 +92,15 @@ public final class PandoDungeons extends JavaPlugin {
         defaultRewardManager = new DefaultRewardManager(this);
         premiumRewardManager = new PremiumRewardManager(this);
         premiumRewardManager.InitRewards();
-        startGamble(this);
+        gamblingManager = new GamblingManager(this, PlayerBalanceManager.INSTANCE);
         removeAllGachaHolosOnStart(this);
         playerAndClassAssosiation = rpgPlayerDataManager.getRPGPlayerMap();
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
+
+
 
         // Create dungeons_struct folder if it doesn't exist
         File structFolder = new File(getDataFolder(), "dungeons_struct");
@@ -215,10 +218,11 @@ public final class PandoDungeons extends JavaPlugin {
         this.getCommand("redondel").setExecutor(new RedondelCommand(this));
         this.getCommand("party").setExecutor(new PartyCommand(this));
         this.getCommand("stats").setExecutor(new ClassCommand(this));
-        this.getCommand("bet").setExecutor(new GambleCommand(this));
         this.getCommand("encargo").setExecutor(new QuestCommand(this));
         this.getCommand("pagar").setExecutor(new PayCommand(this));
         this.getCommand("petoken").setExecutor(new PetGachaCommand(this));
+        this.getCommand("apostar").setExecutor(new GambleCommand(this, gamblingManager));
+        this.getCommand("gamblingadmin").setExecutor(new GambleCommand(this, gamblingManager));
     }
 
     private void registerListeners(PrizeListener prizeListener) {
@@ -233,27 +237,7 @@ public final class PandoDungeons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RPGListener(this), this);
         getServer().getPluginManager().registerEvents(new MissionListener(this),this);
         getServer().getPluginManager().registerEvents(new PetsListener(this),this);
-    }
-
-
-    private void startGamble(PandoDungeons plugin) {
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                World spawnWorld = Bukkit.getWorld("spawn");
-                if (spawnWorld == null) {
-                    getLogger().severe("El mundo 'spawn' no existe. No se puede iniciar la sesión de apuestas.");
-                    return;
-                }
-                Location start = new Location(spawnWorld, 43.5,73,276.5);
-                Location end = new Location(spawnWorld, 37.5,73,276.5);
-                try {
-                    gamblingSession = new GamblingSession(plugin, start,  end);
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }.runTaskLater(this,200);
+        getServer().getPluginManager().registerEvents(new HorseRaceInitListener(this),this);
     }
 
     @Override
@@ -263,9 +247,6 @@ public final class PandoDungeons extends JavaPlugin {
         removeOrbs();
         handleStands(PandoDungeons.this);
         removeAllGachaHolos();
-        if(this.gamblingSession != null){
-            gamblingSession.removeHorses();
-        }
         removePlayersFromDungeons();
         removeDungeons();
         petsManager.destroyAllPets();
@@ -284,6 +265,9 @@ public final class PandoDungeons extends JavaPlugin {
         }
     }
 
+    public GamblingManager getGamblingManager() {
+        return gamblingManager;
+    }
 
     private void handleStandsHere(){
         new BukkitRunnable(){
@@ -316,8 +300,6 @@ public final class PandoDungeons extends JavaPlugin {
         }
     }
 
-
-
     private void unlockRecipeForAllPlayers(Recipe recipe) {
         NamespacedKey key = ((ShapedRecipe) recipe).getKey();
 
@@ -329,7 +311,7 @@ public final class PandoDungeons extends JavaPlugin {
         // Evento para desbloquear la receta para jugadores que se unan posteriormente
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
-            public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent event) {
+            public void onPlayerJoin(PlayerJoinEvent event) {
                 event.getPlayer().discoverRecipe(key);
             }
         }, this);
@@ -380,7 +362,6 @@ public final class PandoDungeons extends JavaPlugin {
         runnable.runTaskTimer(this, 0L, 1L); // Ejecuta cada tick
     }
 
-
     // Método auxiliar para obtener una ubicación válida para iniciar la horda
     private Location getValidHordeSpawnLocation(Player player) {
         Location base = player.getLocation();
@@ -420,8 +401,6 @@ public final class PandoDungeons extends JavaPlugin {
         // Si no se encontró ninguna ubicación válida tras 100 intentos, devolvemos null
         return null;
     }
-
-
 
     public CommandManager getCommandManager() {
         return commandManager;

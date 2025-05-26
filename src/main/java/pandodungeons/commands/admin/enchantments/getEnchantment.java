@@ -32,7 +32,6 @@ import pandoClass.classes.mage.skills.orb.Orb;
 import pandoClass.gachaPon.prizes.epic.*;
 import pandoClass.gachaPon.prizes.legendary.*;
 import pandoClass.gachaPon.prizes.mithic.*;
-import pandoClass.gambling.GamblingSession;
 import pandodungeons.PandoDungeons;
 
 import java.net.MalformedURLException;
@@ -118,16 +117,6 @@ public class getEnchantment implements CommandExecutor {
         } else if(args[1].equalsIgnoreCase("change")){
             try {
                 createArmorStand(player.getLocation(), InitMenu.Reason.SHOP);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        } else if(args[1].equalsIgnoreCase("gamble")){
-            Location start = new Location(player.getWorld(), 43.5,73,276.5);
-            Location end = new Location(player.getWorld(), 37.5,73,276.5);
-            try {
-                GamblingSession session = new GamblingSession(plugin,start,end);
-                session.addBet(player,1, 100);
-                session.startRace();
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
