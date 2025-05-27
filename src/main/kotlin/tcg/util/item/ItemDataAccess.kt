@@ -8,6 +8,7 @@ object ItemDataAccess {
     fun <T, Z : Any> insertData(itemStack: ItemStack, namespacedKey: NamespacedKey, data: Z, persistentDataType: PersistentDataType<T, Z>){
         val meta = itemStack.itemMeta
         meta.persistentDataContainer.set(namespacedKey, persistentDataType, data)
+        itemStack.setItemMeta(meta)
     }
 
     fun getData(itemStack: ItemStack, namespacedKey: NamespacedKey): String?{

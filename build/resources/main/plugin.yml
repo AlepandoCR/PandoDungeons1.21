@@ -34,6 +34,10 @@ commands:
     description: Comando para apostar
     usage: /<command>
 
+  card:
+    description: Comando para apostar
+    usage: /<command>
+
   gamblingadmin:
     description: Comando para admins
     usage: /<command>

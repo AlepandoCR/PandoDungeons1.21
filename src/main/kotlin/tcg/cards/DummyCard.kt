@@ -1,7 +1,6 @@
 package tcg.cards
 
 import pandodungeons.PandoDungeons
-import tcg.CardRarity
 import tcg.cards.skills.DummySkill
 
 class DummyCard(

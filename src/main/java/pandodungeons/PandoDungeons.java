@@ -47,7 +47,13 @@ import pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.Utils.LocationUtils;
 import pandodungeons.Utils.StructureUtils;
 import pandodungeons.commands.game.PartyCommand;
+import tcg.cards.CardFactory;
+import tcg.cards.CardRarity;
+import tcg.cards.CardManager;
+import tcg.cards.CardReader;
 import tcg.cards.skills.SkillManager;
+import tcg.commands.CardCommand;
+import tcg.listeners.CardListener;
 import textures.TextureCommand;
 
 import java.io.File;
@@ -80,6 +86,10 @@ public final class PandoDungeons extends JavaPlugin {
     public DisplayManager displayManager;
     public SkillManager skillManager;
     public GamblingManager gamblingManager;
+    private CardFactory cardFactory;
+    private CardManager cardManager;
+    private CardReader cardReader;
+    private CardCommand cardCommand;
 
     @Override
     public void onEnable() {
@@ -95,9 +105,13 @@ public final class PandoDungeons extends JavaPlugin {
         premiumRewardManager = new PremiumRewardManager(this);
         premiumRewardManager.InitRewards();
         gamblingManager = new GamblingManager(this, PlayerBalanceManager.INSTANCE);
-        skillManager = SkillManager.INSTANCE;
+        skillManager = new SkillManager(this);
         removeAllGachaHolosOnStart(this);
         playerAndClassAssosiation = rpgPlayerDataManager.getRPGPlayerMap();
+        cardFactory = new CardFactory(this);
+        cardManager = new CardManager(this);
+        cardCommand = new CardCommand(this);
+        cardReader = new CardReader(this);
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
@@ -200,6 +214,18 @@ public final class PandoDungeons extends JavaPlugin {
         unlockRecipeForAllPlayers(getSoccerBallRecipe());
     }
 
+    public CardFactory getCardFactory() {
+        return cardFactory;
+    }
+
+    public CardReader getCardReader() {
+        return cardReader;
+    }
+
+    public CardManager getCardManager() {
+        return cardManager;
+    }
+
     private static void loadRecipes() {
         breezeCompanionCustomRecipe();
         armadilloCompanionCustomRecipe();
@@ -241,6 +267,7 @@ public final class PandoDungeons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MissionListener(this),this);
         getServer().getPluginManager().registerEvents(new PetsListener(this),this);
         getServer().getPluginManager().registerEvents(new HorseRaceInitListener(this),this);
+        getServer().getPluginManager().registerEvents(new CardListener(this), this);
     }
 
     @Override

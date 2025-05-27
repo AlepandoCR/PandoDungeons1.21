@@ -2,7 +2,6 @@ package tcg.cards
 
 import org.bukkit.inventory.ItemStack
 import pandodungeons.PandoDungeons
-import tcg.CardRarity
 import tcg.cards.skills.CardSkill
 
 class CardBuilder(
@@ -13,7 +12,7 @@ class CardBuilder(
     private var item: ItemStack? = null
     private var rarity: CardRarity = dummyCard.rarity
     private var skill: CardSkill = dummyCard.skill
-    private var id: String = "dummy"
+    private var id: String = dummyCard.id
 
 
     fun setItem(item: ItemStack){

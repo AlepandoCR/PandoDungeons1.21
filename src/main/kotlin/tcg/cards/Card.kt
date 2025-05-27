@@ -1,7 +1,6 @@
 package tcg.cards
 
 import org.bukkit.inventory.ItemStack
-import tcg.CardRarity
 import tcg.cards.skills.CardSkill
 
 class Card(
@@ -15,4 +14,8 @@ class Card(
         return item
     }
 
+}
+
+enum class CardRarity {
+    COMMON, RARE, EPIC, LEGENDARY, MYTHIC, DUMMY
 }

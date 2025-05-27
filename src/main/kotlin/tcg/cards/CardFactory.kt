@@ -1,13 +1,10 @@
-package tcg
+package tcg.cards
 
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.entity.Item
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import pandodungeons.PandoDungeons
-import tcg.cards.Card
-import tcg.cards.CardBuilder
 import tcg.cards.skills.CardSkill
 import tcg.cards.skills.SkillType
 import tcg.util.item.ItemDataAccess
@@ -19,10 +16,6 @@ class CardFactory(
     private val rarityNamespace  = NamespacedKey(plugin,"card_rarity")
     private val skillNamespace = NamespacedKey(plugin,"card_skill")
     private val idNamespace = NamespacedKey(plugin,"card_id")
-
-    fun isCard(itemStack: ItemStack): Boolean{
-        return itemStack.itemMeta.persistentDataContainer.has(tag)
-    }
 
     private fun tagCard(itemStack: ItemStack){
         ItemDataAccess.insertData(itemStack, tag , "2025", PersistentDataType.STRING)
@@ -40,13 +33,14 @@ class CardFactory(
         ItemDataAccess.insertData(itemStack, idNamespace, id, PersistentDataType.STRING)
     }
 
-    private fun build(skill: CardSkill, rarity: CardRarity, id: String): Card {
+    fun build(skill: CardSkill, rarity: CardRarity, id: String): Card {
         val item = createPhysical(id, skill, rarity)
 
         return CardBuilder(plugin).apply {
             setItem(item)
             setSkill(skill)
             setRarity(rarity)
+            setId(id)
         }.build()
     }
 
@@ -62,6 +56,9 @@ class CardFactory(
         putSkill(item, skill.getType())
 
         putRarity(item, rarity)
+
+        tagCard(item)
+
         return item
     }
 

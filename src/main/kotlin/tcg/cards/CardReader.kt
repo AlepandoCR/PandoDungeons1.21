@@ -4,7 +4,6 @@ import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import pandodungeons.PandoDungeons
-import tcg.CardRarity
 import tcg.cards.skills.CardSkill
 import tcg.cards.skills.SkillType
 
@@ -30,7 +29,7 @@ class CardReader(
         val rarity = runCatching { CardRarity.valueOf(rarityString) }.getOrNull() ?: return null
         val skillType = SkillType { skillString }
 
-        val aux = manager.getSkillFromType(skillType,plugin)
+        val aux = manager.getSkillFromType(skillType)
 
         val skill: CardSkill = aux ?: throw NullPointerException("Null Skill")
 
@@ -40,5 +39,20 @@ class CardReader(
             setRarity(rarity)
             setId(idString)
         }.build()
+    }
+
+    fun getCardFromManager(itemStack: ItemStack): Card?{
+        val meta = itemStack.itemMeta ?: return null
+        val container = meta.persistentDataContainer
+
+        if (!container.has(tag)) return null
+
+        val idString = container.get(idNamespace, PersistentDataType.STRING) ?: return null
+
+        return plugin.cardManager.getCard(idString)
+    }
+
+    fun isCard(itemStack: ItemStack): Boolean{
+        return itemStack.itemMeta.persistentDataContainer.has(tag)
     }
 }
