@@ -6,7 +6,13 @@ import tcg.cards.skills.CardSkill
 
 class Card(
     private val item: ItemStack,
-    private val rarity: CardRarity,
-    private val skill: CardSkill
-) {
+    rarity: CardRarity,
+    skill: CardSkill,
+    id: String
+): AbstractCard(rarity,skill,id) {
+
+    fun getItem(): ItemStack{
+        return item
+    }
+
 }

@@ -47,6 +47,7 @@ import pandodungeons.Game.PlayerStatsManager;
 import pandodungeons.Utils.LocationUtils;
 import pandodungeons.Utils.StructureUtils;
 import pandodungeons.commands.game.PartyCommand;
+import tcg.cards.skills.SkillManager;
 import textures.TextureCommand;
 
 import java.io.File;
@@ -77,6 +78,7 @@ public final class PandoDungeons extends JavaPlugin {
     public PetsManager petsManager;
     public RpgManager rpgManager;
     public DisplayManager displayManager;
+    public SkillManager skillManager;
     public GamblingManager gamblingManager;
 
     @Override
@@ -93,6 +95,7 @@ public final class PandoDungeons extends JavaPlugin {
         premiumRewardManager = new PremiumRewardManager(this);
         premiumRewardManager.InitRewards();
         gamblingManager = new GamblingManager(this, PlayerBalanceManager.INSTANCE);
+        skillManager = SkillManager.INSTANCE;
         removeAllGachaHolosOnStart(this);
         playerAndClassAssosiation = rpgPlayerDataManager.getRPGPlayerMap();
         // Create data folder if it doesn't exist
@@ -360,6 +363,10 @@ public final class PandoDungeons extends JavaPlugin {
         };
 
         runnable.runTaskTimer(this, 0L, 1L); // Ejecuta cada tick
+    }
+
+    public SkillManager getSkillManager() {
+        return skillManager;
     }
 
     // Método auxiliar para obtener una ubicación válida para iniciar la horda

@@ -1,5 +1,5 @@
 package tcg;
 
 public enum CardRarity {
-    COMUN,RARA,EPICA,LEGENDARIA,MITICIA
+    COMUN,RARA,EPICA,LEGENDARIA,MITICIA,DUMMY
 }
