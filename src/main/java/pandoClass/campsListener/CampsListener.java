@@ -12,6 +12,7 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.NotNull;
 import pandoClass.ExpandableClassMenu;
 import pandoClass.InitMenu;
@@ -114,7 +115,7 @@ public class CampsListener implements Listener {
     public void onProtalChange(EntityPortalEnterEvent event){
         if(event.getEntity() instanceof Player player){
             if(event.getPortalType().equals(PortalType.ENDER) && 30 > plugin.rpgManager.getPlayer(player).getLevel()){
-                if (player.hasPermission("pandodungeons.end")) return;
+                if (player.hasPermission("pandodungeons.end") || FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) return;
                 event.setCancelled(true);
             }
         }
@@ -123,7 +124,7 @@ public class CampsListener implements Listener {
     @EventHandler
     public void onTp(PlayerTeleportEvent event){
         if(event.getTo().getWorld().getName().equals("world_the_end") && 30 > plugin.rpgManager.getPlayer(event.getPlayer()).getLevel()){
-            if (event.getPlayer().hasPermission("pandodungeons.end")) return;
+            if (event.getPlayer().hasPermission("pandodungeons.end") || FloodgateApi.getInstance().isFloodgatePlayer(event.getPlayer().getUniqueId())) return;
             event.setCancelled(true);
         }
     }

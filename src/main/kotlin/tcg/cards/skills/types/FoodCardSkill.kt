@@ -1,11 +1,15 @@
 package tcg.cards.skills.types
 
 import pandodungeons.PandoDungeons
-import tcg.cards.skills.CardSkill
+import tcg.cards.engine.CardRarity
+import tcg.cards.skills.engine.CardSkill
+import tcg.util.text.Description
+import tcg.util.text.SkillDescription
 
 class FoodCardSkill(
-    plugin: PandoDungeons
-): CardSkill(plugin) {
+    plugin: PandoDungeons,
+    rarity: CardRarity
+): CardSkill(plugin,rarity) {
     override fun startCondition(): Boolean {
         return true
     }
@@ -22,5 +26,11 @@ class FoodCardSkill(
 
     override fun shouldWaitForCondition(): Boolean {
         return false
+    }
+
+    override fun setDescription(): Description {
+       val r = SkillDescription("Aumenta en 10 el nivel de tu comida", rarity)
+
+        return r
     }
 }

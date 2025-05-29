@@ -26,7 +26,7 @@ public class CoinsTopProvider {
             String name = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Jugador";
 
             Supplier<String> displayText = () -> "☃ " + ChatColor.GRAY + name + ChatColor.DARK_GRAY + " | " + ChatColor.GOLD + "Monedas: " + ChatColor.YELLOW + formatCoins(player.getCoins());
-            return new DisplayData(displayText, player.getPlayerUUID());
+            return new DisplayData(displayText, player.getPlayerUUID(),plugin);
         }).collect(Collectors.toList());
     }
 

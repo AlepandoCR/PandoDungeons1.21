@@ -29,7 +29,7 @@ public class RPGTopProvider {
                     // Crear supplier que devuelve el string a mostrar debajo de la cabeza
                     Supplier<String> textSupplier = () -> ChatColor.GRAY + player.getName() + " §f| §eNivel: §7" + rpgPlayer.getLevel();
 
-                    return new DisplayData(textSupplier, player.getUniqueId());
+                    return new DisplayData(textSupplier, player.getUniqueId(),plugin);
                 })
                 .collect(Collectors.toList());
     }

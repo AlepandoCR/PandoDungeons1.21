@@ -3,15 +3,18 @@ package displays;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
+import pandodungeons.PandoDungeons;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -21,10 +24,12 @@ public class DisplayData {
     private final UUID playerUUID;
     private ItemDisplay headDisplay;
     private TextDisplay textDisplay;
+    private final NamespacedKey TOP_DISPLAY_TAG;
 
-    public DisplayData(Supplier<String> dataSupplier, UUID playerUUID) {
+    public DisplayData(Supplier<String> dataSupplier, UUID playerUUID, PandoDungeons plugin) {
         this.dataSupplier = dataSupplier;
         this.playerUUID = playerUUID;
+        this.TOP_DISPLAY_TAG = new NamespacedKey(plugin, "top_display");
     }
 
     public void generateDisplays(@NotNull Location location, float scale, int positionIndex) {
@@ -37,11 +42,11 @@ public class DisplayData {
         // Generar ItemStack de cabeza
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
-        meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerUUID));
         skull.setItemMeta(meta);
 
         headDisplay = location.getWorld().spawn(headLoc, ItemDisplay.class, display -> {
             display.setItemStack(skull);
+            display.getPersistentDataContainer().set(TOP_DISPLAY_TAG, PersistentDataType.INTEGER, 1);
             display.setBillboard(Display.Billboard.CENTER);
             display.setTransformation(new Transformation(
                     new Vector3f(0, 0, 0), // offset de posición
@@ -66,6 +71,8 @@ public class DisplayData {
             display.setText(dataSupplier.get());
             display.setBillboard(Display.Billboard.CENTER);
             display.setShadowed(true);
+            display.getPersistentDataContainer().set(TOP_DISPLAY_TAG, PersistentDataType.INTEGER, 1);
+            display.getScoreboardTags().add("topDisplay");
             display.setTransformation(new Transformation(
                     new Vector3f(0, 0, 0),
                     new AxisAngle4f(0, 0, 0, 0),

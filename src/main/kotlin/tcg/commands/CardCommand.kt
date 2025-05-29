@@ -28,6 +28,8 @@ class CardCommand(
     override fun onCommand(p0: CommandSender, p1: Command, p2: String, p3: Array<out String>): Boolean {
         if(p0 is Player) {
 
+            if(!p0.isOp) return false
+
             val id = p3[p3.lastIndex]
 
             val inventory = p0.inventory
