@@ -1,24 +1,24 @@
 package tcg.cards.skills.types
 
-import org.bukkit.Bukkit
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitRunnable
 import pandodungeons.PandoDungeons
 import tcg.cards.engine.CardRarity
 import tcg.cards.skills.engine.CardSkill
 import tcg.util.display.HeadDisplayGenerator.spawnDisplayHead
 import tcg.util.text.Description
 import tcg.util.text.SkillDescription
-import kotlin.properties.Delegates
 
 class FireballCardSkill(
     plugin: PandoDungeons,
     rarity: CardRarity
 ) : CardSkill(plugin, rarity) {
 
-    private var taskId by Delegates.notNull<Int>()
 
     override fun startCondition(): Boolean = true
 
@@ -35,47 +35,61 @@ class FireballCardSkill(
 
         val velocity = player.location.direction.normalize().multiply(0.6)
         var ticksLived = 0
-        val maxTicks = 80L
+        val maxTicks = 40
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, Runnable {
-            if (!display.isValid) return@Runnable
-
-            val nextLocation = display.location.clone().add(velocity)
-
-            val blockAtNext = nextLocation.block
-            val blockHit = !blockAtNext.isPassable && !blockAtNext.type.isAir
-
-            display.teleport(nextLocation)
-
-            world.spawnParticle(Particle.FLAME, display.location, 2, 0.05, 0.05, 0.05, 0.01)
-            world.spawnParticle(Particle.SMOKE, display.location, 1, 0.05, 0.05, 0.05, 0.01)
-
-            ticksLived++
-
-            val hitEntities = world.getNearbyEntities(display.boundingBox.expand(0.7))
-                .filterIsInstance<LivingEntity>()
-                .filter { it != player }
-
-            if (hitEntities.isNotEmpty() || ticksLived >= maxTicks || blockHit) {
-                world.spawnParticle(Particle.EXPLOSION, display.location, 8, 0.3, 0.3, 0.3, 0.1)
-                world.playSound(display.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.2f)
-
-                hitEntities.forEach {
-                    it.fireTicks = 60
-                    it.damage(4.0, player)
+       object : BukkitRunnable(){
+            override fun run() {
+                if (!display.isValid) {
+                    this.cancel()
+                    return
                 }
 
-                for (itemDisplay in display.getNearbyEntities(3.0, 3.0, 3.0)
-                    .filterIsInstance<ItemDisplay>()
-                    .filter { it.scoreboardTags.contains("pando.display") }) {
-                    itemDisplay.remove()
+                if (ticksLived >= maxTicks) {
+                    display.remove()
+                    this.cancel()
+                    return
                 }
 
-                display.remove()
-                Bukkit.getScheduler().cancelTask(taskId)
+                val nextLocation = display.location.clone().add(velocity)
+                val blockHit = !nextLocation.block.isPassable && !nextLocation.block.type.isAir
+
+                checkHit(world, display, player, blockHit, this)
+
+                display.teleport(nextLocation)
+                world.spawnParticle(Particle.FLAME, display.location, 2, 0.05, 0.05, 0.05, 0.01)
+                world.spawnParticle(Particle.SMOKE, display.location, 1, 0.05, 0.05, 0.05, 0.01)
+
+                ticksLived++
             }
 
-        }, 0L, 1L)
+        }.runTaskTimer(plugin,0L,1L)
+
+    }
+
+
+    private fun checkHit(
+        world: World,
+        display: ItemDisplay,
+        player: Player,
+        blockHit: Boolean,
+        task: BukkitRunnable
+    ) {
+        val hitEntities = world.getNearbyEntities(display.boundingBox.expand(0.7))
+            .filterIsInstance<LivingEntity>()
+            .filter { it != player }
+
+        if (hitEntities.isNotEmpty() || blockHit) {
+            world.spawnParticle(Particle.EXPLOSION, display.location, 8, 0.3, 0.3, 0.3, 0.1)
+            world.playSound(display.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.2f)
+
+            hitEntities.forEach {
+                it.fireTicks = 60
+                it.damage(4.0, player)
+            }
+
+            display.remove()
+            task.cancel()
+        }
     }
 
     override fun setSkillType(): String = "fireballSkill"

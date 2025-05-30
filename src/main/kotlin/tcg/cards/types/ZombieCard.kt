@@ -11,14 +11,13 @@ object ZombieCard : CardInstance {
 
         val skill = FoodCardSkill(plugin, rarity)
 
-        plugin.skillManager.registerSkill(skill)
+        val factory = CardFactory(plugin)
 
-        val card = CardFactory(plugin).build(
+        factory.build(
             skill,
             rarity,
-            "zombie_card"
+            "zombie_card",
+            200
         )
-
-        plugin.cardManager.registerCard(card)
     }
 }

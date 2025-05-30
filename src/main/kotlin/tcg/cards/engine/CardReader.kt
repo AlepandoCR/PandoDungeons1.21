@@ -45,14 +45,14 @@ class CardReader(
         val meta = itemStack.itemMeta ?: return null
         val container = meta.persistentDataContainer
 
-        if (!container.has(tag)) return null
+        if (!isCard(itemStack)) return null
 
         val idString = container.get(idNamespace, PersistentDataType.STRING) ?: return null
 
         return plugin.cardManager.getCard(idString)
     }
 
-    fun isCard(itemStack: ItemStack): Boolean{
+    private fun isCard(itemStack: ItemStack): Boolean{
         return itemStack.itemMeta.persistentDataContainer.has(tag)
     }
 }

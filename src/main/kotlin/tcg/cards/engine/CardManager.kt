@@ -2,6 +2,7 @@ package tcg.cards.engine
 
 import pandodungeons.PandoDungeons
 import tcg.cards.types.BlazeCard
+import tcg.cards.types.GoatCard
 import tcg.cards.types.ZombieCard
 import tcg.util.task.TaskUtils
 
@@ -21,6 +22,7 @@ class CardManager(
     private fun registerCards(){
         ZombieCard.build(plugin)
         BlazeCard.build(plugin)
+        GoatCard.build(plugin)
     }
 
     fun registerCard(card: Card){

@@ -13,6 +13,7 @@ class CardBuilder(
     private var rarity: CardRarity = dummyCard.rarity
     private var skill: CardSkill = dummyCard.skill
     private var id: String = dummyCard.id
+    private var cooldown: Int = dummyCard.cooldown
 
 
     fun setItem(item: ItemStack){
@@ -31,6 +32,9 @@ class CardBuilder(
         this.id = id
     }
 
+    fun setCooldown(int: Int) {
+        this.cooldown = int
+    }
     fun build(): Card {
         item ?: throw NullPointerException("Item is null")
 
@@ -40,7 +44,8 @@ class CardBuilder(
             item!!,
             rarity,
             skill,
-            id
+            id,
+            cooldown
         )
 
         return r

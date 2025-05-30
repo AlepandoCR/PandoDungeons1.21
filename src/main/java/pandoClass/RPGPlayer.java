@@ -23,10 +23,7 @@ import pandodungeons.PandoDungeons;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.math.MathContext;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static pandoClass.RPGListener.magicShieldPlayers;
 import static pandoClass.classes.archer.skills.ArrowExplotionSkill.explosiveAmmo;
@@ -291,8 +288,12 @@ public class RPGPlayer {
         save();
         update();
 
-        getPlayer().sendMessage(ChatColor.GOLD + "Has intercambiado " + levelsToExchange + " niveles y orbes por " + totalCoins + " monedas.");
-        getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "Se han extraido los orbes de las habilidades por el intercambio");
+        var player = getPlayer();
+
+        if(player == null) return;
+
+        player.sendMessage(ChatColor.GOLD + "Has intercambiado " + levelsToExchange + " niveles y orbes por " + totalCoins + " monedas.");
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Se han extraido los orbes de las habilidades por el intercambio");
     }
 
     public void animateAndApplyLevelExchange(int amount){

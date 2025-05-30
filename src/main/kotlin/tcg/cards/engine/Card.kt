@@ -8,8 +8,9 @@ class Card(
     private val item: ItemStack,
     rarity: CardRarity,
     skill: CardSkill,
-    id: String
-): AbstractCard(rarity,skill,id) {
+    id: String,
+    cooldown: Int
+): AbstractCard(rarity,skill,id, cooldown) {
 
     fun getItem(): ItemStack{
         return item

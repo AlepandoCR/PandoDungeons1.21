@@ -36,15 +36,25 @@ class CardFactory(
         ItemDataAccess.insertData(itemStack, idNamespace, id, PersistentDataType.STRING)
     }
 
-    fun build(skill: CardSkill, rarity: CardRarity, id: String): Card {
+    fun build(skill: CardSkill, rarity: CardRarity, id: String, cooldown: Int): Card {
         val item = createPhysical(id, skill, rarity)
 
-        return CardBuilder(plugin).apply {
+        val card = CardBuilder(plugin).apply {
             setItem(item)
             setSkill(skill)
             setRarity(rarity)
             setId(id)
+            setCooldown(cooldown)
         }.build()
+
+        register(card)
+
+        return card
+    }
+
+    private fun register(card: Card) {
+        plugin.skillManager.registerSkill(card.skill)
+        plugin.cardManager.registerCard(card)
     }
 
     private fun createPhysical(

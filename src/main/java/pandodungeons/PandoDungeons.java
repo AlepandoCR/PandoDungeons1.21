@@ -55,6 +55,7 @@ import tcg.commands.CardCommand;
 import tcg.listeners.CardListener;
 import textures.TextureCommand;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -403,23 +404,20 @@ public final class PandoDungeons extends JavaPlugin {
         int attempts = 0;
 
         while (attempts < 10) {
-            // Generar un ángulo aleatorio y una distancia aleatoria entre 20 y 50 bloques
+
             double angle = random.nextDouble() * 2 * Math.PI;
             double distance = 40 + random.nextDouble() * 30;
             double offsetX = Math.cos(angle) * distance;
             double offsetZ = Math.sin(angle) * distance;
             Location candidate = base.clone().add(offsetX, 0, offsetZ);
 
-            // Ajustar la altura al bloque más alto en esa posición y añadir 1 para que no esté dentro del bloque
             candidate.setY(world.getHighestBlockYAt(candidate) + 1);
 
-            // Verificar que el chunk esté cargado
             if (!candidate.getChunk().isLoaded()) {
                 attempts++;
                 continue;
             }
 
-            // Comprobar que no haya ningún aldeano cerca (dentro de 20 bloques)
             boolean nearVillager = world.getNearbyEntities(candidate, 20, 20, 20)
                     .stream()
                     .anyMatch(e -> e instanceof Villager);
@@ -428,10 +426,8 @@ public final class PandoDungeons extends JavaPlugin {
                 continue;
             }
 
-            // Si se cumplen todas las condiciones, devolvemos la ubicación candidata
             return candidate;
         }
-        // Si no se encontró ninguna ubicación válida tras 100 intentos, devolvemos null
         return null;
     }
 
