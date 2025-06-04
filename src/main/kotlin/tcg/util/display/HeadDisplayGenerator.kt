@@ -15,11 +15,13 @@ import java.util.*
 
 object HeadDisplayGenerator {
 
-    fun spawnDisplayHead(textureUrl: String, location: Location): ItemDisplay{
+    fun spawnDisplayHead(textureUrl: String, location: Location, scale: Double = 1.0): ItemDisplay{
         val headDisplay: ItemDisplay?
 
         val skull = ItemStack(Material.PLAYER_HEAD)
         val meta = skull.itemMeta as SkullMeta
+
+        val scaleF = scale.toFloat()
 
         val profile = Bukkit.createProfile(UUID.randomUUID())
         val textures = profile.textures
@@ -40,7 +42,7 @@ object HeadDisplayGenerator {
             display.transformation = Transformation(
                 Vector3f(0f, 0f, 0f),
                 AxisAngle4f(Math.toRadians(180.0).toFloat(), 0f, 1f, 0f),
-                Vector3f(1f, 1f, 1f),  // escala
+                Vector3f(scaleF, scaleF, scaleF),
                 AxisAngle4f(0f, 0f, 0f, 0f)
             )
         }

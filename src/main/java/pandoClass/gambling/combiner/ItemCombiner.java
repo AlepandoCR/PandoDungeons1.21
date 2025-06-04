@@ -80,7 +80,7 @@ public class ItemCombiner {
     public boolean hasNoFusion(ItemStack item) {
         if (item == null || item.getType().isAir()) return false;
 
-        if(isMapachoBlade(item,plugin) || isGarabiThor(item) || isStormSword(item,plugin)|| isCustomCrossbow(item,plugin) || isReflectShield(item,plugin) || isJetPack(item,plugin)) return true;
+        if(isMapachoBlade(item,plugin) || isGarabiThor(item) || isReflectShield(item,plugin) || isJetPack(item,plugin)) return true;
 
         net.minecraft.world.item.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
@@ -94,14 +94,12 @@ public class ItemCombiner {
         RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         ItemStack[] contents = player.getInventory().getContents();
 
-        // Verificamos primero las monedas
         if (rpgPlayer.getCoins() < chargedCoins) {
             player.sendMessage("§c✖ No tienes suficientes ☃ §c.");
             player.sendMessage("§7Necesitas: §e" + chargedCoins + " ☃");
             return false;
         }
 
-        // Verificar si hay suficientes bloques de diamante SIN eliminarlos
         int totalDiamonds = 0;
         for (ItemStack item : contents) {
             if (item != null && item.getType() == Material.DIAMOND_BLOCK) {
@@ -115,7 +113,7 @@ public class ItemCombiner {
             return false;
         }
 
-        // Ahora sí, eliminar los diamantes necesarios
+
         int diamondsRemoved = 0;
         for (int i = 0; i < contents.length; i++) {
             ItemStack item = contents[i];
@@ -135,10 +133,8 @@ public class ItemCombiner {
             }
         }
 
-        // Quitar monedas
         rpgPlayer.removeCoins(chargedCoins);
 
-        // Confirmación
         player.sendMessage("§a✔ ¡Combinación exitosa!");
         player.sendMessage("§7Has usado §b" + diamonds + "§b⬛ Bloques de diamante§7 y §e" + chargedCoins + " ☃ §7.");
         return true;

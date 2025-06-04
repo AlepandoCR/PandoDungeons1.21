@@ -13,6 +13,7 @@ version = "1.0"
 
 repositories {
     mavenCentral()
+
     maven("https://maven.enginehub.org/repo/")
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.citizensnpcs.co/repo") {
@@ -25,7 +26,9 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
-    implementation("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.13.0")
+    implementation(platform("com.intellectualsites.bom:bom-newest:1.52"))
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") { isTransitive = false }
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.4.0-SNAPSHOT")
     compileOnly("io.github.toxicity188:BetterModel:1.6.0")
     compileOnly("org.geysermc.floodgate:api:2.2.3-SNAPSHOT")

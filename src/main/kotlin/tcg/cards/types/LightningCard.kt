@@ -3,22 +3,23 @@ package tcg.cards.types
 import pandodungeons.PandoDungeons
 import tcg.cards.engine.CardFactory
 import tcg.cards.engine.CardRarity
-import tcg.cards.skills.types.ChargeSkill
+import tcg.cards.skills.types.ChainLightningCardSkill
+import tcg.cards.skills.types.FireballCardSkill
 
-object GoatCard : CardInstance {
-
+object LightningCard : CardInstance {
     override fun build(plugin: PandoDungeons) {
-        val rarity = CardRarity.RARE
+        val rarity = CardRarity.EPIC
 
-        val skill = ChargeSkill(plugin, rarity)
+        val skill = ChainLightningCardSkill(plugin, rarity)
 
         val factory = CardFactory(plugin)
 
         factory.build(
             skill,
             rarity,
-            "goat_card",
-            80
+            "lightning_card",
+            30
+
         )
     }
 }
