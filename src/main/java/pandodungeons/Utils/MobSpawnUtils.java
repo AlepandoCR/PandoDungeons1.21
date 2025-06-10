@@ -6,28 +6,23 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import pandoClass.RPGPlayer;
+import pandoClass.util.EnemyTransformation;
 import pandodungeons.Game.Stats;
 import pandodungeons.PandoDungeons;
 
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class MobSpawnUtils {
 
-    private static final PandoDungeons plugin = JavaPlugin.getPlugin(PandoDungeons.class);
     private static final Random random = new Random();
 
-    public static void spawnMobs(Location location, Material blockType, World world) {
-        // Calls the new method with a null subclassKey for default behavior
-        spawnMobs(location, blockType, world, null);
-    }
 
-    public static void spawnMobs(Location location, Material blockType, World world, String subclassKey) {
+    public static void spawnMobs(Location location, Material blockType, World world, String subclassKey, PandoDungeons plugin) {
         int playerLvl = 0;
         String worldName = location.getWorld().getName().toLowerCase(Locale.ROOT);
 
@@ -70,16 +65,16 @@ public class MobSpawnUtils {
         // Default behavior if no subclassKey is provided or it's an unknown key
         if (subclassKey == null || subclassKey.isEmpty()) {
             switch (blockType) {
-                case IRON_BLOCK -> spawnZombies(location, numMobs, world);
-                case REDSTONE_BLOCK -> spawnSkeletons(location, numMobs, world);
-                case COAL_BLOCK -> spawnWitherSkeletons(location, numMobs, world);
-                case EMERALD_BLOCK -> spawnPillagersAndVindicators(location, numMobs, world);
-                case GOLD_BLOCK -> spawnHuzk(location, numMobs, world);
-                case DIAMOND_BLOCK -> spawnStray(location, numMobs, world);
-                case MAGENTA_GLAZED_TERRACOTTA -> spawnBlaze(location, numMobs, world);
-                case BLACK_GLAZED_TERRACOTTA -> spawnPiglinsAndBrutes(location, numMobs, world);
-                case GRAY_GLAZED_TERRACOTTA -> spawnSpider(location, numMobs, world);
-                case PURPLE_GLAZED_TERRACOTTA -> spawnBruja(location, numMobs, world);
+                case IRON_BLOCK -> spawnZombies(location, numMobs, world, plugin);
+                case REDSTONE_BLOCK -> spawnSkeletons(location, numMobs, world, plugin);
+                case COAL_BLOCK -> spawnWitherSkeletons(location, numMobs, world, plugin);
+                case EMERALD_BLOCK -> spawnPillagersAndVindicators(location, numMobs, world, plugin);
+                case GOLD_BLOCK -> spawnHuzk(location, numMobs, world, plugin);
+                case DIAMOND_BLOCK -> spawnStray(location, numMobs, world, plugin);
+                case MAGENTA_GLAZED_TERRACOTTA -> spawnBlaze(location, numMobs, world, plugin);
+                case BLACK_GLAZED_TERRACOTTA -> spawnPiglinsAndBrutes(location, numMobs, world, plugin);
+                case GRAY_GLAZED_TERRACOTTA -> spawnSpider(location, numMobs, world, plugin);
+                case PURPLE_GLAZED_TERRACOTTA -> spawnBruja(location, numMobs, world, plugin);
                 default -> {
                 }
             }
@@ -91,142 +86,142 @@ public class MobSpawnUtils {
             case "ArcherClass":
                 // Archer: Prefers ranged, avoids too many weak melee
                 if (blockType == Material.REDSTONE_BLOCK || blockType == Material.DIAMOND_BLOCK) { // Skeletons, Strays
-                    spawnSkeletons(location, numMobs + 1, world); // More skeletons/strays
+                    spawnSkeletons(location, numMobs + 1, world, plugin); // More skeletons/strays
                 } else if (blockType == Material.EMERALD_BLOCK) { // Pillagers/Vindicators
-                    spawnPillagersAndVindicators(location, numMobs, world);
+                    spawnPillagersAndVindicators(location, numMobs, world, plugin);
                 } else if (blockType == Material.IRON_BLOCK) { // Zombies
-                    spawnSkeletons(location, numMobs, world); // Change Zombies to Skeletons
+                    spawnSkeletons(location, numMobs, world, plugin); // Change Zombies to Skeletons
                 } else { // Default for other block types for Archer
-                    spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                    spawnMobsBasedOnBlock(location, blockType, world, numMobs, plugin);
                 }
                 break;
             case "TankClass":
                 // Tank: Prefers more melee, can handle groups
                 if (blockType == Material.IRON_BLOCK || blockType == Material.GOLD_BLOCK) { // Zombies, Husks
-                    spawnZombies(location, numMobs + 2, world); // More zombies/husks
+                    spawnZombies(location, numMobs + 2, world, plugin); // More zombies/husks
                 } else if (blockType == Material.COAL_BLOCK) { // Wither Skeletons
-                    spawnWitherSkeletons(location, numMobs, world);
+                    spawnWitherSkeletons(location, numMobs, world, plugin);
                 } else if (blockType == Material.REDSTONE_BLOCK) { // Skeletons
-                    spawnZombies(location, numMobs, world); // Change Skeletons to Zombies
+                    spawnZombies(location, numMobs, world, plugin); // Change Skeletons to Zombies
                 } else { // Default for other block types for Tank
-                    spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                    spawnMobsBasedOnBlock(location, blockType, world, numMobs, plugin);
                 }
                 break;
             case "AssassinClass":
                 // Assassin: Fewer but potentially more dangerous mobs, or mobs that fit stealth theme
                 if (blockType == Material.COAL_BLOCK) { // Wither Skeletons
-                    spawnWitherSkeletons(location, Math.max(1, numMobs -1), world); // Fewer, but still dangerous
+                    spawnWitherSkeletons(location, Math.max(1, numMobs -1), world, plugin); // Fewer, but still dangerous
                 } else if (blockType == Material.EMERALD_BLOCK) { // Pillagers/Vindicators
-                    spawnVindicators(location, numMobs, world); // Focus on Vindicators
+                    spawnVindicators(location, numMobs, world, plugin); // Focus on Vindicators
                 } else if (blockType == Material.GRAY_GLAZED_TERRACOTTA){ //Spiders
-                    spawnCaveSpiders(location, numMobs, world); // Cave spiders are more assassin-like
+                    spawnCaveSpiders(location, numMobs, world, plugin); // Cave spiders are more assassin-like
                 } else { // Default for other block types for Assassin
-                    spawnMobsBasedOnBlock(location, blockType, world, Math.max(1, numMobs - 1)); // Generally fewer mobs
+                    spawnMobsBasedOnBlock(location, blockType, world, Math.max(1, numMobs - 1), plugin); // Generally fewer mobs
                 }
                 break;
             case "MageClass":
                  // Mage: Prefers magic-using or elemental mobs
                 if (blockType == Material.MAGENTA_GLAZED_TERRACOTTA) { // Blaze
-                    spawnBlaze(location, numMobs + 1, world);
+                    spawnBlaze(location, numMobs + 1, world, plugin);
                 } else if (blockType == Material.PURPLE_GLAZED_TERRACOTTA) { // Witch
-                    spawnBruja(location, numMobs + 1, world);
+                    spawnBruja(location, numMobs + 1, world, plugin);
                 } else if (blockType == Material.DIAMOND_BLOCK) { // Stray (ice magic)
-                    spawnStray(location, numMobs, world);
+                    spawnStray(location, numMobs, world, plugin);
                 } else if (blockType == Material.REDSTONE_BLOCK && random.nextDouble() < 0.3) { // 30% chance for Skeletons to become Witches
-                    spawnBruja(location, numMobs, world);
+                    spawnBruja(location, numMobs, world, plugin);
                 }
                 else { // Default for other block types for Mage
-                    spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                    spawnMobsBasedOnBlock(location, blockType, world, numMobs, plugin);
                 }
                 break;
             // Add cases for FarmerClass, etc.
             default:
                 // Fallback to default logic if subclassKey is not recognized
-                spawnMobsBasedOnBlock(location, blockType, world, numMobs);
+                spawnMobsBasedOnBlock(location, blockType, world, numMobs, plugin);
                 break;
         }
     }
 
     // Helper method to avoid code duplication for default spawning logic
-    private static void spawnMobsBasedOnBlock(Location location, Material blockType, World world, int numMobs) {
+    private static void spawnMobsBasedOnBlock(Location location, Material blockType, World world, int numMobs, PandoDungeons plugin) {
         switch (blockType) {
-            case IRON_BLOCK -> spawnZombies(location, numMobs, world);
-            case REDSTONE_BLOCK -> spawnSkeletons(location, numMobs, world);
-            case COAL_BLOCK -> spawnWitherSkeletons(location, numMobs, world);
-            case EMERALD_BLOCK -> spawnPillagersAndVindicators(location, numMobs, world);
-            case GOLD_BLOCK -> spawnHuzk(location, numMobs, world);
-            case DIAMOND_BLOCK -> spawnStray(location, numMobs, world);
-            case MAGENTA_GLAZED_TERRACOTTA -> spawnBlaze(location, numMobs, world);
-            case BLACK_GLAZED_TERRACOTTA -> spawnPiglinsAndBrutes(location, numMobs, world);
-            case GRAY_GLAZED_TERRACOTTA -> spawnSpider(location, numMobs, world);
-            case PURPLE_GLAZED_TERRACOTTA -> spawnBruja(location, numMobs, world);
+            case IRON_BLOCK -> spawnZombies(location, numMobs, world, plugin);
+            case REDSTONE_BLOCK -> spawnSkeletons(location, numMobs, world, plugin);
+            case COAL_BLOCK -> spawnWitherSkeletons(location, numMobs, world, plugin);
+            case EMERALD_BLOCK -> spawnPillagersAndVindicators(location, numMobs, world, plugin);
+            case GOLD_BLOCK -> spawnHuzk(location, numMobs, world, plugin);
+            case DIAMOND_BLOCK -> spawnStray(location, numMobs, world, plugin);
+            case MAGENTA_GLAZED_TERRACOTTA -> spawnBlaze(location, numMobs, world, plugin);
+            case BLACK_GLAZED_TERRACOTTA -> spawnPiglinsAndBrutes(location, numMobs, world, plugin);
+            case GRAY_GLAZED_TERRACOTTA -> spawnSpider(location, numMobs, world, plugin);
+            case PURPLE_GLAZED_TERRACOTTA -> spawnBruja(location, numMobs, world, plugin);
             default -> {
             }
         }
     }
 
-    private static void spawnVindicators(Location location, int numMobs, World world) {
+    private static void spawnVindicators(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Vindicator vindicator = (Vindicator) world.spawnEntity(location, EntityType.VINDICATOR);
             vindicator.setPatrolLeader(false);
-            customizeMob(vindicator);
+            customizeMob(vindicator, plugin);
         }
     }
 
-    private static void spawnCaveSpiders(Location location, int numMobs, World world) {
+    private static void spawnCaveSpiders(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             CaveSpider spider = (CaveSpider) world.spawnEntity(location, EntityType.CAVE_SPIDER);
-            customizeMob(spider);
+            customizeMob(spider, plugin);
         }
     }
 
-    private static void spawnPiglinsAndBrutes(Location location, int numMobs, World world) {
+    private static void spawnPiglinsAndBrutes(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             if (random.nextBoolean()) {
                 Piglin piglin = (Piglin) world.spawnEntity(location, EntityType.PIGLIN);
                 piglin.setImmuneToZombification(true);
-                customizeMob(piglin);
+                customizeMob(piglin, plugin);
             } else {
                 PiglinBrute brute = (PiglinBrute) world.spawnEntity(location, EntityType.PIGLIN_BRUTE);
                 brute.setImmuneToZombification(true);
-                customizeMob(brute);
+                customizeMob(brute, plugin);
             }
         }
     }
-    private static void spawnBruja(Location location, int numMobs, World world) {
+    private static void spawnBruja(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Witch witch = (Witch) world.spawnEntity(location, EntityType.WITCH);
-            customizeMob(witch);
+            customizeMob(witch, plugin);
         }
     }
-    private static void spawnSpider(Location location, int numMobs, World world) {
+    private static void spawnSpider(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Spider spider = (Spider) world.spawnEntity(location, EntityType.SPIDER);
-            customizeMob(spider);
+            customizeMob(spider, plugin);
         }
     }
-    private static void spawnBlaze(Location location, int numMobs, World world) {
+    private static void spawnBlaze(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Blaze blaze = (Blaze) world.spawnEntity(location, EntityType.BLAZE);
-            customizeMob(blaze);
+            customizeMob(blaze, plugin);
         }
     }
-    private static void spawnStray(Location location, int numMobs, World world) {
+    private static void spawnStray(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Stray stray = (Stray) world.spawnEntity(location, EntityType.STRAY);
-            customizeMob(stray);
+            customizeMob(stray, plugin);
         }
     }
-    private static void spawnZombies(Location location, int numMobs, World world) {
+    private static void spawnZombies(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Zombie zombie = (Zombie) world.spawnEntity(location, EntityType.ZOMBIE);
-            customizeMob(zombie);
+            customizeMob(zombie, plugin);
         }
     }
-    private static void spawnHuzk(Location location, int numMobs, World world) {
+    private static void spawnHuzk(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Husk husk = (Husk) world.spawnEntity(location, EntityType.HUSK);
-            customizeMob(husk);
+            customizeMob(husk, plugin);
         }
     }
     public static boolean areHostileMobsCleared(Location location) {
@@ -283,40 +278,42 @@ public class MobSpawnUtils {
 
 
 
-    private static void spawnSkeletons(Location location, int numMobs, World world) {
+    private static void spawnSkeletons(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             Skeleton skeleton = (Skeleton) world.spawnEntity(location, EntityType.SKELETON);
-            customizeMob(skeleton);
+            customizeMob(skeleton, plugin);
         }
     }
 
-    private static void spawnWitherSkeletons(Location location, int numMobs, World world) {
+    private static void spawnWitherSkeletons(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             WitherSkeleton witherSkeleton = (WitherSkeleton) world.spawnEntity(location, EntityType.WITHER_SKELETON);
-            customizeMob(witherSkeleton);
+            customizeMob(witherSkeleton, plugin);
         }
     }
 
-    private static void spawnPillagersAndVindicators(Location location, int numMobs, World world) {
+    private static void spawnPillagersAndVindicators(Location location, int numMobs, World world, PandoDungeons plugin) {
         for (int i = 0; i < numMobs; i++) {
             if (random.nextBoolean()) {
                 Pillager pillager = (Pillager) world.spawnEntity(location, EntityType.PILLAGER);
                 pillager.setPatrolLeader(false);
-                customizeMob(pillager);
+                customizeMob(pillager, plugin);
             } else {
                 Vindicator vindicator = (Vindicator) world.spawnEntity(location, EntityType.VINDICATOR);
                 vindicator.setPatrolLeader(false);
-                customizeMob(vindicator);
+                customizeMob(vindicator, plugin);
             }
         }
     }
 
-    private static void customizeMob(LivingEntity mob) {
+    private static void customizeMob(LivingEntity mob, PandoDungeons plugin) {
         int playerLvl = 0;
         int playerPrestige = 0;
         Location location = mob.getLocation();
-        for(Player player : Bukkit.getOnlinePlayers()){
-            if(location.getWorld().getName().contains(player.getName().toLowerCase(Locale.ROOT))){
+        Player player = null;
+        for(Player player1 : Bukkit.getOnlinePlayers()){
+            if(location.getWorld().getName().contains(player1.getName().toLowerCase(Locale.ROOT))){
+                player = player1;
                 Stats playerStats = Stats.fromPlayer(player);
                 playerPrestige = playerStats.prestige();
                 playerLvl = playerStats.dungeonLevel();
@@ -351,7 +348,16 @@ public class MobSpawnUtils {
         mob.setPersistent(true);
         mob.setRemoveWhenFarAway(false);
         mob.setCanPickupItems(false);
+
+        if (player != null){
+            RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
+            int lvl = rpgPlayer.getLevel();
+            if(lvl > 50){
+                EnemyTransformation.transformDungeon(mob,plugin,lvl);
+            }
+        }
     }
+
 
     private static ItemStack generateArmorPiece(Material material, int qualityLevel) {
         ItemStack armorPiece = new ItemStack(material);

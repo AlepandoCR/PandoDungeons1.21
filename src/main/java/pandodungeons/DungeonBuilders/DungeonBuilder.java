@@ -59,8 +59,7 @@ public class DungeonBuilder {
             if (world == null || !isWorldLoaded(world)) return;
 
             PlayerStatsManager stats = PlayerStatsManager.getPlayerStatsManager(player);
-            int prestige = stats.getPrestige();
-            int numRooms = 7 + random.nextInt(4) + (prestige / 3);
+            int numRooms = 7 + random.nextInt(4);
             AtomicInteger roomIndex = new AtomicInteger(0);
 
             Runnable placeRoomTask = new Runnable() {
@@ -109,7 +108,7 @@ public class DungeonBuilder {
     }
 
     private Location findValidRoomLocation(Location base) {
-        int maxAttempts = 1000;
+        int maxAttempts = 500;
         for (int attempt = 0; attempt < maxAttempts; attempt++) {
             Location candidate = getRandomLocation(base);
 
@@ -198,13 +197,13 @@ public class DungeonBuilder {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 for (Location loc : mobSpawnLocations) {
                     // Pass the subclassKey to the overloaded spawnMobs method
-                    MobSpawnUtils.spawnMobs(loc, loc.getBlock().getType(), world, this.subclassKey);
+                    MobSpawnUtils.spawnMobs(loc, loc.getBlock().getType(), world, this.subclassKey, plugin);
                 }
             });
         });
     }
 
-    public static void spawnMobsLater(Location roomLocation, String subclassKey) {
+    public static void spawnMobsLater(Location roomLocation, String subclassKey, PandoDungeons plugin) {
         int radius = 50;
         World world = roomLocation.getWorld();
 
@@ -222,7 +221,7 @@ public class DungeonBuilder {
                     Block block = loc.getBlock();
                     if (isValidBlock(block)) {
                         // Pass the subclassKey to the overloaded spawnMobs method
-                        MobSpawnUtils.spawnMobs(loc, block.getType(), world, subclassKey);
+                        MobSpawnUtils.spawnMobs(loc, block.getType(), world, subclassKey, plugin);
                     }
                 }
             }

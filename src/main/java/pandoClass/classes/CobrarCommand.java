@@ -48,7 +48,7 @@ public class CobrarCommand implements CommandExecutor {
         }
 
         RPGPlayer rpgPlayer = new RPGPlayer(target.getUniqueId(), plugin);
-        int currentCoins = rpgPlayer.getCoins();
+        Long currentCoins = rpgPlayer.getCoins();
 
         if (currentCoins < amount) {
             sender.sendMessage(ChatColor.YELLOW + "El jugador tiene solo " + currentCoins + "⛃");

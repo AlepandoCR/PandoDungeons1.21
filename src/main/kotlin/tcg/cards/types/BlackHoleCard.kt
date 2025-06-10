@@ -3,22 +3,21 @@ package tcg.cards.types
 import pandodungeons.PandoDungeons
 import tcg.cards.engine.CardFactory
 import tcg.cards.engine.CardRarity
-import tcg.cards.skills.types.ChainLightningCardSkill
+import tcg.cards.skills.types.GravitonPullCardSkill
 
-
-object LightningCard : CardInstance {
+object BlackHoleCard : CardInstance {
     override fun build(plugin: PandoDungeons) {
-        val rarity = CardRarity.EPIC
+        val rarity = CardRarity.LEGENDARY
 
-        val skill = ChainLightningCardSkill(plugin, rarity)
+        val skill = GravitonPullCardSkill(plugin, rarity)
 
         val factory = CardFactory(plugin)
 
         factory.build(
             skill,
             rarity,
-            "lightning_card",
-            30
+            "black_hole",
+            120
 
         )
     }

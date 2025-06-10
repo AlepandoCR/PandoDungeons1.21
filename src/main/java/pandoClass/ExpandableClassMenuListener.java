@@ -85,7 +85,7 @@ public class ExpandableClassMenuListener implements Listener {
                 player.closeInventory();
             } else if (!currentKey.equalsIgnoreCase(classKey)){
                 if (rpgPlayer.getCoins() >= 500) {
-                    rpgPlayer.removeCoins(500);
+                    rpgPlayer.removeCoins(500L);
                     rpgPlayer.setClassKey(classKey);
                     player.openInventory(new ExpandableClassMenu(player,plugin).createExpandableClassMenu());
                 } else {

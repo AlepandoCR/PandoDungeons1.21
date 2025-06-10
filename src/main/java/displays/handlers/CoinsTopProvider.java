@@ -19,7 +19,7 @@ public class CoinsTopProvider {
         if (allPlayers == null || allPlayers.isEmpty()) return Collections.emptyList();
 
         // Ordenar por monedas (de mayor a menor)
-        allPlayers.sort(Comparator.comparingInt(RPGPlayer::getCoins).reversed());
+        allPlayers.sort(Comparator.comparingLong(RPGPlayer::getCoins).reversed());
 
         return allPlayers.stream().limit(topCount).map(player -> {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getPlayerUUID());
@@ -30,7 +30,7 @@ public class CoinsTopProvider {
         }).collect(Collectors.toList());
     }
 
-    private static String formatCoins(int coins) {
+    private static String formatCoins(Long coins) {
         if (coins >= 1_000_000_000) {
             return String.format("%.1fB", coins / 1_000_000_000.0);
         } else if (coins >= 1_000_000) {

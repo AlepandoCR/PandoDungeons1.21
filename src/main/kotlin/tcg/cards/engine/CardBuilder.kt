@@ -36,10 +36,6 @@ class CardBuilder(
         this.cooldown = int
     }
     fun build(): Card {
-        item ?: throw NullPointerException("Item is null")
-
-        // item can't be null
-
         val r = Card(
             item!!,
             rarity,

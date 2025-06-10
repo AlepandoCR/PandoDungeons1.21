@@ -371,7 +371,7 @@ public class RPGListener implements Listener {
                 player.closeInventory();
             } else if (!currentKey.equalsIgnoreCase(classKey)){
                 if (rpgPlayer.getCoins() >= 500) {
-                    rpgPlayer.removeCoins(500);
+                    rpgPlayer.removeCoins(500L);
                     rpgPlayer.setClassKey(classKey);
                     player.openInventory(plugin.initMenu.createClassSelectionMenu(player, InitMenu.Reason.SHOP));
                 } else {

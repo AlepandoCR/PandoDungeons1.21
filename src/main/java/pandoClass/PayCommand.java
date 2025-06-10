@@ -53,9 +53,9 @@ public class PayCommand implements CommandExecutor, TabCompleter {
         }
 
         // Manejo del monto
-        int amount;
+        long amount;
         try {
-            amount = Integer.parseInt(args[1]);
+            amount = Long.parseLong(args[1]);
         } catch (NumberFormatException e) {
             executingPlayer.sendMessage(ChatColor.RED + "Debes ingresar un número válido.");
             return true;

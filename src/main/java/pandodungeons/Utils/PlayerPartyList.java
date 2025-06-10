@@ -2,6 +2,7 @@ package pandodungeons.Utils;
 
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +102,7 @@ public class PlayerPartyList {
      * @param player El jugador a buscar.
      * @return La PlayerParty en la que el jugador es miembro, o null si no es miembro de ninguna.
      */
+    @Nullable
     public PlayerParty getPartyByMember(Player player) {
         if(player == null){
             return null;

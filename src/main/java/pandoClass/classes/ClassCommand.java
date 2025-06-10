@@ -53,7 +53,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
                 if(target != null){
                     RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(target);
                     try{
-                        int coinsToAdd = Integer.parseInt(args[2]);
+                        long coinsToAdd = Long.parseLong(args[2]);
                         rpgPlayer.addCoins(coinsToAdd);
                         return true;
                     }catch (NumberFormatException e){
@@ -102,7 +102,7 @@ public class ClassCommand implements CommandExecutor, TabCompleter {
             RPGPlayer rpgPlayer  = plugin.rpgManager.getPlayer(executingPlayer);
             if(rpgPlayer.getCoins() >= 500){
                 rpgPlayer.resetOrbs();
-                rpgPlayer.removeCoins(500);
+                rpgPlayer.removeCoins(500L);
                 executingPlayer.sendMessage(ChatColor.AQUA + "¡Has reiniciado tus orbes de mejora!");
             }else{
                 executingPlayer.sendMessage(ChatColor.RED + "No tienes monedas para resetear tus orbes de mejora (500 monedas)");

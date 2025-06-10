@@ -5,9 +5,9 @@ import pandodungeons.PandoDungeons
 import java.util.UUID
 
 interface PlayerBalanceService {
-    fun getBalance(player: Player, plugin: PandoDungeons): Int
+    fun getBalance(player: Player, plugin: PandoDungeons): Long
 
-    fun getBalance(playerId: UUID, plugin: PandoDungeons): Int
+    fun getBalance(playerId: UUID, plugin: PandoDungeons): Long
 
     fun addBalance(player: Player, amount: Int, plugin: PandoDungeons): Boolean
 

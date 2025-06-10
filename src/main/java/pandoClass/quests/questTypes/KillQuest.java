@@ -63,10 +63,10 @@ public class KillQuest extends Mission<EntityDeathEvent> {
     @Override
     public void rewardPlayer() {
         rpgPlayer = plugin.rpgManager.getPlayer(getPlayer());
-        int coins = calculateReward();
-        int exp = coins * 2;
+        long coins = calculateReward();
+        long exp = coins * 2;
         rpgPlayer.addCoins(coins);
-        rpgPlayer.addExp(exp);
+        rpgPlayer.addExp((int)exp);
 
         if (isFirstMissionOfInstance(getPlayer())) {
             getPlayer().sendMessage(ChatColor.GOLD + "§6¡Has completado tu primera misión del dia!");

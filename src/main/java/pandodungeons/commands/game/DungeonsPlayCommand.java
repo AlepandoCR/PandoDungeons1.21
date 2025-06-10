@@ -53,13 +53,13 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
     public DungeonsPlayCommand(PandoDungeons plugin, RpgManager rpgManager) {
         this.plugin = plugin;
         this.rpgManager = rpgManager;
-        Bukkit.getPluginManager().registerEvents(this, plugin); // Registrar este comando como listener
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-
+        isPartyDungeon = false;
 
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Este comando solo puede ser ejecutado por jugadores.");
@@ -70,7 +70,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
             return true;
         }
 
-        if(plugin.playerPartyList.isOwner(player) || plugin.playerPartyList.isMember(player)){
+        if(plugin.playerPartyList.getPartyByMember(player) != null){
             isPartyDungeon = true;
             playerParty = plugin.playerPartyList.getPartyByMember(player);
             if(plugin.playerPartyList.isMember(player) && !(plugin.playerPartyList.isOwner(player))){
@@ -120,12 +120,10 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                 player.sendMessage(ChatColor.LIGHT_PURPLE + "Como Mago, puedes personalizar tus habilidades con " + ChatColor.WHITE + "/mageskills.");
             }
             player.sendMessage(ChatColor.GOLD + "Escribe " + ChatColor.GREEN + "'confirmar'" + ChatColor.GOLD + " para usarla o " + ChatColor.YELLOW + "'cambiar'" + ChatColor.GOLD + " para seleccionar una nueva.");
-            return true;
         } else {
-            // If no subclass or wants to change, proceed to selection
             displaySubclassSelection(player);
-            return true;
         }
+        return true;
     }
 
     private void proceedWithDungeonCreation(Player player) {
@@ -142,9 +140,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
         RPGPlayer rpgPlayer = rpgManager.getPlayer(player);
         if (rpgPlayer != null) {
-            rpgPlayer.changeClass(subclassKey); // This also calls save() and update() in RPGPlayer
-            // Message about selection is now handled in onPlayerChat or if already confirmed.
-            // player.sendMessage(ChatColor.GREEN + "Has seleccionado la subclase: " + ChatColor.AQUA + subclassKey);
+            rpgPlayer.changeClass(subclassKey);
         } else {
             player.sendMessage(ChatColor.RED + "Error al obtener tus datos de jugador RPG.");
             return;
@@ -186,7 +182,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         // Selección aleatoria de un tema
         Random random = new Random();
         String theme = availableThemes.get(random.nextInt(availableThemes.size()));
-        player.sendMessage(ChatColor.DARK_GREEN.toString() + "Generando mundo..." + "\n" + ChatColor.RESET + ChatColor.GOLD + "Esto puede tardar hasta 1 minuto");
+        player.sendMessage(ChatColor.DARK_GREEN + "Generando mundo..." + "\n" + ChatColor.RESET + ChatColor.GOLD + "Esto puede tardar hasta 1 minuto");
 
         if(!player.isOnline()){
             removeDungeon(playerName, plugin);
@@ -355,7 +351,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                             }
                         };
                         lastWarn.runTaskLater(plugin, 20);
-                        // Buscar la ubicación del bloque de dried kelp dentro de la estructura de spawn
+
                         BukkitRunnable tpPlayer = new BukkitRunnable() {
                             @Override
                             public void run() {
@@ -371,7 +367,6 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                                     return;
                                 }
 
-                                // Colocar el Villager en el spawn
                                 Location spawnNetheriteBlockLocation = StructureUtils.findNetheriteBlock(dungeonSpawnLocation, 50);
                                 if (spawnNetheriteBlockLocation != null) {
                                     spawnVillager(dungeonWorld, spawnNetheriteBlockLocation);
@@ -380,7 +375,6 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
                                 }
                                 Location kelpBlockLocation = StructureUtils.findDriedKelpBlock(dungeonSpawnLocation, 60);
                                 if (kelpBlockLocation != null) {
-                                    // Guardar la ubicación inicial del jugador y la información de la dungeon
                                     String dungeonID = "dungeon_" + playerName;
                                     LocationUtils.savePlayerLocationData(playerName, player.getLocation(), dungeonID);
 
@@ -448,12 +442,12 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
         if (awaitingSubclassConfirmation.containsKey(playerUUID)) {
             event.setCancelled(true);
-            awaitingSubclassConfirmation.remove(playerUUID); // Consume the state
+            awaitingSubclassConfirmation.remove(playerUUID);
 
             if (message.equals("confirmar")) {
                 RPGPlayer rpgPlayer = rpgManager.getPlayer(player);
                 String confirmedSubclass = rpgPlayer.getClassKey();
-                if (rpgPlayer != null && confirmedSubclass != null && !confirmedSubclass.isEmpty()) {
+                if (confirmedSubclass != null && !confirmedSubclass.isEmpty()) {
                     playerSubclassChoices.put(playerUUID, confirmedSubclass);
                     player.sendMessage(ChatColor.GREEN + "Subclase " + ChatColor.AQUA + confirmedSubclass + ChatColor.GREEN + " confirmada.");
                     // proceedWithDungeonCreation will be called, which sets the subclass again, but it's fine.
@@ -512,7 +506,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
         villager.setCustomName(ChatColor.GREEN + "" + ChatColor.BOLD + "Click to start");
         villager.setCustomNameVisible(true);
         villager.addScoreboardTag("startPoint");
-        villager.setAdult(); // Configurar como adulto para evitar problemas con la invisibilidad
+        villager.setAdult();
         villager.setAI(false);
         villager.setInvulnerable(true);
     }

@@ -4,8 +4,6 @@ import pandodungeons.PandoDungeons
 import tcg.cards.engine.CardFactory
 import tcg.cards.engine.CardRarity
 import tcg.cards.skills.types.BoulderTossCardSkill
-import tcg.cards.skills.types.ChainLightningCardSkill
-import tcg.cards.skills.types.FireballCardSkill
 
 object BoulderCard : CardInstance {
     override fun build(plugin: PandoDungeons) {

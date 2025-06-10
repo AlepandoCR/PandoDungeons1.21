@@ -42,7 +42,7 @@ public class TopCoinsCommand implements CommandExecutor {
         }
 
         List<RPGPlayer> allPlayers = plugin.rpgPlayerDataManager.loadAllPlayers();
-        allPlayers.sort(Comparator.comparingInt(RPGPlayer::getCoins).reversed());
+        allPlayers.sort(Comparator.comparingLong(RPGPlayer::getCoins).reversed());
 
         int playersPerPage = 10;
         int totalPages = (int) Math.ceil((double) allPlayers.size() / playersPerPage);

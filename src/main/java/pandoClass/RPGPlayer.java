@@ -40,7 +40,7 @@ public class RPGPlayer {
     private int level;
     private int exp;
     private int campsDefeated;
-    private int coins;
+    private Long coins;
     private int orbs;
     private UUID player;
     private int firstSkilLvl;
@@ -134,7 +134,7 @@ public class RPGPlayer {
         this.level = 1;
         this.exp = 0;
         this.campsDefeated = 0;
-        this.coins = 0;
+        this.coins = 0L;
         this.firstSkilLvl = 1;
         this.secondSkilLvl = 1;
         this.thirdSkillLvl = 1;
@@ -184,7 +184,7 @@ public class RPGPlayer {
         update();
     }
 
-    public void addCoins(int toAdd){
+    public void addCoins(Long toAdd){
         coins += toAdd;
         save();
         update();
@@ -271,7 +271,7 @@ public class RPGPlayer {
 
         resetOrbs();
 
-        int totalCoins = 0;
+        long totalCoins = 0;
 
         // Calculamos el costo en monedas basado en la experiencia requerida para cada nivel intercambiado
         for (int i = 0; i < levelsToExchange; i++) {
@@ -643,7 +643,7 @@ public class RPGPlayer {
         save();
     }
 
-    public void removeCoins(int toRemove){
+    public void removeCoins(Long toRemove){
         coins -= toRemove;
         coins = Math.max(coins,0);
         save();
@@ -687,12 +687,12 @@ public class RPGPlayer {
         save();
     }
 
-    public int getCoins() {
+    public Long getCoins() {
 
         return coins;
     }
 
-    public void setCoins(int coins) {
+    public void setCoins(Long coins) {
 
         this.coins = coins;
         save();

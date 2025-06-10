@@ -23,6 +23,8 @@ class CardManager(
         GoatCard.build(plugin)
         LightningCard.build(plugin)
         BoulderCard.build(plugin)
+        CrystalBarrageCard.build(plugin)
+        BlackHoleCard.build(plugin)
     }
 
     fun registerCard(card: Card){

@@ -158,10 +158,10 @@ public class CampsListener implements Listener {
         double actualDamage = Math.min(damage, enemy.getHealth());
 
         if (coins > 0) {
-            int coinReward = (int) Math.min(actualDamage, coins);
+            long coinReward = (int) Math.min(actualDamage, coins);
             plugin.rpgManager.getPlayer(player).addCoins(coinReward);
 
-            data.set(coinsKey, PersistentDataType.INTEGER, coins - coinReward);
+            data.set(coinsKey, PersistentDataType.INTEGER, coins - (int) coinReward);
         }
 
         if (currentExp > 0) {

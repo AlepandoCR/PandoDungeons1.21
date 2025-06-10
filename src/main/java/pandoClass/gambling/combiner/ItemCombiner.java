@@ -74,7 +74,7 @@ public class ItemCombiner {
             return false;
         }
 
-        return chargeCost(player, 64, 250000);
+        return chargeCost(player, 64, 250000L);
     }
 
     public boolean hasNoFusion(ItemStack item) {
@@ -90,7 +90,7 @@ public class ItemCombiner {
     }
 
 
-    private boolean chargeCost(Player player, int diamonds, int chargedCoins) {
+    private boolean chargeCost(Player player, int diamonds, long chargedCoins) {
         RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
         ItemStack[] contents = player.getInventory().getContents();
 

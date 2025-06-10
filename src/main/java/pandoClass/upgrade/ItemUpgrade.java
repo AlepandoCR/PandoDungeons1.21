@@ -44,7 +44,6 @@ public class ItemUpgrade {
 
         boolean megaUpgrade = removeMegaUpgradeShard(player, 1);
 
-        // **Filtrar encantamientos que no pueden mejorar más**
         List<Enchantment> eligibleEnchantments = new ArrayList<>();
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             if (entry.getValue() < 8 && !megaUpgrade) { // Solo permitir mejoras si el nivel es menor a 8
@@ -54,7 +53,6 @@ public class ItemUpgrade {
             }
         }
 
-        // **Si no hay encantamientos elegibles, notificar al jugador**
         if (eligibleEnchantments.isEmpty()) {
             player.sendMessage(ChatColor.GOLD + "Este objeto ya ha alcanzado su nivel máximo de mejora.");
             return;
@@ -63,8 +61,7 @@ public class ItemUpgrade {
         PersistentDataContainer data = meta.getPersistentDataContainer();
         int upgradeCount = data.getOrDefault(upgradeKey, PersistentDataType.INTEGER, 0);
 
-        // **Calcular costo en monedas** (10,000 + extra basado en las mejoras previas)
-        int coinCost = 10000 + (upgradeCount * 10000);
+        long coinCost = 10000L + (upgradeCount * 10000L);
         RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
         if(!megaUpgrade){

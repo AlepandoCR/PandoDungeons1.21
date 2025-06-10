@@ -6,11 +6,11 @@ import java.util.*
 
 object PlayerBalanceManager : PlayerBalanceService {
 
-    override fun getBalance(player: Player, plugin: PandoDungeons): Int {
+    override fun getBalance(player: Player, plugin: PandoDungeons): Long {
         return plugin.rpgManager.getPlayer(player).coins
     }
 
-    override fun getBalance(playerId: UUID, plugin: PandoDungeons): Int {
+    override fun getBalance(playerId: UUID, plugin: PandoDungeons): Long {
         return plugin.rpgManager.getPlayer(playerId).coins
     }
 
