@@ -1,6 +1,8 @@
 package tcg.cards.skills.engine
 
 import org.bukkit.entity.Player
+import org.bukkit.event.HandlerList
+import org.bukkit.event.Listener
 import org.bukkit.scheduler.BukkitRunnable
 import pandodungeons.PandoDungeons
 import tcg.cards.engine.CardRarity
@@ -11,26 +13,40 @@ abstract class CardSkill(
     protected val plugin: PandoDungeons,
     protected val rarity: CardRarity
 ) {
-    private var maxWaitTime = 20L * 5L // 5sg
     private var skillType = initSkillType()
     private var dummyPlayer: Optional<Player> = Optional.empty()
     internal val description: Description by lazy { setDescription() }
+    private var listener: Optional<Listener> = Optional.empty()
 
-    fun trigger(initiator: Player)
-    {
-        val notNullPlayer: Player = initiator
-        dummyPlayer = Optional.of(notNullPlayer)
+    fun trigger(initiator: Player) {
+        dummyPlayer = Optional.of(initiator)
 
-        if(shouldWaitForCondition()) waitForCondition()
-
+        if (shouldWaitForCondition()) waitForCondition()
+        bootListener()
         executeIfCondition()
     }
 
-    fun trigger()
-    {
-        if(shouldWaitForCondition()) waitForCondition()
-
+    fun trigger() {
+        if (shouldWaitForCondition()) waitForCondition()
+        bootListener()
         executeIfCondition()
+    }
+
+    private fun bootListener() {
+        if (listener.isPresent) return
+
+        val instance = listener()
+        if (instance != null) {
+            listener = Optional.of(instance)
+            plugin.server.pluginManager.registerEvents(instance, plugin)
+
+            object : BukkitRunnable() {
+                override fun run() {
+                    HandlerList.unregisterAll(instance)
+                    listener = Optional.empty()
+                }
+            }.runTaskLater(plugin, listenerPeriod())
+        }
     }
 
     private fun executeIfCondition(): Boolean {
@@ -42,40 +58,31 @@ abstract class CardSkill(
     }
 
     protected abstract fun startCondition(): Boolean
-
     protected abstract fun task()
-
     protected abstract fun setSkillType(): String
-
     protected abstract fun shouldWaitForCondition(): Boolean
-
     protected abstract fun setDescription(): Description
 
-    fun getType(): SkillType {
-        return skillType
-    }
+    protected open fun listener(): Listener? = null
+    protected open fun listenerPeriod(): Long = 20L
+
+    protected open fun maxWaitTime(): Long = 20L * 5L
+
+    fun getType(): SkillType = skillType
 
     private fun waitForCondition() {
         object : BukkitRunnable() {
             override fun run() {
-                if (executeIfCondition()) {
-                    cancel()
-                    return
-                }
+                if (executeIfCondition()) cancel()
             }
-        }.runTaskTimer(plugin, 0L, maxWaitTime)
+        }.runTaskTimer(plugin, 0L, maxWaitTime())
     }
 
     private fun initSkillType(): SkillType {
-        val aux = SkillType { setSkillType() }
-        return aux
+        return SkillType { setSkillType() }
     }
 
-    protected fun getDummyPlayer(): Player{
-        return dummyPlayer.get()
-    }
+    protected fun getDummyPlayer(): Player = dummyPlayer.get()
 
-    fun hasPlayer():Boolean{
-        return dummyPlayer.isPresent
-    }
+    fun hasPlayer(): Boolean = dummyPlayer.isPresent
 }

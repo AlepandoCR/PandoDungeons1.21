@@ -106,7 +106,7 @@ public class CampsListener implements Listener {
         if (!(event.getEntity() instanceof Enemy enemy)) return;
 
         if (event.getDamager() instanceof Player player) {
-            double damage = event.getFinalDamage(); // Más preciso que getDamage()
+            double damage = event.getFinalDamage();
             handleEnemyDamage(enemy, damage, player);
         }
     }
@@ -254,56 +254,58 @@ public class CampsListener implements Listener {
 
 
 
+    private final Set<UUID> justDoubleJumped = new HashSet<>();
+
     @EventHandler
     public void doubleJump(PlayerInputEvent event) {
         Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
 
         RPGPlayer rpgPlayer = plugin.rpgManager.getPlayer(player);
 
-        // Verificar que el input sea de salto.
-        if (!event.getInput().isJump()) {
-            return;
-        }
-
-        if(!doubleJumping.contains(player)){
-            return;
-        }
-
-        // Si el jugador está en el suelo, reiniciamos el contador y no realizamos doble salto.
+        if (!event.getInput().isJump()) return;
+        if (!doubleJumping.contains(player)) return;
         if (isOnGround(player)) {
             doubleJumpCount.put(player, 0);
             return;
         }
 
-        // Si ya ha realizado el salto extra (doble salto) en el aire, no se permite otro.
         int jumps = doubleJumpCount.getOrDefault(player, 0);
-        if (jumps >= 1) {
-            return;
-        }
+        if (jumps >= 1) return;
 
-        // Permitir el doble salto y aumentar el contador.
         doubleJumpCount.put(player, jumps + 1);
-
-        // Dar un impulso vertical al jugador (simulando el doble salto).
         player.setVelocity(player.getVelocity().setY(0.7));
 
+        // MARCAR jugador como que hizo doble salto
+        justDoubleJumped.add(uuid);
 
+        Bukkit.getScheduler().runTaskLater(plugin, () -> justDoubleJumped.remove(uuid), 30L);
 
-        // Usar el nivel del jugador para determinar la fuerza del empuje a las entidades cercanas.
         int level = rpgPlayer.getSecondSkilLvl();
         double force = Math.min(0.1 * level, 1.0);
-
-        // Empujar las entidades cercanas lejos del jugador.
         for (Entity entity : player.getNearbyEntities(5, 3, 5)) {
             if (entity instanceof LivingEntity && entity != player) {
-                @NotNull Vector direction = entity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
+                Vector direction = entity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
                 entity.setVelocity(direction.multiply(force));
             }
         }
-
-        // Generar partículas de humo en la ubicación del jugador.
         player.getWorld().spawnParticle(Particle.WHITE_SMOKE, player.getLocation(), 20, 0.5, 0.5, 0.5, 0.0);
     }
+
+    @EventHandler
+    public void onFallDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+
+        Player player = (Player) event.getEntity();
+        UUID uuid = player.getUniqueId();
+
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL && justDoubleJumped.contains(uuid)) {
+            event.setCancelled(true);
+            justDoubleJumped.remove(uuid);
+        }
+    }
+
+
 
     private double calculateHpFromLvlAndApply(int lvl, LivingEntity entity){
         double baseHP = entity.getMaxHealth();

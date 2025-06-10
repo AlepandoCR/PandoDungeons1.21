@@ -40,7 +40,7 @@ public class DungeonsPlayCommand implements CommandExecutor, Listener {
 
     private final PandoDungeons plugin;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
-    private static final long COOLDOWN_TIME = 180000 * 2; // 6 minutos en milisegundos
+    private static final long COOLDOWN_TIME = 90000; // 1.5 minutos en milisegundos
     private static final long GLOBAL_COOLDOWN_TIME = 5000; // 50 segundos en milisegundos
     private static long lastCommandExecutionTime = 0;
     private boolean playerDced = false;

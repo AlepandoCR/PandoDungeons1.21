@@ -15,6 +15,7 @@ class CardReader(
     private val skillNamespace = NamespacedKey(plugin, "card_skill")
     private val idNamespace = NamespacedKey(plugin, "card_id")
 
+    @Deprecated("not safe")
     fun getCardFromItem(itemStack: ItemStack): Card? {
         val manager = plugin.skillManager
         val meta = itemStack.itemMeta ?: return null
@@ -41,7 +42,7 @@ class CardReader(
         }.build()
     }
 
-    fun getCardFromManager(itemStack: ItemStack): Card?{
+    fun getCardFromManager(itemStack: ItemStack): Card? {
         val meta = itemStack.itemMeta ?: return null
         val container = meta.persistentDataContainer
 

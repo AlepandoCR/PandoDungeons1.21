@@ -1,6 +1,9 @@
 package tcg.cards.skills.types
 
 import net.kyori.adventure.text.format.TextColor
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerMoveEvent
 import pandodungeons.PandoDungeons
 import tcg.cards.engine.CardRarity
 import tcg.cards.skills.engine.CardSkill
@@ -35,5 +38,21 @@ class DummySkill(
         }
 
         return r
+    }
+
+    override fun listener(): Listener {
+        return object : Listener {
+            @EventHandler
+            fun dummyListener(event: PlayerMoveEvent){
+                val player = getDummyPlayer()
+                if(event.player == player){
+                    player.sendMessage("Dummy Test")
+                }
+            }
+        }
+    }
+
+    override fun listenerPeriod(): Long {
+        return 40L
     }
 }

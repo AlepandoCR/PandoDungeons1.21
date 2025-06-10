@@ -1,9 +1,6 @@
 package displays;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
@@ -44,7 +41,11 @@ public class DisplayData {
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
         skull.setItemMeta(meta);
 
-        headDisplay = location.getWorld().spawn(headLoc, ItemDisplay.class, display -> {
+        World world = location.getWorld();
+
+        if(world == null) return;
+
+        headDisplay = world.spawn(headLoc, ItemDisplay.class, display -> {
             display.setItemStack(skull);
             display.getPersistentDataContainer().set(TOP_DISPLAY_TAG, PersistentDataType.INTEGER, 1);
             display.setBillboard(Display.Billboard.CENTER);
