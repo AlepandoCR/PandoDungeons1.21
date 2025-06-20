@@ -18,6 +18,7 @@ abstract class CardSkill(
     internal val description: Description by lazy { setDescription() }
     private var listener: Optional<Listener> = Optional.empty()
 
+
     fun trigger(initiator: Player) {
         dummyPlayer = Optional.of(initiator)
 

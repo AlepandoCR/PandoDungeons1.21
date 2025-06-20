@@ -27,7 +27,7 @@ public class CompanionPufferfish extends Companion {
     }
 
     private void editPufferfish(Player player) {
-        double health = 7 * level;
+        double health = 20 * level;
         if (health > 2048D) {
             health = 2048D;
         }

@@ -97,3 +97,6 @@ permissions:
   gambling.admin:
     description: Permiso para gambling
     default: op
+  tcg.give:
+    description: Permiso para sacar cartas
+    default: op

@@ -25,14 +25,14 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.6-R0.1-SNAPSHOT")
     implementation(platform("com.intellectualsites.bom:bom-newest:1.52"))
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") { isTransitive = false }
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.4.0-SNAPSHOT")
-    compileOnly("io.github.toxicity188:BetterModel:1.6.0")
-    compileOnly("org.geysermc.floodgate:api:2.2.3-SNAPSHOT")
-    compileOnly("org.geysermc.geyser:api:2.4.2-SNAPSHOT")
+    compileOnly("io.github.toxicity188:BetterModel:1.6.1")
+    compileOnly("org.geysermc.floodgate:api:2.2.4-SNAPSHOT")
+    compileOnly("org.geysermc.geyser:api:2.7.0-SNAPSHOT")
     compileOnly("net.citizensnpcs:citizensapi:2.0.35-SNAPSHOT")
     implementation(kotlin("stdlib"))
 
@@ -52,6 +52,6 @@ tasks {
         dependsOn(shadowJar)
     }
     runServer {
-        minecraftVersion("1.21.5")
+        minecraftVersion("1.21.6")
     }
 }

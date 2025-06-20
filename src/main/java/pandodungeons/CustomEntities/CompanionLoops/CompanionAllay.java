@@ -26,7 +26,7 @@ public class CompanionAllay extends Companion {
     }
 
     private void editAllay(Player player) {
-        double health = 5 * level;
+        double health = 20 * level;
         if(health > 2048D){
             health = 2048D;
         }

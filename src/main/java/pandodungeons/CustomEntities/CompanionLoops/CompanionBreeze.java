@@ -34,7 +34,7 @@ public class CompanionBreeze extends Companion {
     }
 
     private void editBreeze(Player player) {
-        double health = 5 * level;
+        double health = 30 * level;
         if(health > 2048D){
             health = 2048D;
         }

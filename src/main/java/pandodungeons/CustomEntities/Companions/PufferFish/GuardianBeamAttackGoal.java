@@ -53,7 +53,7 @@ public class GuardianBeamAttackGoal extends Goal {
     public void start() {
         if (this.target != null && this.target.isAlive() && this.target != this.pufferfish.getTarget()) {
             plugin.getLogger().info("Setting target: " + this.target);
-            this.pufferfish.setTarget(this.target, EntityTargetEvent.TargetReason.CUSTOM,true);
+            this.pufferfish.setTarget(this.target, EntityTargetEvent.TargetReason.CUSTOM);
             freezePufferfish(); // Congelar al Pufferfish en su posición
         } else {
             plugin.getLogger().info("Target is invalid, resetting.");

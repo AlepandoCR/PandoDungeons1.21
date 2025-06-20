@@ -52,13 +52,14 @@ class CardListener(plugin: PandoDungeons): Listener {
         val playerCooldowns = cooldowns[uuid] ?: return
         val cooldownEnd = playerCooldowns[item] ?: return
 
-        if (cooldownEnd <= now) return
-
-        val remaining = cooldownEnd - now
-        val ticks = (remaining / 50L).toInt()
-
-        if (ticks > 0) {
-            player.setCooldown(item.type, ticks)
+        if (cooldownEnd > now) {
+            val remaining = cooldownEnd - now
+            val ticks = (remaining / 50L).toInt()
+            if (ticks > 0) {
+                player.setCooldown(item.type, ticks)
+            }
+        } else {
+            player.setCooldown(item.type, 0)
         }
     }
 }

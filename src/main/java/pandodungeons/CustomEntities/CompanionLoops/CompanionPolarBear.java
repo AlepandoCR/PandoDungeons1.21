@@ -27,7 +27,7 @@ public class CompanionPolarBear extends Companion {
     }
 
     private void editPolarBear(Player player) {
-        double health = 10 * level;
+        double health = 50 * level;
         if(health > 2048D){
             health = 2048D;
         }
