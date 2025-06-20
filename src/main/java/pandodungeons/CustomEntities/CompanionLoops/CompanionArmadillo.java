@@ -36,7 +36,7 @@ public class CompanionArmadillo extends Companion {
     }
 
     private void editArmadillo(Player player) {
-        double health = 10 * level;
+        double health = 40 * level;
         if(health > 2048D){
             health = 2048D;
         }

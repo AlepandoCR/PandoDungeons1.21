@@ -6,6 +6,7 @@ import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.entity.LivingEntity
 import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.util.Vector
 import pandodungeons.PandoDungeons
 import tcg.cards.engine.CardRarity
 import tcg.cards.skills.engine.CardSkill
@@ -110,13 +111,23 @@ class BoulderTossCardSkill(
                 val distance = entity.location.distance(loc)
 
                 val strength = (1.0 - (distance / shockwaveRadius)).coerceAtLeast(0.2)
-                entity.velocity = direction.multiply(strength * 0.8).setY(0.4 + strength * 0.5)
+                if (direction.isFinite() && strength.isFinite()) {
+                    val velocity = direction.multiply(strength * 0.8).setY(0.4 + strength * 0.5)
+                    if (velocity.isFinite()) {
+                        entity.velocity = velocity
+                    }
+                }
+
 
                 if (distance <= damageRadius) {
                     entity.damage(4.0, caster)
                 }
             }
         }
+    }
+
+    private fun Vector.isFinite(): Boolean {
+        return x.isFinite() && y.isFinite() && z.isFinite()
     }
 
 

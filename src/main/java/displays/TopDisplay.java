@@ -2,6 +2,7 @@ package displays;
 
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -98,7 +99,9 @@ public class TopDisplay {
     }
 
     private void removeAllTaggedDisplays() {
-        baseLocation.getWorld().getEntities().stream()
+        World world = baseLocation.getWorld();
+        if(world == null)return;
+        world.getEntities().stream()
                 .filter(entity -> entity.getPersistentDataContainer().has(TOP_DISPLAY_TAG, PersistentDataType.INTEGER))
                 .forEach(Entity::remove);
     }

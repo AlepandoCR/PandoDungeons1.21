@@ -45,7 +45,7 @@ public class FireballAttackGoal extends Goal {
     public void start() {
         if (this.target != null) {
             try {
-                this.sniffer.setTarget(this.target, EntityTargetEvent.TargetReason.CUSTOM, true);
+                this.sniffer.setTarget(this.target, EntityTargetEvent.TargetReason.CUSTOM);
             } catch (Exception e) {
                 e.printStackTrace();
             }
